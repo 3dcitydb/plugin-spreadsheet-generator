@@ -1,0 +1,716 @@
+/*
+ * This file is part of the Spreadsheet Generator Plugin
+ * developed for the 3D City Database Importer/Exporter v1.4.0
+ * Copyright (c) 2012
+ * Institute for Geodesy and Geoinformation Science
+ * Technische Universitaet Berlin, Germany
+ * http://www.gis.tu-berlin.de/
+ * 
+ * The Spreadsheet Generator Plugin program is free software:
+ * you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program. If not, see 
+ * <http://www.gnu.org/licenses/>.
+ */
+package de.tub.citydb.plugins.spreadsheet_gen.gui.view.components;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.HashMap;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import de.tub.citydb.api.database.BalloonTemplateHandler;
+import de.tub.citydb.api.controller.ViewController;
+import de.tub.citydb.api.registry.ObjectRegistry;
+import de.tub.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
+import de.tub.citydb.plugins.spreadsheet_gen.database.Translator;
+import de.tub.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
+import de.tub.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
+import de.tub.citydb.plugins.spreadsheet_gen.util.Util;
+
+@SuppressWarnings("serial")
+public class NewCSVColumnDialog extends JDialog {
+
+	protected static final int BORDER_THICKNESS = 5;
+	protected static final int MAX_TEXTFIELD_HEIGHT = 20;
+	protected static final int MAX_LABEL_WIDTH = 60;
+	private static final int PREFERRED_WIDTH = 50;
+	private static final int PREFERRED_HEIGHT = 50;
+	public static final String EOL="[EOL]";
+	
+	private final ViewController viewController;
+	
+	private JTextField titleText;
+	private JTextArea commentText;
+	private JTextPane content;
+	private JButton addFieldButton, insertButton, cancelButton, functionButton,eolButton;
+	private JTree tree;
+	private CSVColumns newCSVColumn;
+
+
+	private StyledDocument document;
+	private static Style labelStyle,defaultStyle,EOLStyle;
+	private int caretPositionDot;
+	private int caretPositionMark;
+	
+	private boolean isEditMode = false;
+
+	private JPopupMenu popup;
+	private Set<String> aggregations;
+	private HashMap<String, Set<String>> _3dcitydbcontent;
+	final SPSHGPanel panel;
+
+	// Highlight
+	final Highlighter hilit;
+	final Highlighter.HighlightPainter painter;
+	private Color highlightColor= Color.lightGray;
+	
+	// 
+	private String oldTreeSelectedPaths=null;
+	public NewCSVColumnDialog(JFrame frame, SPSHGPanel panel) {
+		
+		super(frame, Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
+		hilit = new DefaultHighlighter();
+		painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor);
+
+		viewController = ObjectRegistry.getInstance().getViewController();
+		this.panel = panel;
+		newCSVColumn = new CSVColumns();
+		isEditMode = false;
+		init();
+	}
+
+	public NewCSVColumnDialog(JFrame frame, SPSHGPanel panel, CSVColumns ncsvc) {
+		super(frame, Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
+		hilit = new DefaultHighlighter();
+		painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor);
+		
+		viewController = ObjectRegistry.getInstance().getViewController();
+		this.panel = panel;
+		newCSVColumn = ncsvc;
+		isEditMode = true;
+		init();
+	}
+
+	private void init() {
+		BalloonTemplateHandler dummy = new BalloonTemplateHandlerImpl("", null);
+		aggregations = dummy.getSupportedAggregationFunctions();
+		_3dcitydbcontent = dummy.getSupportedTablesAndColumns();
+		
+		this.setSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+		Box mainPanel = Box.createVerticalBox();
+
+		JLabel titleLabel = new JLabel(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.title"));
+		JPanel titlePanel = new JPanel(new BorderLayout());
+		titlePanel.add(titleLabel, BorderLayout.WEST);
+
+		titleText = new JTextField(newCSVColumn.title);
+
+		JPanel centralcontentPanel = new JPanel();
+		centralcontentPanel.setLayout(new GridBagLayout());
+
+		Box rigthHandBox = Box.createVerticalBox();
+
+		// right box
+		JLabel contentLabel = new JLabel(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.content"));
+		JPanel contentLabelPanel = new JPanel(new BorderLayout());
+		contentLabelPanel.add(contentLabel, BorderLayout.WEST);
+
+		document= newCSVColumn.document;
+		getDefaultStyle();
+		getLabelStyle();
+		getEOLStyle();		
+		
+		content = new JTextPane(document);		
+		
+		content.setSize(PREFERRED_WIDTH * 3 / 7, 300);
+		content.setPreferredSize(new Dimension(150, 250));
+		content.setBorder(BorderFactory.createLineBorder(Color.black));
+		content.setEditable(true);
+		caretPositionDot = caretPositionMark = 0;
+		content.setCaretPosition(caretPositionDot);
+		content.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		content.setForeground(Color.blue);
+		content.getCaret().setSelectionVisible(true);
+		content.setHighlighter(hilit);
+		
+		JScrollPane jspContent = new JScrollPane(content);
+
+		// right box
+		JLabel availableFiledsLabel = new JLabel(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.avilablefromdb"));
+		JPanel availableFiledPanel = new JPanel(new BorderLayout());
+		availableFiledPanel.add(availableFiledsLabel, BorderLayout.WEST);
+		tree = generateTree();
+		tree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
+		JScrollPane treescrollPane = new JScrollPane(tree);
+
+		jspContent.setPreferredSize(treescrollPane.getPreferredSize());
+		treescrollPane.setPreferredSize(jspContent.getPreferredSize());
+		jspContent.setMinimumSize(treescrollPane.getPreferredSize());
+		treescrollPane.setMinimumSize(jspContent.getPreferredSize());
+		
+		
+		rigthHandBox.add(contentLabelPanel);
+		rigthHandBox
+				.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		rigthHandBox.add(jspContent);
+
+
+		JPanel centralBox = new JPanel();
+		centralBox.setLayout(new GridLayout(0, 1));
+		addFieldButton = new JButton(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.addbutton"));
+		functionButton = new JButton(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.funcaddbutton"));
+		eolButton = new JButton(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.eolbutton"));
+		
+		eolButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.eol"));
+		functionButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.funcaddbutton"));
+		addFieldButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.addbutton"));
+		
+		centralBox.add(addFieldButton);
+		centralBox.add(functionButton);
+		centralBox.add(eolButton);
+
+		Box leftHandBox = Box.createVerticalBox();
+
+		leftHandBox.add(availableFiledPanel);
+		leftHandBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		leftHandBox.add(treescrollPane);
+		// JPanel treePanel = new JPanel();
+
+		GridBagConstraints gbc = Util.setConstraints(0, 0, 0.0, 0.0,
+				GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS,
+				BORDER_THICKNESS, BORDER_THICKNESS);
+		gbc.gridwidth = 3;
+		centralcontentPanel.add(leftHandBox, gbc);
+
+		centralcontentPanel.add(centralBox, Util.setConstraints(3, 0, 0.0, 0.0,
+				GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS,
+				BORDER_THICKNESS, BORDER_THICKNESS));
+
+		gbc = Util.setConstraints(4, 0, 0.0, 0.0, GridBagConstraints.NONE,
+				BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS,
+				BORDER_THICKNESS);
+		gbc.gridwidth = 3;
+		
+		centralcontentPanel.add(rigthHandBox, gbc);
+
+		JLabel commentLabel = new JLabel(
+				Util.I18N.getString("spshg.dialog.addnewcolumn.comment"));
+		JPanel commentLabellPanel = new JPanel(new BorderLayout());
+		commentLabellPanel.add(commentLabel, BorderLayout.WEST);
+
+		commentText = new JTextArea(3, 10);
+		commentText.setLineWrap(true);
+		commentText.setText(newCSVColumn.comment);
+		JScrollPane commentscroll = new JScrollPane(commentText);
+
+		JPanel southPanel = new JPanel(new BorderLayout());
+		Box southPanelBox= Box.createHorizontalBox();
+		southPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		if (isEditMode)
+			insertButton = new JButton(
+					Util.I18N.getString("spshg.dialog.addnewcolumn.edit"));
+		else
+			insertButton = new JButton(
+					Util.I18N.getString("spshg.dialog.addnewcolumn.insert"));
+		cancelButton = new JButton(Util.I18N.getString("common.button.cancel"));
+		southPanelBox.add(insertButton);
+		southPanelBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS,0 )));
+		southPanelBox.add(cancelButton);
+		southPanel.add(southPanelBox,BorderLayout.EAST);
+
+		// mainPanel.add(southPanel,
+		// Util.setConstraints(0,6,0.0,0.0,GridBagConstraints.NONE,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS));
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(titlePanel);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(titleText);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(centralcontentPanel);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(commentLabellPanel);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(commentscroll);
+		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		mainPanel.add(southPanel);
+
+		this.setLayout(new BorderLayout());
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS,
+				BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+		this.add(mainPanel, BorderLayout.NORTH);
+		makeFunctionPopup();
+
+		viewController.getComponentFactory().createPopupMenuDecorator().decorate(titleText,
+				content,commentText);
+		
+		addListeners();
+        pack();
+        // enforces the minimum size of both frame and component
+        setMinimumSize(getMinimumSize());
+        setPreferredSize(getPreferredSize());
+
+		
+	}
+
+	private void addListeners() {
+		// UI listeners
+		tree.addMouseListener(new MouseListener() {
+			
+			public void mouseReleased(MouseEvent e) {}
+			
+
+			public void mousePressed(MouseEvent e) {}
+			
+
+			public void mouseExited(MouseEvent e) {}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount()==2)
+					addFieldFromDB(null);
+				else{
+					if (oldTreeSelectedPaths!=null && tree.getSelectionPath()!=null
+							&&tree.getSelectionPath().toString().trim().equalsIgnoreCase(oldTreeSelectedPaths))
+						tree.clearSelection();
+				}
+				if (tree.getSelectionPath()!=null)
+					oldTreeSelectedPaths= tree.getSelectionPath().toString().trim();
+			}
+
+
+			public void mouseEntered(MouseEvent e) {}
+		});
+
+		content.addCaretListener(new CaretListener() {
+			@Override
+			public void caretUpdate(CaretEvent e) {
+				
+				caretPositionDot = e.getDot();
+				caretPositionMark = e.getMark();
+		}});
+		
+
+		content.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				content.setCharacterAttributes(defaultStyle, true);
+			}
+			
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode()== KeyEvent.VK_ENTER){
+					insertEOL();
+					e.consume();
+				}
+				
+			}
+
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode()== KeyEvent.VK_ENTER)
+					e.consume();
+			}
+		});
+		
+		content.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+					
+					hilit.addHighlight(content.getSelectionStart(),content.getSelectionEnd(), painter);
+				} catch (BadLocationException e1) {
+				}
+				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				hilit.removeAllHighlights();
+			}
+		});
+		
+		
+		//---
+		addFieldButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addFieldFromDB(null);
+			}
+		});
+
+		functionButton.addMouseListener(new MouseListener() {
+			public void mouseReleased(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+
+			public void mousePressed(MouseEvent arg0) {}
+
+			public void mouseExited(MouseEvent arg0) {}
+
+			public void mouseEntered(MouseEvent arg0) {	}
+
+			public void mouseClicked(MouseEvent arg0) { }
+		});
+		eolButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent arg0) {
+				
+				insertEOL();
+			}
+		});
+		insertButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String title = titleText.getText();
+				String cont = content.getText();
+
+				if (title != null && title.trim().length() == 0){
+					title= Translator.getInstance().getProperHeader(cont);
+					
+				}
+					
+				if (title != null && title.trim().length() > 0
+						&& (title.startsWith(";") || title.startsWith("\\"))) {
+					errorMessage(
+							"Error",
+							Util.I18N
+									.getString("spshg.dialog.addnewcolumn.error.title.start"));
+					return;
+				}
+				
+				if (title != null && title.trim().length() == 0) {
+					errorMessage("Error", Util.I18N
+							.getString("spshg.dialog.addnewcolumn.error.title"));
+					return;
+				}
+				if (cont!=null && cont.trim().length()==0) {
+					errorMessage(
+							"Error",
+							Util.I18N
+									.getString("spshg.dialog.addnewcolumn.error.content"));
+					return;
+				}
+				if (cont.startsWith(":")) {
+					errorMessage(
+							"Error",
+							Util.I18N
+									.getString("spshg.dialog.addnewcolumn.error.content.start"));
+					return;
+				}
+				newCSVColumn.setValues(title, cont, commentText.getText(),document);
+				if (isEditMode)
+					panel.editColumnInManualCSV(newCSVColumn);
+				else
+					panel.addNewColumnInManualCSV(newCSVColumn);
+				setVisible(false);
+			}
+		});
+
+		cancelButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				setVisible(false);
+			}
+		});
+	}
+	
+	private void makeFunctionPopup() {
+		popup = new JPopupMenu();
+		JMenuItem menuItem;
+		for (String func:aggregations) {
+			menuItem = new JMenuItem(func);
+			menuItem.addActionListener(new PopupActionListener(this, "["
+					+ func + "]"));
+			popup.add(menuItem);
+		}
+	}
+	
+	public void insertInContent(String st){
+		try {
+			if (caretPositionDot != caretPositionMark)
+				document.remove(Math.min(caretPositionDot, caretPositionMark) , 
+						Math.abs(caretPositionMark-caretPositionDot));
+
+				document.insertString(caretPositionDot,st, labelStyle);
+				content.setCharacterAttributes(defaultStyle, true);
+				content.requestFocus();
+				
+				//tree.clearSelection();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+	}
+	
+	public void insertEOL(){
+		try {
+			if (caretPositionDot != caretPositionMark)
+				document.remove(Math.min(caretPositionDot, caretPositionMark) , 
+						Math.abs(caretPositionMark-caretPositionDot));
+
+				document.insertString(caretPositionDot,EOL, EOLStyle);
+				content.setCharacterAttributes(defaultStyle, true);
+				content.requestFocus();
+				
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+	}
+
+	
+	public void addFieldFromDB(String aggr) {
+		TreePath[] paths = tree.getSelectionPaths();
+		String result;
+		if (paths == null || paths.length < 1){
+			replaceAggregationFunction(aggr);
+			return;
+		}
+		String st = paths[0].toString().trim();
+		if (st.matches(".*,.*,.*")) {
+			String cont = st.substring(st.indexOf(',') + 1, st.length() - 1)
+					.trim();
+			cont = cont.replaceAll(", ", "/");
+			if (aggr!=null)
+				result = cont.replaceAll("/", "/"+aggr);
+			else 
+				result = cont;
+			
+			insertInContent(result);
+		}
+	}
+	
+	private void replaceAggregationFunction(String aggr){
+		try {
+			if (caretPositionDot == caretPositionMark) // nothing selected.
+				return ;
+			if (aggr==null || aggr.length()<1) // there is not any aggregation fuction selected
+				return ;
+
+			int start= Math.min(content.getSelectionStart(),content.getSelectionEnd());
+			int len =Math.max(content.getSelectionStart(),content.getSelectionEnd())-start;
+			
+			String selectedText="";
+			try{
+			 selectedText=document.getText(start,len);
+			}catch(Exception e){e.printStackTrace(); return;}
+
+			String tmp;
+					
+			int index=-1;
+			boolean aggIsFound=false;
+			// replace
+			for (String func:aggregations) {
+				if (aggr.contains(func)) continue;
+				tmp ="["+func+"]";
+				while( (index= selectedText.indexOf(tmp))>=0 ){
+					document.remove(start+index,tmp.length());
+					document.insertString(start+index,aggr, labelStyle);
+					selectedText=selectedText.replaceFirst("\\Q"+tmp+"\\E", aggr);
+					aggIsFound=true;
+				}
+			}
+
+			
+			if (!aggIsFound){// add new one
+				index=-1;
+				while( (index= selectedText.indexOf("/",index+1))>=0 ){
+					if (selectedText.regionMatches(index, "/[", 0, 2))
+						continue;
+					document.insertString(start+index+1,aggr, labelStyle);
+					len=len+aggr.length();
+					selectedText=document.getText(start,len);
+				}
+
+			}
+			
+		} catch (BadLocationException e) {
+		}
+	}
+	
+	
+
+	private JTree generateTree() {
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("3D City DB");
+		createNodes(top);
+		return new JTree(top);
+	}
+
+	private void createNodes(DefaultMutableTreeNode top) {
+		DefaultMutableTreeNode category = null;
+		DefaultMutableTreeNode node = null;
+		if (_3dcitydbcontent == null)
+			return;
+		TreeSet<String> tableNames = new TreeSet<String>(
+				_3dcitydbcontent.keySet());
+
+		Set<String> columnNames;
+		for (String name : tableNames) {
+			category = new DefaultMutableTreeNode(new DBTable(name));
+			top.add(category);
+			columnNames = _3dcitydbcontent.get(name); // new
+														// TreeSet<String>(_3dcitydbcontent.get(name));
+			for (String cname : columnNames) {
+				node = new DefaultMutableTreeNode(new DBColumn(cname, name));
+				category.add(node);
+			}
+
+		}
+	}
+
+	private void errorMessage(String title, String text) {
+		JOptionPane.showMessageDialog(this, text, title,
+				JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public static Style getDefaultStyle(){
+		if (defaultStyle==null){
+			StyleContext context = new StyleContext();
+			defaultStyle = context.getStyle(StyleContext.DEFAULT_STYLE);
+			StyleConstants.setAlignment(defaultStyle, StyleConstants.ALIGN_LEFT);
+			StyleConstants.setSpaceAbove(defaultStyle, 4);
+			StyleConstants.setSpaceBelow(defaultStyle, 4);
+			StyleConstants.setFontFamily(defaultStyle, "Tahoma");
+			StyleConstants.setFontSize(defaultStyle, 12);
+			StyleConstants.setForeground(defaultStyle, Color.blue);
+		}
+		return defaultStyle;
+	}
+	
+	public static Style getLabelStyle(){
+		if (labelStyle!=null)
+			return labelStyle;
+		if (defaultStyle==null)
+			getDefaultStyle();
+		StyleContext context = new StyleContext();
+		labelStyle= context.addStyle("Label", defaultStyle);
+		StyleConstants.setForeground(labelStyle, Color.red);
+		StyleConstants.setBackground(labelStyle, Color.yellow);
+		return labelStyle;
+	}
+			
+	public static Style getEOLStyle(){
+		if (EOLStyle!=null)
+			return EOLStyle;
+		if (defaultStyle==null)
+			getDefaultStyle();
+		StyleContext context = new StyleContext();
+		EOLStyle = context.addStyle("EOL", defaultStyle);
+		StyleConstants.setForeground(EOLStyle, Color.black);
+		StyleConstants.setBackground(EOLStyle, Color.lightGray);
+		return EOLStyle;
+	}
+	
+}
+
+class DBTable {
+	public String tableName;
+
+	public DBTable(String name) {
+		tableName = name;
+	}
+
+	public String toString() {
+		return tableName;
+	}
+}
+
+class DBColumn {
+	public String fieldName;
+	public String parentTable;
+
+	public DBColumn(String name, String parentTableName) {
+		fieldName = name;
+		parentTable = parentTableName;
+	}
+
+	public String toString() {
+		return fieldName;
+	}
+
+	public String getFullName() {
+		return parentTable + "/" + fieldName;
+	}
+}
+
+class PopupActionListener implements ActionListener {
+
+	String funcName;
+	NewCSVColumnDialog frame;
+
+	public PopupActionListener(NewCSVColumnDialog frame, String functName) {
+		this.funcName = functName;
+		this.frame = frame;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		frame.addFieldFromDB(funcName);
+	}
+
+}
+
+
