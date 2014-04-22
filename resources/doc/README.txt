@@ -1,4 +1,4 @@
-﻿3D City Database Importer/Exporter Spreadsheet Importer Plugin v1.0
+﻿3D City Database Importer/Exporter Spreadsheet Generator Plugin v2.0
 
   This program is free software and comes WITHOUT ANY WARRANTY.
   See the DISCLAIMER at the end of this document for more details.  
@@ -31,54 +31,69 @@ or visit http://www.gnu.org/licenses/.
 2. Copyright
 ------------
 
-(c) 2013
-Chair of Geoinformatics
-Technische Universität München, Germany
-http://www.gis.bv.tum.de/
+(c) 2012-2014  
+Chair of Geoinformatics (TUMGI)
+Technische UniversitÃ¤t München, Germany
+http://www.gis.bv.tum.de
+
+(c) 2012
+Institute for Geodesy and Geoinformation Science (IGG)
+Technische Universität Berlin, Germany
+http://www.igg.tu-berlin.de/
+
 
 
 3. About
 --------
 
-By using the SPSHI (Spreadsheet Importer) plugin, it is possible to import
-data from an online spreadsheet hosted in a cloud service or a local XLSX file into a 3D City Database (3DCityDB) instance. 
+By using the SPSHG (Spreadsheet Generator) plugin, it is possible to export
+data from a 3D City Database (3DCityDB) instance into a CSV file or into an
+online spreadsheet hosted in a cloud service. The CSV file may be imported
+to either a spreadsheet application (like Microsoft Excel or Open Office Calc)
+or to a web based online spreadsheet service (like Google Docs). All features
+of spreadsheet programs, like calculation and graphing tools, are applicable
+to the exported data from a 3D City Database instance. 
 
 
 4. Requirements
 ---------------
 
-This version of the Spreadsheet Importer Plugin shall be used with
-version 1.4 or later versions of the 3D City Database Importer/Exporter. 
+This version of the Spreadsheet Generator Plugin shall only be used with
+version 2.0 of the 3D City Database Importer/Exporter. 
 It cannot be guaranteed that the extension does correctly work with any
-previous version of the 3D City Database Importer/Exporter.
+previous or later version of the 3D City Database Importer/Exporter.
 
 
 5. (Un)Installation
 -------------------
 
 The plugin is shipped as a precompiled and ready-to-use JAR package
-called "spreadsheet_import.jar". Following simple steps will guide you through the
+called "spreadsheet.jar". Following simple steps will guide you through the
 install process:  
 
 *	Open the folder that contains your locally installed instance of the
-Importer/Exporter (the installation directory).
+Importer/Exporter version 2.0.0 (the installation directory).
 *	Open the plugins subfolder. If it is not available, create a new subfolder
 and name it "plugins". 
 * Extract the downloaded zip file in the plugins folder. As a result a new
-folder named "spreadsheet importer" will be created. The spreadsheet folder will
+folder named "spreadsheet" will be created. The spreadsheet folder will
 contain all required files and subfolders.
 * Run the Importer/Exporter.
 
 
-If you want to uninstall the Spreadsheet Importer Plugin, simply delete
-the "spreadsheet importer" subfolder and all its contents.
+If you want to uninstall the Spreadsheet Generator Plugin, simply delete
+the "spreadsheet" subfolder and all its contents.
 
 
 6. Developers
 -------------
 
-Zhihang Yao <zhihang.yao@tum.de>
-Thomas H. Kolbe <thomas.kolbe@tum.de>
+Zhihang Yao <zhihang.yao@tuml.de>
+Thomas H. Kolbe <thomas.kolbe@tu-berlin.de>
+
+Babak Naderi <b.naderi@mailbox.tu-berlin.de>
+Javier Herreruela <javier.herreruela@tu-berlin.de>
+
 
 
 7. Contact
@@ -90,11 +105,12 @@ zhihang.yao@tum.de
 8. Websites
 -----------
 
-Official Spreadsheet Importer Plugin website: 
+Official Spreadsheet Generator Plugin website: 
 http://www.3dcitydb.net/
 
 Related websites:
-http://www.igg.tu-berlin.de/
+https://github.com/3dcitydb/plugin-spreadsheet-generator
+http://www.gis.bv.tum.de/
 http://www.citygml.org/
 http://www.citygmlwiki.org/
 http://www.opengeospatial.org/standards/citygml
