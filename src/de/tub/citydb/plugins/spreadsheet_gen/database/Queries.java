@@ -56,7 +56,7 @@ public class Queries {
 		case ORACLE:
 			query += "(SDO_RELATE(co.envelope, ?, 'mask=overlapbdydisjoint') = 'TRUE') "
 					+ "UNION ALL "
-					+ "SELECT co.gmlid, co.objcetclass_id FROM CITYOBJECT co WHERE "
+					+ "SELECT co.gmlid, co.objectclass_id FROM CITYOBJECT co WHERE "
 					+ "(SDO_RELATE(co.envelope, ?, 'mask=inside+coveredby+equal') = 'TRUE') ";
 			break;
 		case POSTGIS:
@@ -65,7 +65,7 @@ public class Queries {
 			break;
 		}
 
-		query += "ORDER BY 2"; 
+//		query += "ORDER BY 2"; 
 		return query;
 	}
 }
