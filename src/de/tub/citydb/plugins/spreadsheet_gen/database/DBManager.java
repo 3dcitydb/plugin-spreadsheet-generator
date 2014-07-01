@@ -96,23 +96,11 @@ public class DBManager {
 			
 			try {
 				spatialQuery = connection.prepareStatement(Queries.QUERY_GET_GMLIDS_3(databaseAdapter.getDatabaseType()));
-				
-				int srid = dbSrs.getSrid();
 
-				Object curve = databaseAdapter.getGeometryConverter().getDatabaseObject(GeometryObject.createCurve(new double[] {
-						bbx.getLowerLeftCorner().getX(),
-						bbx.getUpperRightCorner().getY(),
-						bbx.getLowerLeftCorner().getX(),
-						bbx.getLowerLeftCorner().getY(),
-						bbx.getUpperRightCorner().getX(),
-						bbx.getLowerLeftCorner().getY()
-				}, 2, srid), connection);
-				
 				Object envelope = databaseAdapter.getGeometryConverter().getDatabaseObject(GeometryObject.createEnvelope(bbx), connection);
 				
 				// set spatial objects for query
-				spatialQuery.setObject(1, curve);
-				spatialQuery.setObject(2, envelope);
+				spatialQuery.setObject(1, envelope);
 				
 				rs = spatialQuery.executeQuery();
 				while (rs.next() && shouldRun) {

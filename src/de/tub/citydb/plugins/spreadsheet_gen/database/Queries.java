@@ -54,18 +54,12 @@ public class Queries {
 
 		switch (type) {
 		case ORACLE:
-			query += "(SDO_RELATE(co.envelope, ?, 'mask=overlapbdydisjoint') = 'TRUE') "
-					+ "UNION ALL "
-					+ "SELECT co.gmlid, co.objectclass_id FROM CITYOBJECT co WHERE "
-					+ "(SDO_RELATE(co.envelope, ?, 'mask=inside+coveredby+equal') = 'TRUE') ";
+			query += "(SDO_RELATE(co.envelope, ?, 'mask=ANYINTERACT') = 'TRUE') ";
 			break;
 		case POSTGIS:
-			query += "ST_Intersects(co.envelope, ?) = 'TRUE' "
-					+ "or ST_CoveredBy(co.envelope, ?) = 'TRUE' ";
+			query += "ST_Intersects(co.envelope, ?) = 'TRUE' ";
 			break;
 		}
-
-//		query += "ORDER BY 2"; 
 		return query;
 	}
 }
