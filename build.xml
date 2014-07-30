@@ -3,13 +3,13 @@
 			Commited version of these libraries in Spreadshsheet_plugin repository may not be updated. 
 			You can find the latest version in 3dcitydb-imp-exp project.-->
 
-<project name="Spreadsheet_import_Plugin" default="generate_spreadsheet_plugin" basedir=".">
+<project name="Spreadsheet Plugin" default="generate_spreadsheet_plugin" basedir=".">
 	<!-- load external property sets -->
 	<property file="default.properties" />
 	<!-- internal properties -->
 	<property name="dir.build" location="${basedir}/build" />
-	<property name="dir.build.spreadsheet_importer.classes" location="${dir.build}/spreadsheet_importer/classes" />
-	<property name="dir.build.spreadsheet_importer.lib.third_party" location="${dir.build}/spreadsheet_importer/lib/third_party" />
+	<property name="dir.build.spreadsheet_generator.classes" location="${dir.build}/spreadsheet_generator/classes" />
+	<property name="dir.build.spreadsheet_generator.lib.third_party" location="${dir.build}/spreadsheet_generator/lib/third_party" />
 	<property name="version" location="0.1" />
 	
     <path id="classpath">
@@ -31,54 +31,54 @@ You can find the latest version in 3dcitydb-imp-exp project." level="warning" />
 		
 		<!-- create the required directories -->
 		<mkdir dir="${dir.build}" />
-		<mkdir dir="${dir.build}/spreadsheet_importer"/>
-		<mkdir dir="${dir.build.spreadsheet_importer.classes}"/>
-		<mkdir dir="${dir.build}/spreadsheet_importer/lib"/>
-		<mkdir dir="${dir.build.spreadsheet_importer.lib.third_party}"/>
+		<mkdir dir="${dir.build}/spreadsheet_generator"/>
+		<mkdir dir="${dir.build.spreadsheet_generator.classes}"/>
+		<mkdir dir="${dir.build}/spreadsheet_generator/lib"/>
+		<mkdir dir="${dir.build.spreadsheet_generator.lib.third_party}"/>
 		
-		<javac  includeantruntime="false" classpathref="classpath" srcdir="${basedir}/src" destdir="${dir.build.spreadsheet_importer.classes}" />
+		<javac  includeantruntime="false" classpathref="classpath" srcdir="${basedir}/src" destdir="${dir.build.spreadsheet_generator.classes}" />
 		
-		<copy todir="${dir.build.spreadsheet_importer.classes}">
+		<copy todir="${dir.build.spreadsheet_generator.classes}">
 			<fileset dir="${basedir}/src" includes="**/*.properties" />
 			<fileset dir="${basedir}/src" includes="**/*.png" />
 		</copy>
-		<copy todir="${dir.build.spreadsheet_importer.classes}/META-INF">
+		<copy todir="${dir.build.spreadsheet_generator.classes}/META-INF">
 					<fileset dir="${basedir}/META-INF" includes="**/*" />
 		</copy>
 		
-		<jar jarfile="${dir.build}/spreadsheet_importer/spreadsheet_importer.jar" basedir="${dir.build.spreadsheet_importer.classes}">
+		<jar jarfile="${dir.build}/spreadsheet_generator/spreadsheet_generator.jar" basedir="${dir.build.spreadsheet_generator.classes}">
 			<manifest >
 				<attribute name="Built-Id" value="1" />
 				<attribute name="Built-Date" value="${TODAY}" />
-				<attribute name="Implementation-Title" value="Spreadsheet Plugin" />
+				<attribute name="Implementation-Title" value="Spreadsheet Generator Plugin" />
 				<attribute name="Implementation-Version" value="${version}" />
 				<attribute name="Implementation-Vendor" value="${vendor.shortinfo}" />
-		<!--		<attribute name="Class-Path" value="lib/third_party/gdata-client-1.0.jar lib/third_party/gdata-client-meta-1.0.jar lib/third_party/gdata-core-1.0.jar lib/third_party/gdata-docs-3.0.jar lib/third_party/gdata-docs-meta-3.0.jar lib/third_party/gdata-media-1.0.jar lib/third_party/google-collect-1.0-rc1.jar lib/third_party/mail.jar lib/third_party/servlet-api.jar" />
-		-->	</manifest>
+				<attribute name="Class-Path" value="lib/third_party/gdata-client-1.0.jar lib/third_party/gdata-client-meta-1.0.jar lib/third_party/gdata-core-1.0.jar lib/third_party/gdata-docs-3.0.jar lib/third_party/gdata-docs-meta-3.0.jar lib/third_party/gdata-media-1.0.jar lib/third_party/google-collect-1.0-rc1.jar lib/third_party/mail.jar lib/third_party/servlet-api.jar" />
+			</manifest>
 			
 		</jar>
 		
-		<copy todir="${dir.build.spreadsheet_importer.lib.third_party}">
+		<copy todir="${dir.build.spreadsheet_generator.lib.third_party}">
 			<fileset dir="${basedir}/lib/third_party" includes="**/*.jar" />
 		</copy>
 
-		<copy todir="${dir.build}/spreadsheet_importer/license">
+		<copy todir="${dir.build}/spreadsheet_generator/license">
 			<fileset dir="${basedir}/resources/license" includes="**/*.txt" />
 		</copy>
 
-		<copy todir="${dir.build}/spreadsheet_importer">
+		<copy todir="${dir.build}/spreadsheet_generator">
 			<fileset dir="${basedir}/resources/doc" includes="README.txt" />
 		</copy>
 
-		<copy todir="${dir.build}/spreadsheet_importer/manual">
+		<copy todir="${dir.build}/spreadsheet_generator/manual">
 			<fileset dir="${basedir}/resources/manual" includes="**/*.pdf" />
 		</copy>
 
-		<copy todir="${dir.build}/spreadsheet_importer/templates">
-			<fileset dir="${basedir}/templates" includes="**/*"/>
+		<copy todir="${dir.build}/spreadsheet_generator/templates">
+			<fileset dir="${basedir}/templates" includes="**/*1.xml" />
 		</copy>
 
-		<delete dir="${dir.build.spreadsheet_importer.classes}" />
-		<echo>Copy ${dir.build}\spreadsheet FOLDER into "plugins" folder of an installed version of 3DCityDB-Importer-Exporter.</echo>
+		<delete dir="${dir.build.spreadsheet_generator.classes}" />
+		<echo>Copy ${dir.build}\spreadsheet_generator FOLDER into "plugins" folder of an installed version of 3DCityDB-Importer-Exporter.</echo>
 	</target>
 </project>
