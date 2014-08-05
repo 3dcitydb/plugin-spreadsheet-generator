@@ -33,7 +33,7 @@ or visit http://www.gnu.org/licenses/.
 
 (c) 2012-2014  
 Chair of Geoinformatics (TUMGI)
-Technische UniversitÃ¤t München, Germany
+Technische Universitaet Muenchen, Germany
 http://www.gis.bv.tum.de
 
 (c) 2012
@@ -68,7 +68,7 @@ previous or later version of the 3D City Database Importer/Exporter.
 -------------------
 
 The plugin is shipped as a precompiled and ready-to-use JAR package
-called "spreadsheet.jar". Following simple steps will guide you through the
+called "spreadsheet_generator.jar". Following simple steps will guide you through the
 install process:  
 
 *	Open the folder that contains your locally installed instance of the
@@ -76,7 +76,7 @@ Importer/Exporter version 2.0.0 (the installation directory).
 *	Open the plugins subfolder. If it is not available, create a new subfolder
 and name it "plugins". 
 * Extract the downloaded zip file in the plugins folder. As a result a new
-folder named "spreadsheet" will be created. The spreadsheet folder will
+folder named "spreadsheet_generator" will be created. The spreadsheet_generator folder will
 contain all required files and subfolders.
 * Run the Importer/Exporter.
 
@@ -110,7 +110,7 @@ http://www.3dcitydb.net/
 
 Related websites:
 https://github.com/3dcitydb/plugin-spreadsheet-generator
-http://www.gis.bv.tum.de/
+https://www.gis.bgu.tum.de/
 http://www.citygml.org/
 http://www.citygmlwiki.org/
 http://www.opengeospatial.org/standards/citygml
