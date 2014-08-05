@@ -1,50 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/third_party/commons-codec-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-client-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-client-meta-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-core-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-docs-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-docs-meta-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-media-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/google-collect-1.0-rc1.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/mail.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/servlet-api.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/share/sdoapi.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-spreadsheet-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/gdata-spreadsheet-meta-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/javacsv.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-examples-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-excelant-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-ooxml-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-ooxml-schemas-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/poi-scratchpad-3.9-20121203.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/stax-api-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/third_party/xmlbeans-2.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/share/3dcitydb-impexp.jar"/>
-	<classpathentry kind="lib" path="lib/share/j3dutils.jar"/>
-	<classpathentry kind="lib" path="lib/share/swingx-ws.jar"/>
-	<classpathentry kind="lib" path="lib/share/args4j-2.0.21.jar"/>
-	<classpathentry kind="lib" path="lib/share/citygml4j-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/share/h2-1.3.175.jar"/>
-	<classpathentry kind="lib" path="lib/share/j3dcore.jar"/>
-	<classpathentry kind="lib" path="lib/share/jts-1.13.jar"/>
-	<classpathentry kind="lib" path="lib/share/kml-collada-jaxb.jar"/>
-	<classpathentry kind="lib" path="lib/share/ojdbc7.jar"/>
-	<classpathentry kind="lib" path="lib/share/postgis-jdbc-2.1.0SVN.jar"/>
-	<classpathentry kind="lib" path="lib/share/postgresql-9.1-901.jdbc4.jar"/>
-	<classpathentry kind="lib" path="lib/share/relaxngDatatype.jar"/>
-	<classpathentry kind="lib" path="lib/share/stax2-api-3.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/share/swingx-all-1.6.4.jar"/>
-	<classpathentry kind="lib" path="lib/share/texture-atlas-creator.jar"/>
-	<classpathentry kind="lib" path="lib/share/tomcat-jdbc.jar"/>
-	<classpathentry kind="lib" path="lib/share/tomcat-juli.jar"/>
-	<classpathentry kind="lib" path="lib/share/vecmath.jar"/>
-	<classpathentry kind="lib" path="lib/share/woodstox-core-lgpl-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/share/xsom.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/third_party"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/shared"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

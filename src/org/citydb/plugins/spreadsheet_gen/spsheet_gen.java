@@ -61,7 +61,7 @@ public class spsheet_gen implements Plugin, ViewExtension, ConfigExtension<Confi
 
 	@Override
 	public void init(Locale locale) {
-		Util.I18N = ResourceBundle.getBundle("de.tub.citydb.plugins.spreadsheet_gen.gui.locale", locale);	
+		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.gui.locale", locale);	
 		initCloudServices();
 		view = new SPSHGView(this);
 		loadSettings();
@@ -82,7 +82,7 @@ public class spsheet_gen implements Plugin, ViewExtension, ConfigExtension<Confi
 	public void switchLocale(Locale locale) {
 		if (locale.equals(currentLocale))
 			return;
-		Util.I18N = ResourceBundle.getBundle("de.tub.citydb.plugins.spreadsheet_gen.gui.locale", locale);
+		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.gui.locale", locale);
 		currentLocale = locale;
 		
 		view.switchLocale();
