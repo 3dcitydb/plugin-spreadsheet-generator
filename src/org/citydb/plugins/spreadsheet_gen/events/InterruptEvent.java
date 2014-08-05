@@ -26,8 +26,8 @@
  */
 package org.citydb.plugins.spreadsheet_gen.events;
 
-import de.tub.citydb.api.event.Event;
-import de.tub.citydb.api.log.LogLevel;
+import org.citydb.api.event.Event;
+import org.citydb.api.log.LogLevel;
 
 public class InterruptEvent extends Event {
 	private String logMessage;

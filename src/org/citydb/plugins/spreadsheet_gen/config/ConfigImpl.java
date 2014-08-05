@@ -25,10 +25,9 @@ package org.citydb.plugins.spreadsheet_gen.config;
 
 import javax.xml.bind.annotation.XmlType;
 
-//import de.tub.citydb.api.config.BoundingBox;
-import de.tub.citydb.api.geometry.BoundingBox;
-import de.tub.citydb.api.plugin.extension.config.PluginConfig;
-import de.tub.citydb.config.project.database.Workspace;
+import org.citydb.api.geometry.BoundingBox;
+import org.citydb.api.plugin.extension.config.PluginConfig;
+import org.citydb.config.project.database.Workspace;
 
 @XmlType(name="SpreadsheetGeneratorConfigType", propOrder={
 		"template",

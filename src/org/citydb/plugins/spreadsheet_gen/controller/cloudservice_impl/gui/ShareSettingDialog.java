@@ -64,11 +64,11 @@ import org.citydb.plugins.spreadsheet_gen.events.EventType;
 import org.citydb.plugins.spreadsheet_gen.events.SharingEvent;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import de.tub.citydb.api.controller.ViewController;
-import de.tub.citydb.api.event.Event;
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.event.EventHandler;
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.controller.ViewController;
+import org.citydb.api.event.Event;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.event.EventHandler;
+import org.citydb.api.registry.ObjectRegistry;
 
 
 @SuppressWarnings("serial")

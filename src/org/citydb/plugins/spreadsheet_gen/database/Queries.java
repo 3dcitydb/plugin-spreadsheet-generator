@@ -23,7 +23,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.database;
 
-import de.tub.citydb.api.database.DatabaseType;
+import org.citydb.api.database.DatabaseType;
 
 public class Queries {
 	// not in used.

@@ -26,7 +26,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.events;
 
-import de.tub.citydb.api.event.Event;
+import org.citydb.api.event.Event;
 
 public class StatusDialogMessage extends Event {
 	private String message;

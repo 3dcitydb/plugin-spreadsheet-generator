@@ -25,7 +25,7 @@ package org.citydb.plugins.spreadsheet_gen.events;
 
 import org.citydb.plugins.spreadsheet_gen.controller.cloudservice_impl.gui.Users;
 
-import de.tub.citydb.api.event.Event;
+import org.citydb.api.event.Event;
 
 public class SharingEvent extends Event {
 	private int type;

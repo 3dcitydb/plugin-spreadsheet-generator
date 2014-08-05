@@ -40,9 +40,9 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 
-import de.tub.citydb.api.database.BalloonTemplateHandler;
-import de.tub.citydb.api.registry.ObjectRegistry;
-import de.tub.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
+import org.citydb.api.database.BalloonTemplateHandler;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
 
 
 public class Translator {

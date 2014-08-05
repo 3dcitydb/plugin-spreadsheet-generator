@@ -32,12 +32,12 @@ import org.citydb.plugins.spreadsheet_gen.controller.cloudservice_impl.GoogleSpr
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGView;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import de.tub.citydb.api.controller.ApplicationStarter;
-import de.tub.citydb.api.plugin.Plugin;
-import de.tub.citydb.api.plugin.extension.config.ConfigExtension;
-import de.tub.citydb.api.plugin.extension.config.PluginConfigEvent;
-import de.tub.citydb.api.plugin.extension.view.View;
-import de.tub.citydb.api.plugin.extension.view.ViewExtension;
+import org.citydb.api.controller.ApplicationStarter;
+import org.citydb.api.plugin.Plugin;
+import org.citydb.api.plugin.extension.config.ConfigExtension;
+import org.citydb.api.plugin.extension.config.PluginConfigEvent;
+import org.citydb.api.plugin.extension.view.View;
+import org.citydb.api.plugin.extension.view.ViewExtension;
 
 
 public class spsheet_gen implements Plugin, ViewExtension, ConfigExtension<ConfigImpl>  {

@@ -60,7 +60,7 @@ import com.google.gdata.data.media.MediaFileSource;
 import com.google.gdata.util.ServiceException;
 
 
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.registry.ObjectRegistry;
 
 public class GoogleSpreadSheetService implements CloudService {
 	public final static int ROLE_OWNER = 1;

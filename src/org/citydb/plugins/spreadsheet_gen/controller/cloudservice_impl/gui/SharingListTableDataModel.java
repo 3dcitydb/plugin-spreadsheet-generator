@@ -32,8 +32,8 @@ import org.citydb.plugins.spreadsheet_gen.controller.cloudservice_impl.ShareSett
 import org.citydb.plugins.spreadsheet_gen.events.SharingEvent;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.registry.ObjectRegistry;
 
 @SuppressWarnings("serial")
 public class SharingListTableDataModel  extends AbstractTableModel{

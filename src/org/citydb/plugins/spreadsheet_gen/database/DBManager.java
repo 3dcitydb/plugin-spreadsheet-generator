@@ -38,16 +38,16 @@ import org.citygml4j.model.citygml.CityGMLClass;
 
 import oracle.jdbc.OracleResultSet;
 
-import de.tub.citydb.api.concurrent.WorkerPool;
-import de.tub.citydb.api.controller.DatabaseController;
-import de.tub.citydb.api.database.DatabaseSrs;
-import de.tub.citydb.api.geometry.BoundingBox;
-import de.tub.citydb.api.geometry.GeometryObject;
-import de.tub.citydb.config.project.database.Database;
-import de.tub.citydb.database.DatabaseConnectionPool;
-import de.tub.citydb.database.adapter.AbstractDatabaseAdapter;
+import org.citydb.api.concurrent.WorkerPool;
+import org.citydb.api.controller.DatabaseController;
+import org.citydb.api.database.DatabaseSrs;
+import org.citydb.api.geometry.BoundingBox;
+import org.citydb.api.geometry.GeometryObject;
+import org.citydb.config.project.database.Database;
+import org.citydb.database.DatabaseConnectionPool;
+import org.citydb.database.adapter.AbstractDatabaseAdapter;
 
-import de.tub.citydb.util.Util;
+import org.citydb.util.Util;
 
 
 public class DBManager {

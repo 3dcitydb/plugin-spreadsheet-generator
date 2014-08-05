@@ -30,10 +30,9 @@ import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.citydb.api.concurrent.DefaultWorkerImpl;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 
-
-import de.tub.citydb.api.concurrent.DefaultWorkerImpl;
 
 
 public class CSVWriter extends DefaultWorkerImpl<RowofCSVWork>{

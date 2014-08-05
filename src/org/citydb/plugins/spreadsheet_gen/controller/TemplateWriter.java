@@ -30,8 +30,8 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import de.tub.citydb.api.controller.LogController;
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.registry.ObjectRegistry;
 
 public class TemplateWriter implements Runnable {
 	private String path;

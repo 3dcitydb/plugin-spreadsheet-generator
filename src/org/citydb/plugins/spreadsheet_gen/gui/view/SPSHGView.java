@@ -31,9 +31,9 @@ import org.citydb.plugins.spreadsheet_gen.spsheet_gen;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
-import de.tub.citydb.api.event.global.ViewEvent;
-import de.tub.citydb.api.plugin.extension.view.View;
-import de.tub.citydb.api.plugin.extension.view.ViewListener;
+import org.citydb.api.event.global.ViewEvent;
+import org.citydb.api.plugin.extension.view.View;
+import org.citydb.api.plugin.extension.view.ViewListener;
 
 public class SPSHGView  extends View implements ViewListener{
 	private final SPSHGPanel component;

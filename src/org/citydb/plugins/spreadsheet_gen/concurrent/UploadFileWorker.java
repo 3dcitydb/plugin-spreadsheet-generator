@@ -37,10 +37,10 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import com.google.gdata.util.ServiceException;
 
-import de.tub.citydb.api.concurrent.DefaultWorkerImpl;
-import de.tub.citydb.api.controller.LogController;
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.concurrent.DefaultWorkerImpl;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.registry.ObjectRegistry;
 
 public class UploadFileWorker extends DefaultWorkerImpl<UploadFileWork>{
 	public final static String URL="URL_INTO_CLOUD";

@@ -104,23 +104,19 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-
-
-
-
-import de.tub.citydb.api.controller.DatabaseController;
-import de.tub.citydb.api.controller.LogController;
-import de.tub.citydb.api.controller.ViewController;
-import de.tub.citydb.api.database.DatabaseConfigurationException;
-import de.tub.citydb.api.event.Event;
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.event.EventHandler;
-import de.tub.citydb.api.event.global.DatabaseConnectionStateEvent;
-import de.tub.citydb.api.event.global.GlobalEvents;
-import de.tub.citydb.api.gui.BoundingBoxPanel;
-import de.tub.citydb.api.log.LogLevel;
-import de.tub.citydb.api.registry.ObjectRegistry;
-import de.tub.citydb.database.DatabaseConnectionPool;
+import org.citydb.api.controller.DatabaseController;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.controller.ViewController;
+import org.citydb.api.database.DatabaseConfigurationException;
+import org.citydb.api.event.Event;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.event.EventHandler;
+import org.citydb.api.event.global.DatabaseConnectionStateEvent;
+import org.citydb.api.event.global.GlobalEvents;
+import org.citydb.api.gui.BoundingBoxPanel;
+import org.citydb.api.log.LogLevel;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.database.DatabaseConnectionPool;
 
 
 

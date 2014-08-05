@@ -77,10 +77,10 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import de.tub.citydb.api.database.BalloonTemplateHandler;
-import de.tub.citydb.api.controller.ViewController;
-import de.tub.citydb.api.registry.ObjectRegistry;
-import de.tub.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
+import org.citydb.api.database.BalloonTemplateHandler;
+import org.citydb.api.controller.ViewController;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
 
 @SuppressWarnings("serial")
 public class NewCSVColumnDialog extends JDialog {

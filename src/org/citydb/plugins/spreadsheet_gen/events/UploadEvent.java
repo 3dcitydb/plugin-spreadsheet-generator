@@ -22,7 +22,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 package org.citydb.plugins.spreadsheet_gen.events;
-import de.tub.citydb.api.event.Event;
+import org.citydb.api.event.Event;
 public class UploadEvent extends Event{
 	private String url="";
 	private boolean isSuccess=false;

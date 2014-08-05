@@ -51,17 +51,17 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
-import de.tub.citydb.api.concurrent.PoolSizeAdaptationStrategy;
-import de.tub.citydb.api.concurrent.SingleWorkerPool;
-import de.tub.citydb.api.concurrent.WorkerPool;
-import de.tub.citydb.api.controller.DatabaseController;
-import de.tub.citydb.api.controller.LogController;
-import de.tub.citydb.api.event.Event;
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.event.EventHandler;
-import de.tub.citydb.api.registry.ObjectRegistry;
-import de.tub.citydb.config.project.database.Workspace;
-import de.tub.citydb.database.DatabaseConnectionPool;
+import org.citydb.api.concurrent.PoolSizeAdaptationStrategy;
+import org.citydb.api.concurrent.SingleWorkerPool;
+import org.citydb.api.concurrent.WorkerPool;
+import org.citydb.api.controller.DatabaseController;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.event.Event;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.event.EventHandler;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.config.project.database.Workspace;
+import org.citydb.database.DatabaseConnectionPool;
 
 
 public class SpreadsheetExporter implements EventHandler{
@@ -257,7 +257,7 @@ public class SpreadsheetExporter implements EventHandler{
 //		mReport.append(System.getProperty("line.separator"));
 		int sum=0;
 		for (Integer mClass:countingStorage.keySet()){
-			line.append(SelectedCityObjects.getInstance().getCityObjectName(de.tub.citydb.util.Util.classId2cityObject(mClass.intValue())));
+			line.append(SelectedCityObjects.getInstance().getCityObjectName(org.citydb.util.Util.classId2cityObject(mClass.intValue())));
 			line.append(": ");
 			line.append(countingStorage.get(mClass).intValue());
 			logController.info(line.toString());

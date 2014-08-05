@@ -28,8 +28,8 @@ import java.io.File;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 
 
-import de.tub.citydb.api.concurrent.Worker;
-import de.tub.citydb.api.concurrent.WorkerFactory;
+import org.citydb.api.concurrent.Worker;
+import org.citydb.api.concurrent.WorkerFactory;
 
 
 public class WriterFactory implements WorkerFactory<RowofCSVWork>{

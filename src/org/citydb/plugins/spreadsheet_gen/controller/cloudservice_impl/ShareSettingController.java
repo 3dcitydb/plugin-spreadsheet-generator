@@ -33,8 +33,8 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import com.google.gdata.data.acl.AclEntry;
 import com.google.gdata.util.VersionConflictException;
 
-import de.tub.citydb.api.event.EventDispatcher;
-import de.tub.citydb.api.registry.ObjectRegistry;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.registry.ObjectRegistry;
 
 public class ShareSettingController implements Runnable{
 
