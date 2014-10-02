@@ -1373,9 +1373,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 			}
 			setAfterUploadPanelEnable(successUpload);
 		}
-		
-		DatabaseConnectionStateEvent state = (DatabaseConnectionStateEvent)e;
-		setEnabledWorkspace(!state.isConnected() || (state.isConnected() && dbPool.getActiveDatabaseAdapter().hasVersioningSupport()));
+		else if (e.getEventType() == GlobalEvents.DATABASE_CONNECTION_STATE) {
+			DatabaseConnectionStateEvent state = (DatabaseConnectionStateEvent)e;
+			setEnabledWorkspace(!state.isConnected() || (state.isConnected() && dbPool.getActiveDatabaseAdapter().hasVersioningSupport()));
+		}		
 	}
 
 	
