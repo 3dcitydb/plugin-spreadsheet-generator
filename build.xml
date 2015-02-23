@@ -53,7 +53,7 @@ You can find the latest version in 3dcitydb-imp-exp project." level="warning" />
 				<attribute name="Implementation-Title" value="Spreadsheet Generator Plugin" />
 				<attribute name="Implementation-Version" value="${version}" />
 				<attribute name="Implementation-Vendor" value="${vendor.shortinfo}" />
-				<attribute name="Class-Path" value="lib/third_party/gdata-client-1.0.jar lib/third_party/gdata-client-meta-1.0.jar lib/third_party/gdata-core-1.0.jar lib/third_party/gdata-docs-3.0.jar lib/third_party/gdata-docs-meta-3.0.jar lib/third_party/gdata-media-1.0.jar lib/third_party/google-collect-1.0-rc1.jar lib/third_party/mail.jar lib/third_party/servlet-api.jar" />
+				<attribute name="Class-Path" value="lib/third_party/gdata-client-1.0.jar lib/third_party/gdata-client-meta-1.0.jar lib/third_party/gdata-core-1.0.jar lib/third_party/gdata-docs-3.0.jar lib/third_party/gdata-docs-meta-3.0.jar lib/third_party/gdata-media-1.0.jar lib/third_party/google-collect-1.0-rc1.jar lib/third_party/mail.jar lib/third_party/servlet-api.jar lib/third_party/javacsv-2.0.jar lib/third_party/poi-3.10.1-20140818.jar lib/third_party/poi-ooxml-3.10.1-20140818.jar lib/third_party/poi-ooxml-schemas-3.10.1-20140818.jar lib/third_party/stax-api-1.0.1.jar lib/third_party/commons-codec-1.5.jar lib/third_party/dom4j-1.6.1.jar" />
 			</manifest>
 			
 		</jar>

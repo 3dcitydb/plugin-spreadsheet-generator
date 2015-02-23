@@ -109,11 +109,9 @@ public class DBManager {
 					if (desirableCityObject.contains(Util.classId2cityObject(classId))){
 						countingStorage.get(Util.classId2cityObject(classId)).incrementAndGet();
 						CityObjectWork cow =new CityObjectWork(gmlId,classId);
-						workerpool.addWork(cow);
-						
+						workerpool.addWork(cow);						
 					}
-				}
-				
+				}				
 
 			}
 			catch (SQLException sqlEx) {
@@ -145,7 +143,6 @@ public class DBManager {
 				
 			}
 		
-
 	}
 	
 	public void startQuery(HashSet<CityGMLClass> desirableCityObjects) throws SQLException {

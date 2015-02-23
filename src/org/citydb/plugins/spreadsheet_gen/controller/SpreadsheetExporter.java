@@ -24,11 +24,23 @@
 package org.citydb.plugins.spreadsheet_gen.controller;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.spsheet_gen;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
@@ -63,6 +75,8 @@ import org.citydb.api.registry.ObjectRegistry;
 import org.citydb.config.project.database.Workspace;
 import org.citydb.database.DatabaseConnectionPool;
 
+import com.csvreader.CsvReader;
+
 
 public class SpreadsheetExporter implements EventHandler{
 	private final DatabaseConnectionPool dbPool;
@@ -91,6 +105,16 @@ public class SpreadsheetExporter implements EventHandler{
 	}
 	
 	public boolean doProcess(){
+		
+/*		BalloonTemplateHandlerImpl bth = new BalloonTemplateHandlerImpl();
+		HashMap<String, Set<String>> _3dcitydbcontent = bth.getSupportedTablesAndColumns();
+		Set<String> keys = _3dcitydbcontent.keySet();
+		for (String tableName:keys){
+			for (String column:_3dcitydbcontent.get(tableName)){
+				System.out.println("put(\"" + tableName + "__" + column + "\", 1);");
+			}			
+		}*/
+		
 		eventDispatcher.addEventHandler(EventType.INTERRUPT, this);
 		
 		ConfigImpl config = plugin.getConfig();
@@ -123,8 +147,19 @@ public class SpreadsheetExporter implements EventHandler{
 		String filename="";
 		String path="";
 		UploadFileWork ufw=null;
-		if (config.getOutput().getType() == Output.CSV_FILE_CONFIG) {
-			path = config.getOutput().getCsvfile().getOutputPath().trim();
+		
+		if (config.getOutput().getType() == Output.ONLINE_CONFIG) {
+			path = System.getProperty("java.io.tmpdir");
+			filename = config.getOutput().getCloud().getSpreadsheetName();
+			ufw= new UploadFileWork(path==null?"":path
+					+ filename + ".xlsx", 
+					config.getOutput().getCloud().getSpreadsheetName());
+		}else {
+			if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG)
+				path = config.getOutput().getXlsxfile().getOutputPath().trim();
+			else
+				path = config.getOutput().getCsvfile().getOutputPath().trim();
+			
 			if (path.lastIndexOf(File.separator) == -1) {
 				filename = path;
 				path = ".";
@@ -139,20 +174,25 @@ public class SpreadsheetExporter implements EventHandler{
 				}
 				path = path.substring(0, path.lastIndexOf(File.separator));
 			}
-		} else {
-			path = System.getProperty("java.io.tmpdir");
-			filename = config.getOutput().getCloud().getSpreadsheetName();
-			ufw= new UploadFileWork(path==null?"":path
-					+ filename + ".csv", 
-					config.getOutput().getCloud().getSpreadsheetName());
-
 		}
 
-		File outputfile = new File(path + File.separator + filename + ".csv");
+		String csvFilePath = path + File.separator + filename + ".csv";		
+		if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)||config.getOutput().getType().equalsIgnoreCase(Output.ONLINE_CONFIG)) {
+			csvFilePath = System.getProperty("java.io.tmpdir") + File.separator + filename + ".csv";
+		}		
+		File outputfile = new File(csvFilePath);
+		System.out.println(csvFilePath);
 		
-		if (!outputfile.exists())
+		File dummyOutputfile = null;
+		if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG)
+			dummyOutputfile = new File(path + File.separator + filename + ".xlsx");
+		else
+			dummyOutputfile = new File(path + File.separator + filename + ".csv");
+		
+		
+		if (!dummyOutputfile.exists())
 			try{
-			outputfile.createNewFile();
+				dummyOutputfile.createNewFile();
 			}catch(Exception e){
 				logController.error(Util.I18N.getString("spshg.message.export.file.error"));
 				return false;
@@ -192,6 +232,7 @@ public class SpreadsheetExporter implements EventHandler{
 				.getInstance().getColumnTitle(), seperatorCharacter),
 				RowofCSVWork.UNKNOWN_CLASS_ID));
 		
+		
 		// reset the loging system in CSVWRITER
 		CSVWriter.resetLogStorage();
 		// get database splitter and start query
@@ -217,6 +258,16 @@ public class SpreadsheetExporter implements EventHandler{
 			logController.error(Util.I18N.getString("common.error") + e.getMessage());
 			shouldRun=false;
 		}
+		
+		if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)||config.getOutput().getType().equalsIgnoreCase(Output.ONLINE_CONFIG)) {
+			try {
+				convertToXSLX(csvFilePath, path, filename);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		
 		// Summary
 		writeReport();
 		
@@ -267,6 +318,65 @@ public class SpreadsheetExporter implements EventHandler{
 		}
 //		mReport.append(String.format(Util.I18N.getString("spshg.message.summery.sumery"),sum));
 		logController.info(String.format(Util.I18N.getString("spshg.message.summery.sumery"),sum));
+
+	}
+	
+	public void convertToXSLX(String csvPath, String path, String filename) throws Exception {
+		// convert csv to excel
+		Workbook workbook = new XSSFWorkbook();
+		Sheet sheet = workbook.createSheet("Countries");       
+        CsvReader reader = null;
+        
+        int rowIndex = 0;
+        
+        String xlsxFullpath = path + File.separator + filename + ".xlsx";
+        		
+		reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getIntoCloudDefaultSeperator().charAt(0), Charset.forName("UTF-8"));
+		reader.readRecord();
+	    String[] spshColumnNames = reader.getValues();
+	    Row row = sheet.createRow(rowIndex);
+	    for (int i = 0; i<spshColumnNames.length; i++){
+	    	Cell cell = row.createCell(i);
+	    	cell.setCellValue(spshColumnNames[i]); 					    						    		
+    	}
+	    rowIndex++;
+	    Map<String, String> templateMap = Translator.getInstance().getTemplateHashmap();
+	    
+		try {
+			while (reader.readRecord()) {
+				row = sheet.createRow(rowIndex);
+				String[] valueArray = reader.getValues();
+			    if (valueArray != null && valueArray.length > 0) {					    
+			    	for (int i = 0; i<valueArray.length; i++){
+			    		if (valueArray[i] != null && String.valueOf(valueArray[i].trim()).length()>0) {			    			
+			    			String dbTableColumn = templateMap.get(spshColumnNames[i]);	
+				    		Cell cell = row.createCell(i);
+				    		int dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
+				    		if (dataType == Util.NUMBER_COLUMN_VALUE) {
+				    			cell.setCellValue(Double.valueOf(valueArray[i]));
+				    		}
+				    		else {
+				    			cell.setCellValue(String.valueOf(valueArray[i]));
+				    		}	
+			    		}			    						    		
+			    	}
+			    	rowIndex++;				    	
+			    }
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		reader.close();
+		         
+        // lets write the excel data to file now
+        FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(new File(xlsxFullpath));
+			workbook.write(fos);
+			fos.close();
+		}catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 	}
 

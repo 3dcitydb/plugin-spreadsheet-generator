@@ -29,7 +29,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.text.DefaultStyledDocument;
@@ -39,6 +41,7 @@ import javax.swing.text.StyledDocument;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
+import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import org.citydb.api.database.BalloonTemplateHandler;
 import org.citydb.api.registry.ObjectRegistry;
@@ -53,6 +56,7 @@ public class Translator {
 	private HashMap<String, Set<String>> _3dcitydbcontent;
 	private ArrayList<String> columnTitle;
 	private static Translator INSTANCE= new Translator();
+	private Map<String, String> templateMap;
 	
 	public Translator(){
 		BalloonTemplateHandler dummy = new BalloonTemplateHandlerImpl("", null);
@@ -66,13 +70,21 @@ public class Translator {
 		return INSTANCE;
 	}
 	
-	public String translateToBalloonTemplate(File csvTemplate) throws IOException {
+	public Map<String, String> getTemplateHashmap() {
+		return templateMap;	
+	}
+	
+	public String translateToBalloonTemplate(File csvTemplate) throws Exception {
+		
+		templateMap = new HashMap<String, String>();
+		
 		String cellSeparator= SeparatorPhrase.getInstance().getTempPhrase();
 		columnTitle = new ArrayList<String>();
 		
 		FileInputStream fstream = new FileInputStream(csvTemplate);
 		BufferedReader br = new BufferedReader(new InputStreamReader(fstream,"UTF-8"));
 		String strLine;
+		
 		// Read File Line By Line
 		StringBuffer output = new StringBuffer();
 		String tmpout, header;
@@ -80,12 +92,25 @@ public class Translator {
 		// Initial values
 		output.append("<3DCityDB>CITYOBJECT/GMLID</3DCityDB>");
 		columnTitle.add("GMLID");		
+		templateMap.put("GMLID", "CITYOBJECT__GMLID");
 		while ((strLine = br.readLine()) != null) {
 			if (!(strLine.startsWith("//")||strLine.startsWith(";")) &&strLine.indexOf(':') > 0) {
+				
 				header = strLine.substring(0, strLine.indexOf(':'));
 				tmpout = translateLine(
 						strLine.substring(strLine.indexOf(':')+1,
 								strLine.length()), false);
+				
+				String templateCSVcolumn = header;
+				String dbTableColumn = null;
+				try {
+					dbTableColumn = getTableColumn(strLine.substring(strLine.indexOf(':')+1,strLine.length()));	
+				}catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
+				templateMap.put(templateCSVcolumn.trim(), dbTableColumn);
+						
 			} else {
 				tmpout = translateLine(strLine, true);
 				header = null;
@@ -104,6 +129,8 @@ public class Translator {
 	
 	public String translateToBalloonTemplate( ArrayList<CSVColumns> rows) throws IOException {
 
+		templateMap = new HashMap<String, String>();
+		
 		String cellSeparator= SeparatorPhrase.getInstance().getTempPhrase();
 		columnTitle = new ArrayList<String>();
 		StringBuffer output = new StringBuffer();
@@ -111,10 +138,22 @@ public class Translator {
 		// Initial values
 		output.append("<3DCityDB>CITYOBJECT/GMLID</3DCityDB>");
 		columnTitle.add("GMLID");
+		templateMap.put("GMLID", "CITYOBJECT__GMLID");
 		
 		for (CSVColumns row:rows){
 			header= row.title;
 			tmpout= translateLine(row.textcontent,false);
+			
+			String templateCSVcolumn = header;
+			String dbTableColumn = null;
+			try {
+				dbTableColumn = getTableColumn(row.textcontent);	
+			}catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+			
+			templateMap.put(templateCSVcolumn.trim(), dbTableColumn);
+			
 			if (tmpout != null && tmpout.length() > 0) {
 				output.append(cellSeparator);
 				output.append(tmpout);
@@ -354,5 +393,69 @@ public class Translator {
 			return wordparser.toString();
 		}
 		return wordparser.toString();
+	}
+	
+	public String getTableColumn(String rawStatement) throws Exception {	
+		
+		String aggregateFunction = null;		
+		String table = null;
+		String column = null;
+		String unit = null;
+		
+		int index = rawStatement.indexOf('/');
+
+		table = rawStatement.substring(0, index).trim();
+
+		index++;
+		
+		// beginning of aggregate function
+		if (rawStatement.charAt(index) == '[') { 
+			index++;
+			aggregateFunction = rawStatement.substring(index, rawStatement.indexOf(']', index)).trim();
+			index = rawStatement.indexOf(']', index) + 1;
+		}		
+		
+		// no condition
+		if (rawStatement.indexOf('[', index) == -1) { 
+			column = rawStatement.substring(index).trim();
+			if (column.indexOf(" ") != -1 ) {					
+				String[] tempStr = column.split(" ");
+				column = tempStr[0];
+				unit = tempStr[1];							
+			}
+		}
+		else {
+			column = rawStatement.substring(index, rawStatement.indexOf('[', index)).trim();
+			index = rawStatement.indexOf(']');
+			index++;
+			if (index < rawStatement.length()) {
+				if (rawStatement.substring(index).trim().length()>0) {
+					unit = rawStatement.substring(index).trim();
+				};
+			}
+		}
+		
+		// specific case 1: aggregation functions such as Max, Min, Avg, Sum, and Count, the Output value should have Number-Format
+		if (aggregateFunction != null) {
+			if (aggregateFunction.equalsIgnoreCase("MAX") ||
+					aggregateFunction.equalsIgnoreCase("MIN") ||
+					aggregateFunction.equalsIgnoreCase("AVG") ||
+					aggregateFunction.equalsIgnoreCase("SUM") ||
+					aggregateFunction.equalsIgnoreCase("COUNT")) {
+				return Util.NUMBER_COLUMN_KEY;
+			}
+		}
+		
+		// specific case 2: Mixed columns, the output should have String-Format
+		if (rawStatement.indexOf(NewCSVColumnDialog.EOL) > -1 ) {
+			return Util.STRING_COLUMN_KEY;
+		}
+		
+		// specific case 3: Number with unit "e.g. EUR", --> String-Format
+		if (unit != null) {
+			return Util.STRING_COLUMN_KEY;
+		}
+		
+		return table + "__" + column;
 	}
 }

@@ -108,6 +108,7 @@ import org.citydb.api.controller.DatabaseController;
 import org.citydb.api.controller.LogController;
 import org.citydb.api.controller.ViewController;
 import org.citydb.api.database.DatabaseConfigurationException;
+import org.citydb.api.database.DatabaseVersionException;
 import org.citydb.api.event.Event;
 import org.citydb.api.event.EventDispatcher;
 import org.citydb.api.event.EventHandler;
@@ -178,12 +179,19 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	private JLabel browseOutputLabel = new JLabel("");
 	private JTextField browseOutputText = new JTextField("");
 	private JButton browseOutputButton = new JButton("");
-	
-//	private JPanel advanceTemplate;
+
+	//	private JPanel advanceTemplate;
 	private JLabel separatorLabel = new JLabel("");
 	private JTextField separatorText= new JTextField("");
 	private JPopupMenu separatorListPopup= new JPopupMenu();
 	JLabel predefiendLabel= new JLabel("");
+		
+	//++ xlsx RadioButtun
+	private JRadioButton xlsxRadioButton = new JRadioButton("");
+	private JPanel xlsxPanel;
+
+	private JTextField xlsxBrowseOutputText = new JTextField("");
+	private JButton xlsxBrowseOutputButton = new JButton("");
 	
 	//++ Online RadioButtun  
 	
@@ -234,6 +242,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	
 	final JFileChooser fileChooserTemplate = new JFileChooser();
 	final JFileChooser fileChooserCSVOut = new JFileChooser();
+	final JFileChooser fileChooserXLSXOut = new JFileChooser();
 	
 	SPSHGPanel(spsheet_gen plugin){
 		this.plugin=plugin;
@@ -367,8 +376,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		// radio buttons
 		outputButtonGroup.add(csvRadioButton);
+		outputButtonGroup.add(xlsxRadioButton);
 		outputButtonGroup.add(onlineRadioButton);
 		csvRadioButton.setIconTextGap(10);
+		xlsxRadioButton.setIconTextGap(10);
 		onlineRadioButton.setIconTextGap(10);		
 		csvRadioButton.setSelected(true);
 		
@@ -403,6 +414,21 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		separatorPhraseBox.add(separatorText);
 		separatorPhraseBox.add(predefiendLabel);
 		csvPanel.add(separatorPhraseBox, Util.setConstraints(0,1,0,0,GridBagConstraints.HORIZONTAL,0,BORDER_THICKNESS*6,BORDER_THICKNESS,BORDER_THICKNESS));
+		
+		//--------------------------xlsx file
+		JPanel xlsxRadioButtonPanel = new JPanel();
+		Box xlsxOutpuPanelBox = Box.createVerticalBox();
+		xlsxRadioButtonPanel.setLayout(new BorderLayout());
+		xlsxRadioButtonPanel.add(xlsxRadioButton, BorderLayout.WEST);
+		
+		xlsxPanel = new JPanel();
+		xlsxPanel.setLayout(new GridBagLayout());
+		
+		gbc=Util.setConstraints(0,0,1.0,1.0,GridBagConstraints.HORIZONTAL,BORDER_THICKNESS,BORDER_THICKNESS*6,BORDER_THICKNESS,BORDER_THICKNESS);
+		gbc.gridwidth=3;
+		xlsxPanel.add(xlsxBrowseOutputText, gbc);
+		xlsxBrowseOutputText.setColumns(10);
+		xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3,0,0.0,0.0,GridBagConstraints.NONE,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS));
 		
 		//----- online
 		JPanel onlineRadioButtonPanel = new JPanel();
@@ -451,6 +477,8 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		outpuPanelBox.add(csvRadioButtonPanel);
 		outpuPanelBox.add(csvPanel);
+		outpuPanelBox.add(xlsxRadioButtonPanel);
+		outpuPanelBox.add(xlsxPanel);
 		outpuPanelBox.add(onlineRadioButtonPanel);
 		outpuPanelBox.add(onlinePanel);
 		
@@ -546,6 +574,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		outputPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.outputPanel.border")));
 		csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
+		xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
 		onlineRadioButton.setText(Util.I18N.getString("spshg.onlinePanel.border"));
 		serviceType.setText(Util.I18N.getString("spshg.onlinePanel.cloudserver"));
 		onlineRadioButton.setToolTipText(Util.I18N.getString("spshg.onlinePanel.tooltip"));
@@ -553,6 +582,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		browseOutputLabel.setText(Util.I18N.getString("spshg.csvPanel.browselabel"));
 		browseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
+		xlsxBrowseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
 		separatorText.setText(Util.I18N.getString("spshg.csvPanel.separator.comma"));
 		
 		
@@ -581,6 +611,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		browseButton.setPreferredSize(new Dimension(righthandMargin,browseButton.getPreferredSize().height));
 		saveButton.setPreferredSize(new Dimension(righthandMargin,saveButton.getPreferredSize().height));
 		browseOutputButton.setPreferredSize(new Dimension(righthandMargin,browseOutputButton.getPreferredSize().height));
+		xlsxBrowseOutputButton.setPreferredSize(new Dimension(righthandMargin,xlsxBrowseOutputButton.getPreferredSize().height));
 		scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width,7*20));
 		
 		
@@ -607,6 +638,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		browseButton.setPreferredSize(null);
 		saveButton.setPreferredSize(null);
 		browseOutputButton.setPreferredSize(null);
+		xlsxBrowseOutputButton.setPreferredSize(null);
 		scrollPane.setPreferredSize(null);
 		
 		
@@ -676,6 +708,12 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 			}
 		});
 		
+		xlsxBrowseOutputButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				xlsxOutputFile();
+			}
+		});
+		
 		ActionListener outputListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setOutputEnabledValues();
@@ -683,6 +721,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		};
 		
 		csvRadioButton.addActionListener(outputListener);
+		xlsxRadioButton.addActionListener(outputListener);
 		onlineRadioButton.addActionListener(outputListener);
 	
 		editTemplateButton.addActionListener(new ActionListener() {	
@@ -928,6 +967,47 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 					errorMessage("Error", 
 							"Error during creating the output CSV file.");
 				}
+			} else if (config.getOutput().getType()==Output.XLSX_FILE_CONFIG){
+				// xlsx file					
+				if (config.getOutput().getXlsxfile().getOutputPath().trim().equals("")) {
+					errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"), 
+							Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
+					return;
+				}
+				
+				// check if the file exist
+				try{
+					String filename="";
+					String path = config.getOutput().getXlsxfile().getOutputPath().trim();
+					if (path.lastIndexOf(File.separator) == -1) {
+						filename = path;
+						path = ".";
+					} else {
+						if (path.lastIndexOf(".") == -1) {
+							filename = path
+									.substring(path.lastIndexOf(File.separator) + 1);
+						} else {
+							filename = path.substring(
+									path.lastIndexOf(File.separator) + 1,
+									path.lastIndexOf("."));
+						}
+						path = path.substring(0, path.lastIndexOf(File.separator));
+					}
+					File outputfile = new File(path + File.separator + filename + ".xlsx");
+					
+					if (outputfile.exists()){
+						int option=JOptionPane.showConfirmDialog(viewController.getTopFrame(), 
+								String.format(Util.I18N.getString("spshg.dialog.error.csvfile.exist.message"),outputfile.getPath()), 
+								Util.I18N.getString("spshg.dialog.error.csvfile.exist.title"), 
+								JOptionPane.YES_NO_OPTION);
+						if (option!=JOptionPane.YES_OPTION)
+							return;
+						
+					}
+				}catch(Exception e){
+					errorMessage("Error", 
+							"Error during creating the output XLSX file.");
+				}
 			}else{ // online
 				if (!CloudServiceRegistery.getInstance().isServiceSelected()){
 					errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"), 
@@ -947,13 +1027,17 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 
 			if (!dbPool.isConnected()) {
 				try {
+
 					dbController.connect(true);
+
 					
 				} catch (DatabaseConfigurationException e) {
 				
 					return;
 				} catch (SQLException e) {
 				
+					return;
+				}catch (DatabaseVersionException e1) {
 					return;
 				}
 
@@ -1112,6 +1196,11 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		fileChooserCSVOut.addChoosableFileFilter(filter2);
 		fileChooserCSVOut.addChoosableFileFilter(fileChooserCSVOut.getAcceptAllFileFilter());
 		fileChooserCSVOut.setFileFilter(filter2);
+		
+		FileNameExtensionFilter filter3 = new FileNameExtensionFilter("Microsoft Excel Files (*.xlsx)", "xlsx");
+		fileChooserXLSXOut.addChoosableFileFilter(filter3);
+		fileChooserXLSXOut.addChoosableFileFilter(fileChooserXLSXOut.getAcceptAllFileFilter());
+		fileChooserXLSXOut.setFileFilter(filter3);
 	}
 	
 	private void saveManuallyGeneratedTemplate(){
@@ -1183,6 +1272,30 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
+	private void xlsxOutputFile() {
+		String previousvisit =config.getOutput().getXlsxfile().getLastVisitPath();
+		if (previousvisit!=null && previousvisit.length()>0) {
+			fileChooserXLSXOut.setCurrentDirectory((new File(previousvisit)).getParentFile());
+		}
+		int result = fileChooserXLSXOut.showSaveDialog(getTopLevelAncestor());
+		if (result == JFileChooser.CANCEL_OPTION) return;
+		try {
+			String exportString = fileChooserXLSXOut.getSelectedFile().toString();
+			if (exportString.lastIndexOf('.') != -1	&&
+					exportString.lastIndexOf('.') > exportString.lastIndexOf(File.separator)) {
+					exportString = exportString.substring(0, exportString.lastIndexOf('.'));
+					
+				}
+				
+			exportString = exportString + ".xlsx";
+			xlsxBrowseOutputText.setText(exportString);
+			config.getOutput().getXlsxfile().setLastVisitPath(fileChooserXLSXOut.getCurrentDirectory().getAbsolutePath());
+		}
+		catch (Exception e) {
+			//
+		}
+	}
+	
 	private void setAfterUploadPanelEnable(boolean aFlag){
 		linkToSpSheetButton.setEnabled(aFlag);
 		aFlag=aFlag&&CloudServiceRegistery.getInstance().isServiceSelected()&&
@@ -1209,6 +1322,9 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		separatorLabel.setEnabled(csvRadioButton.isSelected());
 		separatorText.setEnabled(csvRadioButton.isSelected());
 		predefiendLabel.setEnabled(csvRadioButton.isSelected());
+		
+		xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
+		xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());	
 		
 		serviceType.setEnabled(onlineRadioButton.isSelected());
 		serviceComboBox.setEnabled(onlineRadioButton.isSelected());
@@ -1249,8 +1365,12 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
 		separatorText.setText(config.getOutput().getCsvfile().getSeparator());
+		
+		xlsxBrowseOutputText.setText(config.getOutput().getXlsxfile().getOutputPath());
 
 		csvRadioButton.setSelected(true);
+		if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
+			xlsxRadioButton.setSelected(true);
 		if (config.getOutput().getType().equalsIgnoreCase(Output.ONLINE_CONFIG))
 			onlineRadioButton.setSelected(true);
 		
@@ -1282,11 +1402,15 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 		if (csvRadioButton.isSelected())
 			config.getOutput().setType(Output.CSV_FILE_CONFIG);
+		else if (xlsxRadioButton.isSelected())
+			config.getOutput().setType(Output.XLSX_FILE_CONFIG);
 		else
 			config.getOutput().setType(Output.ONLINE_CONFIG);
 				
 		config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
 		config.getOutput().getCsvfile().setSeparator(separatorText.getText());
+		
+		config.getOutput().getXlsxfile().setOutputPath(xlsxBrowseOutputText.getText());
 		
 		config.getOutput().getCloud().setServiceName((String)serviceComboBox.getSelectedItem());
 		CloudServiceRegistery.getInstance().selectService((String)serviceComboBox.getSelectedItem());

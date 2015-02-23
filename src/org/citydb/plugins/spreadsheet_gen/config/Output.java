@@ -30,16 +30,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="OutputType", propOrder={
 		"type",
 		"csvfile",
+		"xlsxfile",
 		"cloud"
 })
 
 public class Output {
 	public static final String CSV_FILE_CONFIG="CSV_FILE";
+	public static final String XLSX_FILE_CONFIG="XLSX_FILE";
 	public static final String ONLINE_CONFIG="INTOCLOUD";
 	
 	private String type = CSV_FILE_CONFIG;
 	
 	private CSVFile csvfile;
+	private XLSXFile xlsxfile;
 	private IntoCloud cloud;
 	
 	public String getType() {
@@ -58,9 +61,17 @@ public class Output {
 		this.csvfile = csvfile;
 	}
 
+	public XLSXFile getXlsxfile() {
+		return xlsxfile;
+	}
+
+	public void setXlsxfile(XLSXFile xlsxfile) {
+		this.xlsxfile = xlsxfile;
+	}
 	
 	public Output(){
 		csvfile = new CSVFile();
+		xlsxfile = new XLSXFile();
 		cloud = new IntoCloud();
 	}
 
@@ -71,4 +82,6 @@ public class Output {
 	public void setCloud(IntoCloud cloud) {
 		this.cloud = cloud;
 	}
+
+	
 }
