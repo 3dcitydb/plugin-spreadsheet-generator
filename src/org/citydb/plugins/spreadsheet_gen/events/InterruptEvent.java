@@ -34,7 +34,7 @@ public class InterruptEvent extends Event {
 	private LogLevel logLevelType;
 	
 	public InterruptEvent(String logMessage, LogLevel logLevelType, Object source) {
-		super(EventType.INTERRUPT, source);
+		super(EventType.INTERRUPT, GLOBAL_CHANNEL, source);
 		this.logMessage = logMessage;
 		this.logLevelType = logLevelType;
 	}

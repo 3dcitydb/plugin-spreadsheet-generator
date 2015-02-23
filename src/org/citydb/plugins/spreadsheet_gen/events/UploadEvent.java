@@ -27,7 +27,7 @@ public class UploadEvent extends Event{
 	private String url="";
 	private boolean isSuccess=false;
 	public UploadEvent(boolean isSuccess,String URL, Object source) {
-		super(EventType.UPLOAD_EVENT, source);
+		super(EventType.UPLOAD_EVENT, GLOBAL_CHANNEL, source);
 		this.url=URL;
 		this.isSuccess=isSuccess;
 	}

@@ -34,12 +34,12 @@ public class SharingEvent extends Event {
 	private String messageTitle;
 	
 	public SharingEvent(int type, Object source, Users user) {
-		super(EventType.SHARING_EVENT, source);
+		super(EventType.SHARING_EVENT, GLOBAL_CHANNEL, source);
 		this.type = type;
 		this.user = user;
 	}
 	public SharingEvent(int type, Object source, String messageTitle,String message) {
-		super(EventType.SHARING_EVENT, source);
+		super(EventType.SHARING_EVENT, GLOBAL_CHANNEL, source);
 		this.type = type;
 		this.user = null;
 		this.message=message;
