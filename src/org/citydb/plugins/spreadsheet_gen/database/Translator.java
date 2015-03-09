@@ -38,6 +38,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
@@ -45,7 +46,6 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import org.citydb.api.database.BalloonTemplateHandler;
 import org.citydb.api.registry.ObjectRegistry;
-import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
 
 
 public class Translator {

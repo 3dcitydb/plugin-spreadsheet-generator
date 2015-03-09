@@ -72,6 +72,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
@@ -80,7 +81,7 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.api.database.BalloonTemplateHandler;
 import org.citydb.api.controller.ViewController;
 import org.citydb.api.registry.ObjectRegistry;
-import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
+
 
 @SuppressWarnings("serial")
 public class NewCSVColumnDialog extends JDialog {

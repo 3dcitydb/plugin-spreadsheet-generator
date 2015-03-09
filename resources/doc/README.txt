@@ -31,35 +31,24 @@ or visit http://www.gnu.org/licenses/.
 2. Copyright
 ------------
 
-(c) 2012-2014  
+(c) 2012 - 2015  
 Chair of Geoinformatics (TUMGI)
 Technische Universitaet Muenchen, Germany
-http://www.gis.bv.tum.de
-
-(c) 2012
-Institute for Geodesy and Geoinformation Science (IGG)
-Technische Universität Berlin, Germany
-http://www.igg.tu-berlin.de/
-
+http://www.gis.bgu.tum.de
 
 
 3. About
 --------
 
-By using the SPSHG (Spreadsheet Generator) plugin, it is possible to export
-data from a 3D City Database (3DCityDB) instance into a CSV file or into an
-online spreadsheet hosted in a cloud service. The CSV file may be imported
-to either a spreadsheet application (like Microsoft Excel or Open Office Calc)
-or to a web based online spreadsheet service (like Google Docs). All features
-of spreadsheet programs, like calculation and graphing tools, are applicable
-to the exported data from a 3D City Database instance. 
-
+By using the SPSHG (Spreadsheet Generator) plugin, it is possible to export data 
+from a 3D City Database (3DCityDB) instance into tables. Supported output formats 
+are Microsoft Excel, CSV, and Google Spreadsheets. 
 
 4. Requirements
 ---------------
 
 This version of the Spreadsheet Generator Plugin shall only be used with
-version 2.0 of the 3D City Database Importer/Exporter. 
+version 3.0 of the 3D City Database Importer/Exporter. 
 It cannot be guaranteed that the extension does correctly work with any
 previous or later version of the 3D City Database Importer/Exporter.
 
@@ -72,7 +61,7 @@ called "spreadsheet_generator.jar". Following simple steps will guide you throug
 install process:  
 
 *	Open the folder that contains your locally installed instance of the
-Importer/Exporter version 2.0.0 (the installation directory).
+Importer/Exporter version 3.0.0 (the installation directory).
 *	Open the plugins subfolder. If it is not available, create a new subfolder
 and name it "plugins". 
 * Extract the downloaded zip file in the plugins folder. As a result a new
@@ -95,11 +84,11 @@ Babak Naderi <b.naderi@mailbox.tu-berlin.de>
 Javier Herreruela <javier.herreruela@tu-berlin.de>
 
 
-
 7. Contact
 ----------
 
 zhihang.yao@tum.de
+thomas.kolbe@tum.de
 
 
 8. Websites

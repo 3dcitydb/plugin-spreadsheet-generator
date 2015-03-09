@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
@@ -45,7 +46,7 @@ import org.citydb.api.event.EventDispatcher;
 import org.citydb.api.registry.ObjectRegistry;
 import org.citydb.config.project.database.Database;
 import org.citydb.database.DatabaseConnectionPool;
-import org.citydb.modules.kml.database.BalloonTemplateHandlerImpl;
+
 
 
 public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
