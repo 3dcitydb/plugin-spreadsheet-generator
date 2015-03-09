@@ -12,6 +12,7 @@
  * The 3D City Database is jointly developed with the following
  * cooperation partners:
  * 
+ * Chair of Geoinformatics, TU Munich, <http://www.gis.bgu.tum.de/>
  * virtualcitySYSTEMS GmbH, Berlin <http://www.virtualcitysystems.de/>
  * M.O.S.S. Computer Grafik Systeme GmbH, Muenchen <http://www.moss.de/>
  * 
