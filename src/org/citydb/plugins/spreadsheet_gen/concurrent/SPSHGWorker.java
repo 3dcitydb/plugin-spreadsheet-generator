@@ -84,7 +84,7 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 					config.getWorkspace());
 		}
 		
-		if (config.getOutput().getType().equalsIgnoreCase(Output.ONLINE_CONFIG) || config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG))
+		if (config.getOutput().getType().equalsIgnoreCase(Output.ONLINE_CONFIG) || config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
 			seperatorCharacter =SeparatorPhrase.getInstance().getIntoCloudDefaultSeperator();
 		else
 			seperatorCharacter =SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
