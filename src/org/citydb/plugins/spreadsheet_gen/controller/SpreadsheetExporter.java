@@ -271,9 +271,9 @@ public class SpreadsheetExporter implements EventHandler{
 			}
 		}
 		
-		
 		// Summary
-		writeReport();
+		if (shouldRun)
+			writeReport();				
 		
 		if (config.getOutput().getType()==Output.ONLINE_CONFIG){
 			uploaderPool= new SingleWorkerPool<UploadFileWork>("spsh_upload_pool", new UploadFileFactory(),10);
@@ -383,8 +383,9 @@ public class SpreadsheetExporter implements EventHandler{
 			fos = new FileOutputStream(new File(xlsxFullpath));
 			workbook.write(fos);
 			fos.close();
-		}catch (IOException e1) {
-			e1.printStackTrace();
+		}catch (IOException ioe) {
+			logController.error(ioe.getMessage());
+			shouldRun=false;
 		}
 
 	}
