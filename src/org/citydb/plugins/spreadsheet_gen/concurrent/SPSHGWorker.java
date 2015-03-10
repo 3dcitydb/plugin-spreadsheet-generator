@@ -130,6 +130,13 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 	@Override
 	public void shutdown() {
 		this.shouldRun=false;
+		if (connection != null) {
+			try {
+				connection.close();
+			}
+			catch (SQLException sqlEx) {}
+			connection = null;
+		}
 	}
 	
 	public static String generateHeader(ArrayList<String>header,String separator){
