@@ -33,7 +33,7 @@ import org.citydb.api.database.DatabaseType;
 
 public class Queries {
 	// not in used.
-    public static final String QUERY_GET_GMLIDS =
+/*    public static final String QUERY_GET_GMLIDS =
 		"SELECT co.gmlid " +
 		"FROM CITYOBJECT co " +
 		"WHERE " +
@@ -67,5 +67,20 @@ public class Queries {
 			break;
 		}
 		return query;
+	}*/
+	public static final String GET_IDS(DatabaseType type) {
+		StringBuilder query = new StringBuilder()
+		.append("SELECT co.id, co.gmlid, co.objectclass_id, co.envelope FROM CITYOBJECT co WHERE ");
+		
+		switch (type) {
+		case ORACLE:
+			query.append("SDO_ANYINTERACT(co.envelope, ?) = 'TRUE'");
+			break;
+		case POSTGIS:
+			query.append("co.envelope && ?");
+			break;
+		}		
+		
+		return query.toString();
 	}
 }
