@@ -44,6 +44,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.citydb.log.Logger;
 import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
@@ -63,6 +64,7 @@ public class Translator {
 	private ArrayList<String> columnTitle;
 	private static Translator INSTANCE= new Translator();
 	private Map<String, String> templateMap;
+	private final Logger LOG = Logger.getInstance();
 	
 	public Translator(){
 		BalloonTemplateHandler dummy = new BalloonTemplateHandlerImpl("", null);
@@ -112,7 +114,7 @@ public class Translator {
 				try {
 					dbTableColumn = getTableColumn(strLine.substring(strLine.indexOf(':')+1,strLine.length()));	
 				}catch (Exception e) {
-					System.out.println(e.getMessage());
+					LOG.error(e.getMessage());
 				}
 				
 				templateMap.put(templateCSVcolumn.trim(), dbTableColumn);
@@ -155,7 +157,7 @@ public class Translator {
 			try {
 				dbTableColumn = getTableColumn(row.textcontent);	
 			}catch (Exception e) {
-				System.out.println(e.getMessage());
+				LOG.error(e.getMessage());
 			}
 			
 			templateMap.put(templateCSVcolumn.trim(), dbTableColumn);

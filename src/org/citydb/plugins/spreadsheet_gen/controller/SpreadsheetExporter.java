@@ -186,7 +186,6 @@ public class SpreadsheetExporter implements EventHandler{
 			csvFilePath = System.getProperty("java.io.tmpdir") + File.separator + filename + ".csv";
 		}		
 		File outputfile = new File(csvFilePath);
-		System.out.println(csvFilePath);
 		
 		File dummyOutputfile = null;
 		if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG)
