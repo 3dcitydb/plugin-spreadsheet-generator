@@ -358,7 +358,12 @@ public class SpreadsheetExporter implements EventHandler{
 				    		Cell cell = row.createCell(i);
 				    		int dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
 				    		if (dataType == Util.NUMBER_COLUMN_VALUE) {
-				    			cell.setCellValue(Double.valueOf(valueArray[i]));
+				    			try {
+				    				cell.setCellValue(Double.valueOf(valueArray[i]));
+				    			}
+				    			catch (NumberFormatException nfe) {
+				    				cell.setCellValue(String.valueOf(valueArray[i]));
+				    			}
 				    		}
 				    		else {
 				    			cell.setCellValue(String.valueOf(valueArray[i]));
