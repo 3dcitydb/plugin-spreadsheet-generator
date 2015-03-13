@@ -46,6 +46,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.spsheet_gen;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
@@ -116,7 +117,8 @@ public class SpreadsheetExporter implements EventHandler{
 		Set<String> keys = _3dcitydbcontent.keySet();
 		for (String tableName:keys){
 			for (String column:_3dcitydbcontent.get(tableName)){
-				System.out.println("put(\"" + tableName + "__" + column + "\", 1);");
+			//	System.out.println("put(\"" + tableName + "__" + column + "\", 1);");
+				System.out.println(tableName + "_" + column + ":" + tableName + "/[COUNT]" + column);
 			}			
 		}*/
 		
@@ -334,8 +336,12 @@ public class SpreadsheetExporter implements EventHandler{
         int rowIndex = 0;
         
         String xlsxFullpath = path + File.separator + filename + ".xlsx";
-        		
+        		       
 		reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getIntoCloudDefaultSeperator().charAt(0), Charset.forName("UTF-8"));
+		
+		// avoid error message of CsvReader in case of column lengths greater than 100,000 characters
+		reader.setSafetySwitch(false);
+		
 		reader.readRecord();
 	    String[] spshColumnNames = reader.getValues();
 	    Row row = sheet.createRow(rowIndex);
@@ -354,7 +360,7 @@ public class SpreadsheetExporter implements EventHandler{
 			    	for (int i = 0; i<valueArray.length; i++){
 			    		if (valueArray[i] != null && String.valueOf(valueArray[i].trim()).length()>0) {			    			
 			    			String dbTableColumn = templateMap.get(spshColumnNames[i]);	
-				    		Cell cell = row.createCell(i);
+				    		Cell cell = row.createCell(i);				    		
 				    		int dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
 				    		if (dataType == Util.NUMBER_COLUMN_VALUE) {
 				    			try {
