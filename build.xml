@@ -75,7 +75,7 @@ You can find the latest version in 3dcitydb-imp-exp project." level="warning" />
 		</copy>
 
 		<copy todir="${dir.build}/spreadsheet_generator/templates">
-			<fileset dir="${basedir}/templates" includes="**/*1.xml" />
+			<fileset dir="${basedir}/templates" includes="**/*.txt" />
 		</copy>
 
 		<delete dir="${dir.build.spreadsheet_generator.classes}" />
