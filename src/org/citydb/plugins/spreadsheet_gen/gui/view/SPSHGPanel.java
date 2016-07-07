@@ -485,8 +485,8 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		outpuPanelBox.add(csvPanel);
 		outpuPanelBox.add(xlsxRadioButtonPanel);
 		outpuPanelBox.add(xlsxPanel);
-		outpuPanelBox.add(onlineRadioButtonPanel);
-		outpuPanelBox.add(onlinePanel);
+//		outpuPanelBox.add(onlineRadioButtonPanel);
+//		outpuPanelBox.add(onlinePanel);
 		
 		
 		outputPanel.add(outpuPanelBox,BorderLayout.CENTER);
