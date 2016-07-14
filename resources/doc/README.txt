@@ -21,11 +21,14 @@
 1. License
 ----------
 
-The 3D City Database Importer/Exporter Spreadsheet Generator Plugin is 
-free software under the GNU Lesser General Public License Version 3.0. 
-See the file LICENSE for more details. For a copy of the GNU Lesser 
-General Public License see the files COPYING and COPYING.LESSER 
-or visit http://www.gnu.org/licenses/.
+The 3D City Database Importer/Exporter Spreadsheet Generator Plugin
+is licensed under the [Apache License, Version 2.0]
+(http://www.apache.org/licenses/LICENSE-2.0). 
+See the `LICENSE.txt` file for more details.
+
+Note that releases of the software before version 3.3.0 continue to be 
+licensed under GNU LGPL 3.0. To request a previous release of the 
+3D City Database under Apache License 2.0 create a GitHub issue.
 
 
 2. Copyright
