@@ -45,7 +45,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
-import org.citydb.plugins.spreadsheet_gen.SpreadsheetGenerator;
+import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
@@ -84,7 +84,7 @@ import com.csvreader.CsvReader;
 
 public class SpreadsheetExporter implements EventHandler{
 	private final DatabaseConnectionPool dbPool;
-	private final SpreadsheetGenerator plugin;
+	private final SPSHGPlugin plugin;
 	private final EventDispatcher eventDispatcher;
 	private final LogController logController;	
 	
@@ -96,7 +96,7 @@ public class SpreadsheetExporter implements EventHandler{
 	private SingleWorkerPool<UploadFileWork> uploaderPool;
 	
 	private DBManager dbm = null;
-	public SpreadsheetExporter(SpreadsheetGenerator plugin){
+	public SpreadsheetExporter(SPSHGPlugin plugin){
 		this.plugin = plugin;		
 		dbPool = DatabaseConnectionPool.getInstance();
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();

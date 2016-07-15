@@ -31,7 +31,7 @@ import java.awt.Component;
 
 import javax.swing.Icon;
 
-import org.citydb.plugins.spreadsheet_gen.SpreadsheetGenerator;
+import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
@@ -42,7 +42,7 @@ import org.citydb.api.plugin.extension.view.ViewListener;
 public class SPSHGView  extends View implements ViewListener{
 	private final SPSHGPanel component;
 	
-	public SPSHGView(SpreadsheetGenerator spshg){
+	public SPSHGView(SPSHGPlugin spshg){
 		component = new SPSHGPanel(spshg);
 	}
 	
