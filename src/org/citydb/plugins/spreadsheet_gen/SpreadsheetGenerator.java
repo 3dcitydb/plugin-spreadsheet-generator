@@ -44,7 +44,7 @@ import org.citydb.api.plugin.extension.view.View;
 import org.citydb.api.plugin.extension.view.ViewExtension;
 
 
-public class spsheet_gen implements Plugin, ViewExtension, ConfigExtension<ConfigImpl>  {
+public class SpreadsheetGenerator implements Plugin, ViewExtension, ConfigExtension<ConfigImpl>  {
 	private ConfigImpl config;
 	private Locale currentLocale;
 	private SPSHGView view;
@@ -55,7 +55,7 @@ public class spsheet_gen implements Plugin, ViewExtension, ConfigExtension<Confi
 	public static void main(String[] args) {
 		// test run
 		ApplicationStarter starter = new ApplicationStarter();
-		starter.run(args, new spsheet_gen());
+		starter.run(args, new SpreadsheetGenerator());
 	}
 
 	@Override

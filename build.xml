@@ -95,7 +95,7 @@ You can find the latest version in 3dcitydb-imp-exp project." level="warning" />
 			<map from="${dir.build.spreadsheet_generator.lib}${file.separator}" to="lib/" />
 		</pathconvert>
 
-		<jar jarfile="${dir.build}/spreadsheet_generator/spreadsheet_generator.jar" basedir="${dir.build.spreadsheet_generator.classes}">
+		<jar jarfile="${dir.build}/spreadsheet_generator/${plugin.name.short}.jar" basedir="${dir.build.spreadsheet_generator.classes}">
 			<manifest >
 				<attribute name="Built-Id" value="${user.name}-${plugin.name.short}-${plugin.version}" />
 				<attribute name="Built-Date" value="${TODAY}" />

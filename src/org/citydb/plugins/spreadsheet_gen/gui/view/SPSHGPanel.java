@@ -88,7 +88,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.TableColumn;
 
-import org.citydb.plugins.spreadsheet_gen.spsheet_gen;
+import org.citydb.plugins.spreadsheet_gen.SpreadsheetGenerator;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
@@ -140,7 +140,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	private final DatabaseController dbController;
 	private final DatabaseConnectionPool dbPool;
 	
-	private final spsheet_gen plugin;
+	private final SpreadsheetGenerator plugin;
 	
 	private final ReentrantLock mainLock = new ReentrantLock();
 	private Box jPanelInput;
@@ -248,7 +248,7 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	final JFileChooser fileChooserCSVOut = new JFileChooser();
 	final JFileChooser fileChooserXLSXOut = new JFileChooser();
 	
-	SPSHGPanel(spsheet_gen plugin){
+	SPSHGPanel(SpreadsheetGenerator plugin){
 		this.plugin=plugin;
 		viewController = ObjectRegistry.getInstance().getViewController();
 		logController = ObjectRegistry.getInstance().getLogController();
