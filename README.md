@@ -39,7 +39,6 @@ Contributing
 
 Developers
 ----------
-
 The Spreadsheet Generator plugin has been developed by and with the support from the following cooperation partners:
 
 * [Chair of Geoinformatics, Technical University of Munich](https://www.gis.bgu.tum.de/)
