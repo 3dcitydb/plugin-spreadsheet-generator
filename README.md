@@ -1,13 +1,13 @@
-3D City Database Importer/Exporter Spreadsheet Generator Plugin
-===============================================================
+Spreadsheet Generator Plugin
+============================
 
-The Spreadsheet Generator allows a user to export feature attributes from a 3D City Database (3DCityDB) instance as spreadsheets. Supported output formats are Microsoft Excel, CSV, and Google Spreadsheets. 
+The Spreadsheet Generator Plugin allows a user to export feature attributes from a 3D City Database (3DCityDB) instance as spreadsheets. Supported output formats are Microsoft Excel, CSV, and Google Spreadsheets. 
 
-The Spreadsheet Generator is implemented as plugin for the [Importer/Exporter](https://github.com/3dcitydb/importer-exporter). 
+The Spreadsheet Generator is implemented as plugin for the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter). 
 
 License
 -------
-The 3D City Database Importer/Exporter Spreadsheet Generator Plugin is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See the `LICENSE` file for more details.
+The Spreadsheet Generator Plugin is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See the `LICENSE` file for more details.
 
 Note that releases of the software before version 2.1.0 continue to be licensed under GNU LGPL 3.0. To request a previous release of the 3D City Database Importer/Exporter under Apache License 2.0 create a GitHub issue.
 
@@ -29,7 +29,7 @@ Each version of the Spreadsheet Generator plugin is built against a specific ver
 
 Documentation
 -------------
-A complete and comprehensive documentation on the 3D City Database and the Importer/Exporter tool is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](http://www.3dcitydb.org/3dcitydb/documentation/).
+A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](http://www.3dcitydb.org/3dcitydb/documentation/).
 
 Contributing
 ------------
@@ -40,7 +40,7 @@ Contributing
 Developers
 ----------
 
-The current version of 3D City Database Importer/Exporer Spreadsheet Generator plugin has been developed by: 
+The current version of Spreadsheet Generator plugin has been developed by: 
 
 * Zhihang Yao, Thomas H. Kolbe 
 <br>[Chair of Geoinformatics, Technical University of Munich](https://www.gis.bgu.tum.de/)
