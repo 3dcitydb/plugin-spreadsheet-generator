@@ -1,128 +1,46 @@
-3D City Database Importer/Exporter Spreadsheet Generator Plugin v2.1
+3D City Database Importer/Exporter Spreadsheet Generator Plugin
+===============================================================
 
-  This software is free software and is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License. 
+The Spreadsheet Generator allows a user to export feature attributes from a 3D City Database (3DCityDB) instance as spreadsheets. Supported output formats are Microsoft Excel, CSV, and Google Spreadsheets. 
 
+The Spreadsheet Generator is implemented as plugin for the [Importer/Exporter](https://github.com/3dcitydb/importer-exporter). 
 
-0. Index
---------
+License
+-------
+The 3D City Database Importer/Exporter Spreadsheet Generator Plugin is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). See the `LICENSE` file for more details.
 
-1. License
-2. Copyright
-3. About
-4. Requirements
-5. (Un)Installation
-6. Developers
-7. Contact
-8. Websites
-9. Disclaimer
+Note that releases of the software before version 2.1.0 continue to be licensed under GNU LGPL 3.0. To request a previous release of the 3D City Database Importer/Exporter under Apache License 2.0 create a GitHub issue.
 
+Latest release
+--------------
+The latest stable release of the 3D City Database Importer/Exporter is 2.0.
 
-1. License
-----------
+Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v2.0.0/Spreadsheet-Generator-Plugin-v2.0.0.zip). Previous releases are available from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this software except in compliance with the License.
-You may obtain a copy of the License at
- 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-
-2. Copyright
+Installation
 ------------
+The Spreadsheet Generator plugin is shipped with the universal installer of the Importer/Exporter tool. When running the setup wizard, you can choose to install the plugin. This is the recommended and easiest way of installing the plugin.
 
-(C) 2013 - 2016
-Chair of Geoinformatics
-Technical University of Munich, Germany
-https://www.gis.bgu.tum.de/
+Alternatively, you may download the software from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases) and unzip it into the `plugins` folder within the installation folder of the Importer/Exporter. After a restart of the Importer/Exporter, the Spreadsheet Generator will be ready to be used.
 
-
-3. About
---------
-
-By using the SPSHG (Spreadsheet Generator) plugin, it is possible to export 
-data from a 3D City Database (3DCityDB) instance into tables. Supported 
-output formats are Microsoft Excel, CSV, and Google Spreadsheets. 
-
-
-4. Requirements
----------------
-
-This version of the Spreadsheet Generator Plugin shall only be used with
-version 3.x of the 3D City Database Importer/Exporter. 
-It cannot be guaranteed that the extension does correctly work with any
-previous or later version of the 3D City Database Importer/Exporter.
-
-
-5. (Un)Installation
+System requirements
 -------------------
+Each version of the Spreadsheet Generator plugin is built against a specific version of the Importer/Exporter. Please check the release notes of the version you want to use for more information. 
 
-The plugin is shipped as a precompiled and ready-to-use JAR package
-called "spreadsheet_generator.jar". Following simple steps will guide you 
-through the install process:  
-
-* Open the folder that contains your locally installed instance of the
-  Importer/Exporter version 3.x (the installation directory).
-* Open the plugins subfolder. If it is not available, create a new subfolder
-  and name it "plugins". 
-* Extract the downloaded zip file in the plugins folder. As a result a new
-  folder named "spreadsheet_generator" will be created. The 
-  spreadsheet_generator folder will contain all required files and 
-  subfolders.
-* Run the Importer/Exporter.
-
-If you want to uninstall the Spreadsheet Generator Plugin, simply delete
-the "spreadsheet" subfolder and all its contents.
-
-
-6. Developers
+Documentation
 -------------
+A complete and comprehensive documentation on the 3D City Database and the Importer/Exporter tool is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](http://www.3dcitydb.org/3dcitydb/documentation/).
 
-Zhihang Yao <zhihang.yao@tuml.de>
-Thomas H. Kolbe <thomas.kolbe@tu-berlin.de>
-(and of the previous version)
-Babak Naderi <b.naderi@mailbox.tu-berlin.de>
-Javier Herreruela <javier.herreruela@tu-berlin.de>
+Contributing
+------------
+* To file bugs found in the software create a GitHub issue.
+* To contribute code for fixing filed issues create a pull request with the issue id.
+* To propose a new feature create a GitHub issue and open a discussion.
 
-
-7. Contact
+Developers
 ----------
 
-zhihang.yao@tum.de
-thomas.kolbe@tum.de
+The current version of 3D City Database Importer/Exporer Spreadsheet Generator plugin has been developed by: 
 
-
-8. Websites
------------
-
-Official Spreadsheet Generator Plugin website: 
-http://www.3dcitydb.net/
-
-Related websites:
-https://github.com/3dcitydb/plugin-spreadsheet-generator
-https://www.gis.bgu.tum.de/
-http://www.citygml.org/
-http://www.citygmlwiki.org/
-http://www.opengeospatial.org/standards/citygml
-
-
-9. Disclaimer
--------------
-
-THIS SOFTWARE IS PROVIDED BY THE CHAIR OF GEOINFORMATION FROM TU MUNICH
-(TUMGI) "AS IS" AND "WITH ALL FAULTS." 
-TUMGI MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE 
-QUALITY, SAFETY OR SUITABILITY OF THE SOFTWARE, EITHER EXPRESSED OR 
-IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
-
-TUMGI MAKES NO REPRESENTATIONS OR WARRANTIES AS TO THE TRUTH, ACCURACY OR 
-COMPLETENESS OF ANY STATEMENTS, INFORMATION OR MATERIALS CONCERNING THE 
-SOFTWARE THAT IS CONTAINED ON AND WITHIN ANY OF THE WEBSITES OWNED AND 
-OPERATED BY TUMGI.
-
-IN NO EVENT WILL TUMGI BE LIABLE FOR ANY INDIRECT, PUNITIVE, SPECIAL, 
-INCIDENTAL OR CONSEQUENTIAL DAMAGES HOWEVER THEY MAY ARISE AND EVEN IF 
-TUMGI HAVE BEEN PREVIOUSLY ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+* Zhihang Yao, Thomas H. Kolbe 
+<br>[Chair of Geoinformatics, Technical University of Munich](https://www.gis.bgu.tum.de/)
