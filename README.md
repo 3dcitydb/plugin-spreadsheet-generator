@@ -40,7 +40,8 @@ Contributing
 Developers
 ----------
 
-The current version of Spreadsheet Generator plugin has been developed by: 
+The Spreadsheet Generator plugin has been developed by and with the support from the following cooperation partners:
 
-* Zhihang Yao, Thomas H. Kolbe 
-<br>[Chair of Geoinformatics, Technical University of Munich](https://www.gis.bgu.tum.de/)
+* [Chair of Geoinformatics, Technical University of Munich](https://www.gis.bgu.tum.de/)
+* [virtualcitySYSTEMS GmbH, Berlin](http://www.virtualcitysystems.de/)
+* [M.O.S.S. Computer Grafik Systeme GmbH, Taufkirchen](http://www.moss.de/)
