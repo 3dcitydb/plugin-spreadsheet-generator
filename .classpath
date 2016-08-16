@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/third_party"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/shared"/>
-	<classpathentry kind="lib" path="lib/share/args4j/args4j-2.0.21.jar"/>
 	<classpathentry kind="lib" path="lib/share/java3d/j3dcore.jar"/>
 	<classpathentry kind="lib" path="lib/share/java3d/j3dutils.jar"/>
 	<classpathentry kind="lib" path="lib/share/java3d/vecmath.jar"/>
@@ -35,11 +34,12 @@
 	<classpathentry kind="lib" path="lib/share/citygml4j/xsom.jar"/>
 	<classpathentry kind="lib" path="lib/share/h2/h2-1.4.190.jar"/>
 	<classpathentry kind="lib" path="lib/share/kml-collada/kml-collada-jaxb.jar"/>
-	<classpathentry kind="lib" path="lib/share/postgis/postgis-jdbc-2.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/share/postgis/postgresql-9.4-1201.jdbc41.jar"/>
 	<classpathentry kind="lib" path="lib/share/tomcat-juli/tomcat-jdbc.jar"/>
 	<classpathentry kind="lib" path="lib/share/tomcat-juli/tomcat-juli.jar"/>
-	<classpathentry kind="lib" path="lib/share/citygml4j/citygml4j-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/share/kml-collada/texture-atlas-creator-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/share/args4j/args4j-2.33.jar"/>
+	<classpathentry kind="lib" path="lib/share/citygml4j/citygml4j-2.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/share/postgis/postgis-jdbc-2.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/share/postgis/postgresql-9.4.1209.jar"/>
+	<classpathentry kind="lib" path="lib/share/kml-collada/texture-atlas-creator-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
