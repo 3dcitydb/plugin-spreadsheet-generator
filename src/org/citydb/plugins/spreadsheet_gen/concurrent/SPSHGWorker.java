@@ -31,7 +31,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
+import org.citydb.api.concurrent.DefaultWorkerImpl;
+import org.citydb.api.concurrent.WorkerPool;
+import org.citydb.api.database.BalloonTemplateHandler;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.database.DatabaseConnectionPool;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
@@ -40,16 +45,6 @@ import org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService;
 import org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudServiceRegistery;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
-
-
-import org.citydb.api.concurrent.DefaultWorkerImpl;
-import org.citydb.api.concurrent.WorkerPool;
-import org.citydb.api.controller.DatabaseController;
-import org.citydb.api.database.BalloonTemplateHandler;
-import org.citydb.api.event.EventDispatcher;
-import org.citydb.api.registry.ObjectRegistry;
-import org.citydb.config.project.database.Database;
-import org.citydb.database.DatabaseConnectionPool;
 
 
 
@@ -74,7 +69,6 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		this.ioWriterPool=ioWriterPool;
 
 		connection = dbConnectionPool.getConnection();
-		String timestamp =config.getWorkspace().getTimestamp();
 		
 		// try and change workspace if needed
 		if (dbConnectionPool.getActiveDatabaseAdapter().hasVersioningSupport()) {
@@ -91,7 +85,7 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		else
 			selectedCloudService=null;
 		shouldRun=true;
-		bth = new BalloonTemplateHandlerImpl(template, connection);
+		bth = dbConnectionPool.getActiveDatabaseAdapter().getBalloonTemplateHandler(template);
 		lod=2;		
 	}
 	
@@ -100,7 +94,7 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		try {
 			if (!this.shouldRun)
 				return;
-			String data =bth.getBalloonContent(cityobj.getGmlid(), lod);
+			String data = bth.getBalloonContent(cityobj.getGmlid(), lod, connection);
 			String[] cells=data.split("\\Q"+SeparatorPhrase.getInstance().getTempPhrase()+"\\E");
 		
 			StringBuffer sb=new StringBuffer();

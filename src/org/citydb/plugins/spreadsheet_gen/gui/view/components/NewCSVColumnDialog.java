@@ -43,7 +43,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
-
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -64,7 +63,6 @@ import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -76,15 +74,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.citydb.api.controller.ViewController;
+import org.citydb.api.database.BalloonTemplateHandler;
+import org.citydb.api.registry.ObjectRegistry;
 import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-
-import org.citydb.api.database.BalloonTemplateHandler;
-import org.citydb.api.controller.ViewController;
-import org.citydb.api.registry.ObjectRegistry;
 
 
 @SuppressWarnings("serial")

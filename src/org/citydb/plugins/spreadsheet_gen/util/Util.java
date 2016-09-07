@@ -32,7 +32,6 @@ import java.awt.Insets;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import org.citygml4j.model.citygml.CityGMLClass;
 

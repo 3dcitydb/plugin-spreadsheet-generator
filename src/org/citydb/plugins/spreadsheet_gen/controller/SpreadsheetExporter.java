@@ -28,14 +28,12 @@
 package org.citydb.plugins.spreadsheet_gen.controller;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,7 +42,16 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.citydb.modules.common.balloon.BalloonTemplateHandlerImpl;
+import org.citydb.api.concurrent.PoolSizeAdaptationStrategy;
+import org.citydb.api.concurrent.SingleWorkerPool;
+import org.citydb.api.concurrent.WorkerPool;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.event.Event;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.event.EventHandler;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.config.project.database.Workspace;
+import org.citydb.database.DatabaseConnectionPool;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
@@ -65,19 +72,6 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.SelectedCityObjects;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-
-
-import org.citydb.api.concurrent.PoolSizeAdaptationStrategy;
-import org.citydb.api.concurrent.SingleWorkerPool;
-import org.citydb.api.concurrent.WorkerPool;
-import org.citydb.api.controller.DatabaseController;
-import org.citydb.api.controller.LogController;
-import org.citydb.api.event.Event;
-import org.citydb.api.event.EventDispatcher;
-import org.citydb.api.event.EventHandler;
-import org.citydb.api.registry.ObjectRegistry;
-import org.citydb.config.project.database.Workspace;
-import org.citydb.database.DatabaseConnectionPool;
 
 import com.csvreader.CsvReader;
 

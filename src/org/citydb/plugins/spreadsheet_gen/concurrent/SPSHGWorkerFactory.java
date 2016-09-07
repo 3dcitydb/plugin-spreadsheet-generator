@@ -28,15 +28,13 @@
 package org.citydb.plugins.spreadsheet_gen.concurrent;
 
 
-import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
-import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
-
 import org.citydb.api.concurrent.Worker;
 import org.citydb.api.concurrent.WorkerFactory;
 import org.citydb.api.concurrent.WorkerPool;
-import org.citydb.api.controller.DatabaseController;
 import org.citydb.database.DatabaseConnectionPool;
+import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
+import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
+import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 
 public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
 	private final DatabaseConnectionPool dbPool;
