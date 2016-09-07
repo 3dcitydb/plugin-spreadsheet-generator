@@ -37,24 +37,22 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.citydb.log.Logger;
-import org.citydb.modules.kml.database.Queries;
-import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
-import org.citygml4j.geometry.Point;
-import org.citygml4j.model.citygml.CityGMLClass;
-import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
-import org.citygml4j.model.gml.geometry.primitives.Envelope;
-
 import org.citydb.api.concurrent.WorkerPool;
 import org.citydb.api.database.DatabaseSrs;
 import org.citydb.api.geometry.BoundingBox;
 import org.citydb.api.geometry.GeometryObject;
-import org.citydb.api.geometry.GeometryObject.GeometryType;
+import org.citydb.api.geometry.GeometryType;
 import org.citydb.database.DatabaseConnectionPool;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
-
+import org.citydb.log.Logger;
+import org.citydb.modules.kml.database.Queries;
+import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
+import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.util.Util;
+import org.citygml4j.geometry.Point;
+import org.citygml4j.model.citygml.CityGMLClass;
+import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
+import org.citygml4j.model.gml.geometry.primitives.Envelope;
 
 
 public class DBManager {
@@ -215,10 +213,10 @@ public class DBManager {
 
 		double centroidX = minX + (maxX - minX) / 2;
 		double centroidY = minY + (maxY - minY) / 2;
-		if (centroidX >= bbx.getLowerLeftCorner().getX() &&
-				centroidY > bbx.getLowerLeftCorner().getY() &&
-				centroidX < bbx.getUpperRightCorner().getX() &&
-				centroidY <= bbx.getUpperRightCorner().getY())
+		if (centroidX >= bbx.getLowerCorner().getX() &&
+				centroidY > bbx.getLowerCorner().getY() &&
+				centroidX < bbx.getUpperCorner().getX() &&
+				centroidY <= bbx.getUpperCorner().getY())
 			return false;
 		else
 			return true;

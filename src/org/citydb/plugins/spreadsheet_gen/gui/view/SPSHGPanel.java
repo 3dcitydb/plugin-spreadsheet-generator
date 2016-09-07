@@ -40,7 +40,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,18 +65,17 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
-
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -88,6 +86,20 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.TableColumn;
 
+import org.citydb.api.controller.DatabaseController;
+import org.citydb.api.controller.LogController;
+import org.citydb.api.controller.ViewController;
+import org.citydb.api.database.DatabaseConfigurationException;
+import org.citydb.api.database.DatabaseVersionException;
+import org.citydb.api.event.Event;
+import org.citydb.api.event.EventDispatcher;
+import org.citydb.api.event.EventHandler;
+import org.citydb.api.event.global.DatabaseConnectionStateEvent;
+import org.citydb.api.event.global.GlobalEvents;
+import org.citydb.api.gui.BoundingBoxPanel;
+import org.citydb.api.log.LogLevel;
+import org.citydb.api.registry.ObjectRegistry;
+import org.citydb.database.DatabaseConnectionPool;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
@@ -107,21 +119,6 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-
-import org.citydb.api.controller.DatabaseController;
-import org.citydb.api.controller.LogController;
-import org.citydb.api.controller.ViewController;
-import org.citydb.api.database.DatabaseConfigurationException;
-import org.citydb.api.database.DatabaseVersionException;
-import org.citydb.api.event.Event;
-import org.citydb.api.event.EventDispatcher;
-import org.citydb.api.event.EventHandler;
-import org.citydb.api.event.global.DatabaseConnectionStateEvent;
-import org.citydb.api.event.global.GlobalEvents;
-import org.citydb.api.gui.BoundingBoxPanel;
-import org.citydb.api.log.LogLevel;
-import org.citydb.api.registry.ObjectRegistry;
-import org.citydb.database.DatabaseConnectionPool;
 
 
 
@@ -916,10 +913,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 			
 			
 			// bbx
-			if (!(config.getBoundingbox().getLowerLeftCorner().isSetX()||
-					config.getBoundingbox().getLowerLeftCorner().isSetY()||
-					config.getBoundingbox().getUpperRightCorner().isSetX()||
-					config.getBoundingbox().getUpperRightCorner().isSetY())){
+			if (!(config.getBoundingbox().getLowerCorner().isSetX()||
+					config.getBoundingbox().getLowerCorner().isSetY()||
+					config.getBoundingbox().getUpperCorner().isSetX()||
+					config.getBoundingbox().getUpperCorner().isSetY())){
 				errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"), 
 						Util.I18N.getString("spshg.dialog.error.incompleteData.bbx"));
 				return;
