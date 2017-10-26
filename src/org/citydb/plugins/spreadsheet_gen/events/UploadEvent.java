@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,19 +27,46 @@
  */
 package org.citydb.plugins.spreadsheet_gen.events;
 import org.citydb.api.event.Event;
+// TODO: Auto-generated Javadoc
+
+/**
+ * The Class UploadEvent.
+ */
 public class UploadEvent extends Event{
+	
+	/** The url. */
 	private String url="";
+	
+	/** The is success. */
 	private boolean isSuccess=false;
+	
+	/**
+	 * Instantiates a new upload event.
+	 *
+	 * @param isSuccess the is success
+	 * @param URL the url
+	 * @param source the source
+	 */
 	public UploadEvent(boolean isSuccess,String URL, Object source) {
 		super(EventType.UPLOAD_EVENT, GLOBAL_CHANNEL, source);
 		this.url=URL;
 		this.isSuccess=isSuccess;
 	}
 	
+	/**
+	 * Checks if is success.
+	 *
+	 * @return true, if is success
+	 */
 	public boolean isSuccess(){
 		return isSuccess;
 	}
 	
+	/**
+	 * Gets the url.
+	 *
+	 * @return the url
+	 */
 	public String getURL(){
 		return this.url;
 	}

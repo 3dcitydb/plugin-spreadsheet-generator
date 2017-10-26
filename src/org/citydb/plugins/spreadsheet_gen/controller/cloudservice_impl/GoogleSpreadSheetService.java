@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -66,26 +66,59 @@ import com.google.gdata.util.ServiceException;
 
 import org.citydb.api.registry.ObjectRegistry;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class GoogleSpreadSheetService.
+ */
 public class GoogleSpreadSheetService implements CloudService {
+	
+	/** The Constant ROLE_OWNER. */
 	public final static int ROLE_OWNER = 1;
+	
+	/** The Constant ROLE_WRITER. */
 	public final static int ROLE_WRITER = 2;
+	
+	/** The Constant ROLE_READER. */
 	public final static int ROLE_READER = 3;
 
+	/** The Constant SCOPE_USER. */
 	public final static int SCOPE_USER = 10;
+	
+	/** The Constant SCOPE_GROUP. */
 	public final static int SCOPE_GROUP = 11;
+	
+	/** The Constant SCOPE_DOMAIN. */
 	public final static int SCOPE_DOMAIN = 12;
+	
+	/** The Constant SCOPE_DEFAULT. */
 	public final static int SCOPE_DEFAULT = 13;
+	
+	/** The Constant SCOPE_DEFAULT_WITH_KEY. */
 	public final static int SCOPE_DEFAULT_WITH_KEY = 14;
+	
+	/** The Constant SCOPE_PRIVATE. */
 	public final static int SCOPE_PRIVATE = 15;
 
+	/** The service. */
 	private DocsService service;
+	
+	/** The main entry. */
 	private DocumentListEntry mainEntry = null;
 
+	/** The use correct proxy. */
 	public static boolean useCorrectProxy=true;
 	
+	/**
+	 * Instantiates a new google spread sheet service.
+	 */
 	public GoogleSpreadSheetService() {
 	}
 
+	/**
+	 * Gets the service.
+	 *
+	 * @return the service
+	 */
 	private DocsService getService() {
 		if (service == null){
 			service = new DocsService("3dcitydb-spreadsheetplugin-v1.0");
@@ -93,6 +126,9 @@ public class GoogleSpreadSheetService implements CloudService {
 		return service;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#uploadFile(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public synchronized String uploadFile(String filepath, String title) throws Exception {
 		Spreadsheet overwriteOn=null;
@@ -112,6 +148,14 @@ public class GoogleSpreadSheetService implements CloudService {
 		return url;
 	}
 		
+	/**
+	 * Creates the new file.
+	 *
+	 * @param filepath the filepath
+	 * @param title the title
+	 * @return the string
+	 * @throws Exception the exception
+	 */
 	private String createNewFile(String filepath, String title)throws Exception {
 		File file = new File(filepath);
 		DocumentListEntry newDocument = new DocumentListEntry();
@@ -130,6 +174,14 @@ public class GoogleSpreadSheetService implements CloudService {
 		return null;
 	}
 	
+	/**
+	 * Override on file.
+	 *
+	 * @param filepath the filepath
+	 * @param spreasheet the spreasheet
+	 * @return the string
+	 * @throws Exception the exception
+	 */
 	private String overrideOnFile(String filepath, Spreadsheet spreasheet)throws Exception {
 		File file = new File(filepath);
 		String mimeType = DocumentListEntry.MediaType.fromFileName(
@@ -142,6 +194,12 @@ public class GoogleSpreadSheetService implements CloudService {
 		return mainEntry.getHtmlLink().getHref();
 	}
 	
+	/**
+	 * Gets the spreadsheet with same name.
+	 *
+	 * @param name the name
+	 * @return the spreadsheet with same name
+	 */
 	public ArrayList<Spreadsheet> getSpreadsheetWithSameName(String name){
 		ArrayList<Spreadsheet> list= new ArrayList<Spreadsheet>();
 		 URL feedUri;
@@ -165,12 +223,18 @@ public class GoogleSpreadSheetService implements CloudService {
 		  return list;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#afterUpload()
+	 */
 	@Override
 	public void afterUpload() throws Exception {
 		publishDocument();
 		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#setUserCredentials(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void setUserCredentials(String userName, String password)
 			throws AuthenticationException, CaptchaRequiredException {
@@ -184,6 +248,9 @@ public class GoogleSpreadSheetService implements CloudService {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#setUserCredentials(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void setUserCredentials(String userName, String password,
 			String captchaToken, String answer) throws AuthenticationException,
@@ -200,26 +267,41 @@ public class GoogleSpreadSheetService implements CloudService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#getServiceName()
+	 */
 	@Override
 	public String getServiceName() {
 		return "Google Spreadsheet Service";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#getServiceDescription()
+	 */
 	@Override
 	public String getServiceDescription() {
 		return "spshg.cls.google.description";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#isPolicyChangeable()
+	 */
 	@Override
 	public boolean isPolicyChangeable() {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#getPolicyEditorUI(javax.swing.JFrame)
+	 */
 	@Override
 	public JDialog getPolicyEditorUI(JFrame mainFrame) {
 		return new ShareSettingDialog(mainFrame);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService#formatText(java.lang.String)
+	 */
 	@Override
 	public String formatText(String in) {
 		if (in.matches("\\s*\\d+\\Qe\\E\\d+\\s*"))
@@ -227,6 +309,15 @@ public class GoogleSpreadSheetService implements CloudService {
 		return in;
 	}
 
+	/**
+	 * Share document.
+	 *
+	 * @param role the role
+	 * @param scopeType the scope type
+	 * @param contact the contact
+	 * @return the acl entry
+	 * @throws Exception the exception
+	 */
 	public synchronized AclEntry shareDocument(int role, int scopeType, String contact)
 			throws Exception {
 		if (mainEntry == null)
@@ -267,6 +358,11 @@ public class GoogleSpreadSheetService implements CloudService {
 
 	}
 
+	/**
+	 * Publish document.
+	 *
+	 * @throws UploadException the upload exception
+	 */
 	public synchronized void publishDocument() throws UploadException{
 		try{
 			RevisionFeed revisionFeed = getRevisionFeed();
@@ -282,11 +378,28 @@ public class GoogleSpreadSheetService implements CloudService {
 		}		
 	}
 
+	/**
+	 * Update acl list.
+	 *
+	 * @return the list
+	 * @throws MalformedURLException the malformed URL exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws ServiceException the service exception
+	 */
 	public synchronized List<AclEntry> updateAclList() throws MalformedURLException, IOException, ServiceException{
 		AclFeed aclFeed = getService().getFeed(new URL(mainEntry.getAclFeedLink().getHref()), AclFeed.class);
 		return aclFeed.getEntries();
 	}
 	
+	/**
+	 * Update permission.
+	 *
+	 * @param oldPermission the old permission
+	 * @param user the user
+	 * @return the acl entry
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws ServiceException the service exception
+	 */
 	public AclEntry updatePermission(AclEntry oldPermission, Users user) throws IOException, ServiceException{
 		if (user.isVisibilityDescription()){ // general permission
 				AclEntry aclEntry = new AclEntry();
@@ -308,6 +421,17 @@ public class GoogleSpreadSheetService implements CloudService {
 
 	
 	
+	/**
+	 * Adds the acl role.
+	 *
+	 * @param role the role
+	 * @param scope the scope
+	 * @param entry the entry
+	 * @return the acl entry
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws MalformedURLException the malformed URL exception
+	 * @throws ServiceException the service exception
+	 */
 	private synchronized AclEntry addAclRole(AclRole role, AclScope scope,
 			DocumentListEntry entry) throws IOException, MalformedURLException,
 			ServiceException {
@@ -319,6 +443,12 @@ public class GoogleSpreadSheetService implements CloudService {
 				aclEntry);
 	}
 
+	/**
+	 * Gets the revision feed.
+	 *
+	 * @return the revision feed
+	 * @throws Exception the exception
+	 */
 	private RevisionFeed getRevisionFeed() throws Exception {
 		if (mainEntry == null)
 			throw new Exception();
@@ -328,6 +458,12 @@ public class GoogleSpreadSheetService implements CloudService {
 		return rf;
 	}
 	
+	/**
+	 * To local code.
+	 *
+	 * @param aclscopeType the aclscope type
+	 * @return the int
+	 */
 	public static int toLocalCode(AclScope.Type aclscopeType){
 		if (aclscopeType.equals(AclScope.Type.DEFAULT))
 			return SCOPE_DEFAULT;
@@ -340,6 +476,12 @@ public class GoogleSpreadSheetService implements CloudService {
 		return 0;
 	}
 	
+	/**
+	 * To local code.
+	 *
+	 * @param aclRole the acl role
+	 * @return the int
+	 */
 	public static int toLocalCode(AclRole aclRole){
 		if (aclRole.equals(AclRole.OWNER))
 			return ROLE_OWNER;
@@ -350,6 +492,12 @@ public class GoogleSpreadSheetService implements CloudService {
 		return 0;
 	}
 	
+	/**
+	 * To google scope.
+	 *
+	 * @param scope the scope
+	 * @return the acl scope. type
+	 */
 	public static AclScope.Type toGoogleScope(int scope){
 		switch(scope){
 			case SCOPE_DEFAULT: return AclScope.Type.DEFAULT;
@@ -361,6 +509,12 @@ public class GoogleSpreadSheetService implements CloudService {
 		return null;
 	}
 	
+	/**
+	 * To google role.
+	 *
+	 * @param role the role
+	 * @return the acl role
+	 */
 	public static AclRole toGoogleRole(int role){
 		switch(role){
 			case ROLE_OWNER: 	return AclRole.OWNER;

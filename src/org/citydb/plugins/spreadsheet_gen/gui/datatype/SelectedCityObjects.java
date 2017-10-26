@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -35,24 +35,63 @@ import org.citydb.plugins.spreadsheet_gen.config.FeatureClass;
 import org.citygml4j.model.citygml.CityGMLClass;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SelectedCityObjects.
+ */
 public class SelectedCityObjects {
+	
+	/** The Cityobject. */
 	private  final int Cityobject=1;
+	
+	/** The Building. */
 	private  final int Building=2;
+	
+	/** The Water body. */
 	private  final int WaterBody=3;
+	
+	/** The Land use. */
 	private  final int LandUse=4;
+	
+	/** The Vegetation. */
 	private  final int Vegetation=5;
+	
+	/** The Transportation. */
 	private  final int Transportation=6;
+	
+	/** The Relief feature. */
 	private  final int ReliefFeature=7;
+	
+	/** The City furniture. */
 	private  final int CityFurniture=8;
+	
+	/** The Generic city object. */
 	private  final int GenericCityObject=9;
+	
+	/** The City object group. */
 	private  final int CityObjectGroup=10;		
+	
+	/** The Tunnel. */
 	private  final int Tunnel=11;
+	
+	/** The Bridge. */
 	private  final int Bridge=12;
 	
+	/** The desire city objects. */
 	private HashSet<CityGMLClass> desireCityObjects= new HashSet<CityGMLClass>();
+	
+	/** The allitems. */
 	private LinkedHashMap<String, Integer> allitems= new LinkedHashMap<String, Integer>();
+	
+	/** The Constant instance. */
 	private static final SelectedCityObjects instance= new SelectedCityObjects();
+	
+	/** The fc. */
 	private FeatureClass fc;
+	
+	/**
+	 * Instantiates a new selected city objects.
+	 */
 	SelectedCityObjects(){
 		allitems.put(getName(Building), new Integer(this.Building));
 		allitems.put(getName(WaterBody), new Integer(this.WaterBody));
@@ -68,10 +107,20 @@ public class SelectedCityObjects {
 	}
 	
 	
+	/**
+	 * Gets the single instance of SelectedCityObjects.
+	 *
+	 * @return single instance of SelectedCityObjects
+	 */
 	public static SelectedCityObjects getInstance(){
 		return instance;
 	}
 	
+	/**
+	 * Initialize.
+	 *
+	 * @param config the config
+	 */
 	public void initialize(ConfigImpl config){
 		fc= config.getSelectedcityobjects();
 		if (fc.isSetBuilding()) selectCityObject(Building); else removeCityObject(Building);
@@ -87,10 +136,20 @@ public class SelectedCityObjects {
 		if (fc.isSetBridge()) selectCityObject(Bridge); else removeCityObject(Bridge);
 	}
 	
+	/**
+	 * Gets the selected city objects.
+	 *
+	 * @return the selected city objects
+	 */
 	public HashSet<CityGMLClass> getSelectedCityObjects(){
 		return desireCityObjects;
 	} 
 	
+	/**
+	 * Gets the selected objects string.
+	 *
+	 * @return the selected objects string
+	 */
 	public String getSelectedObjectsString(){
 		StringBuffer sb= new StringBuffer();
 		boolean isfirst=true;
@@ -107,28 +166,59 @@ public class SelectedCityObjects {
 		return sb.toString();
 	}
 	
+	/**
+	 * Select city object.
+	 *
+	 * @param code the code
+	 */
 	public void selectCityObject(Integer code){
 		selectCityObject(code.intValue());
 		saveSetting(code.intValue(),true);
 	}
 	
+	/**
+	 * Removes the city object.
+	 *
+	 * @param code the code
+	 */
 	public void removeCityObject(Integer code){
 		removeCityObject(code.intValue());
 		saveSetting(code.intValue(),false);
 	}
 	
+	/**
+	 * Gets the root.
+	 *
+	 * @return the root
+	 */
 	public String getRoot(){
 		return getName(Cityobject);
 	}
 	
+	/**
+	 * Gets the root ID.
+	 *
+	 * @return the root ID
+	 */
 	public int getRootID(){
 		return Cityobject;
 	}
 	
+	/**
+	 * Gets the childs.
+	 *
+	 * @return the childs
+	 */
 	public LinkedHashMap<String, Integer> getChilds(){
 		return allitems;
 	}
 	
+	/**
+	 * Checks if is city object selected.
+	 *
+	 * @param code the code
+	 * @return true, if is city object selected
+	 */
 	public boolean isCityObjectSelected(Integer code){
 		switch (code) {
 		case Cityobject:
@@ -169,6 +259,11 @@ public class SelectedCityObjects {
 		return false;
 	}
 	
+	/**
+	 * Removes the city object.
+	 *
+	 * @param code the code
+	 */
 	private void removeCityObject(int code){
 		switch (code) {
 		case Cityobject:
@@ -231,6 +326,12 @@ public class SelectedCityObjects {
 		}
 	}
 	
+	/**
+	 * Save setting.
+	 *
+	 * @param code the code
+	 * @param isselected the isselected
+	 */
 	private void saveSetting(int code, boolean isselected){
 		switch (code) {
 		case Cityobject:
@@ -282,6 +383,12 @@ public class SelectedCityObjects {
 		}
 	}
 	
+	/**
+	 * Gets the name.
+	 *
+	 * @param code the code
+	 * @return the name
+	 */
 	public String getName(int code){
 		String space="    ";
 		switch (code) {
@@ -301,6 +408,11 @@ public class SelectedCityObjects {
 		return "";
 	}
 	
+	/**
+	 * Select city object.
+	 *
+	 * @param code the code
+	 */
 	private void selectCityObject(int code){
 		switch (code) {
 		case Cityobject:
@@ -362,6 +474,12 @@ public class SelectedCityObjects {
 		}		
 	}
 	
+	/**
+	 * Gets the city object name.
+	 *
+	 * @param c the c
+	 * @return the city object name
+	 */
 	public String getCityObjectName(CityGMLClass c ){
 		if (CityGMLClass.BUILDING == c){
 			return getName(Building);

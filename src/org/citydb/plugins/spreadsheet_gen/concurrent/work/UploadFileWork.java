@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,19 +27,43 @@
  */
 package org.citydb.plugins.spreadsheet_gen.concurrent.work;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class UploadFileWork.
+ */
 public class UploadFileWork {
+	
+	/** The localpath. */
 	private String localpath;
+	
+	/** The title. */
 	private String title;
 	
+	/**
+	 * Instantiates a new upload file work.
+	 *
+	 * @param localpath the localpath
+	 * @param title the title
+	 */
 	public UploadFileWork(String localpath,String title){
 		this.localpath =localpath;
 		this.title=title;
 	}
 
+	/**
+	 * Gets the localpath.
+	 *
+	 * @return the localpath
+	 */
 	public String getLocalpath() {
 		return localpath;
 	}
 
+	/**
+	 * Gets the title.
+	 *
+	 * @return the title
+	 */
 	public String getTitle() {
 		return title;
 	}

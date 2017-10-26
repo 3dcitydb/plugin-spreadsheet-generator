@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -24,9 +24,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-/**
- * copy from matching plugin writen by Claus.
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
@@ -56,19 +53,50 @@ import org.citydb.api.event.EventHandler;
 import org.citydb.api.registry.ObjectRegistry;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class StatusDialog.
+ */
 @SuppressWarnings("serial")
 public class StatusDialog extends JDialog implements EventHandler {
+	
+	/** The event dispatcher. */
 	final EventDispatcher eventDispatcher;
 	
+	/** The title label. */
 	private JLabel titleLabel;
+	
+	/** The message label. */
 	private JLabel messageLabel;
+	
+	/** The progress bar. */
 	private JProgressBar progressBar;
+	
+	/** The details label. */
 	private JLabel detailsLabel;
+	
+	/** The main. */
 	private JPanel main;
+	
+	/** The row. */
 	private JPanel row;
+	
+	/** The button. */
 	private JButton button;
+	
+	/** The accept status update. */
 	private volatile boolean acceptStatusUpdate = true;
 
+	/**
+	 * Instantiates a new status dialog.
+	 *
+	 * @param frame the frame
+	 * @param windowTitle the window title
+	 * @param statusTitle the status title
+	 * @param statusMessage the status message
+	 * @param statusDetails the status details
+	 * @param setButton the set button
+	 */
 	public StatusDialog(JFrame frame, 
 			String windowTitle, 
 			String statusTitle,
@@ -85,6 +113,15 @@ public class StatusDialog extends JDialog implements EventHandler {
 		initGUI(windowTitle, statusTitle, statusMessage, statusDetails, setButton);
 	}
 
+	/**
+	 * Inits the GUI.
+	 *
+	 * @param windowTitle the window title
+	 * @param statusTitle the status title
+	 * @param statusMessage the status message
+	 * @param statusDetails the status details
+	 * @param setButton the set button
+	 */
 	private void initGUI(String windowTitle, 
 			String statusTitle, 
 			String statusMessage, 
@@ -155,22 +192,45 @@ public class StatusDialog extends JDialog implements EventHandler {
 		}
 	}
 
+	/**
+	 * Gets the status title label.
+	 *
+	 * @return the status title label
+	 */
 	public JLabel getStatusTitleLabel() {
 		return titleLabel;
 	}
 
+	/**
+	 * Gets the status message label.
+	 *
+	 * @return the status message label
+	 */
 	public JLabel getStatusMessageLabel() {
 		return messageLabel;
 	}
 	
+	/**
+	 * Gets the button.
+	 *
+	 * @return the button
+	 */
 	public JButton getButton() {
 		return button;
 	}
 
+	/**
+	 * Gets the progress bar.
+	 *
+	 * @return the progress bar
+	 */
 	public JProgressBar getProgressBar() {
 		return progressBar;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.awt.Component#handleEvent(java.awt.Event)
+	 */
 	@Override
 	public void handleEvent(Event e) throws Exception {
 		if (e.getEventType() == EventType.INTERRUPT) {

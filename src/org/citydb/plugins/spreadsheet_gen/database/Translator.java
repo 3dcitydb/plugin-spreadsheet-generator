@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -50,17 +50,42 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Translator.
+ */
 public class Translator {
+	
+	/** The wordparser. */
 	private StringBuffer wordparser=new StringBuffer();
+	
+	/** The offset. */
 	private int offset;
+	
+	/** The keys. */
 	private Set<String> keys;
+	
+	/** The aggregations. */
 	private Set<String> aggregations;
+	
+	/** The 3 dcitydbcontent. */
 	private HashMap<String, Set<String>> _3dcitydbcontent;
+	
+	/** The column title. */
 	private ArrayList<String> columnTitle;
+	
+	/** The instance. */
 	private static Translator INSTANCE= new Translator();
+	
+	/** The template map. */
 	private Map<String, String> templateMap;
+	
+	/** The log. */
 	private final Logger LOG = Logger.getInstance();
 
+	/**
+	 * Instantiates a new translator.
+	 */
 	public Translator(){
 		BalloonTemplateHandler dummy = new BalloonTemplateHandlerImpl("", null);
 		aggregations = dummy.getSupportedAggregationFunctions();
@@ -69,14 +94,31 @@ public class Translator {
 
 	}
 
+	/**
+	 * Gets the single instance of Translator.
+	 *
+	 * @return single instance of Translator
+	 */
 	public static Translator getInstance(){
 		return INSTANCE;
 	}
 
+	/**
+	 * Gets the template hashmap.
+	 *
+	 * @return the template hashmap
+	 */
 	public Map<String, String> getTemplateHashmap() {
 		return templateMap;	
 	}
 
+	/**
+	 * Translate to balloon template.
+	 *
+	 * @param csvTemplate the csv template
+	 * @return the string
+	 * @throws Exception the exception
+	 */
 	public String translateToBalloonTemplate(File csvTemplate) throws Exception {
 
 		templateMap = new HashMap<String, String>();
@@ -131,6 +173,13 @@ public class Translator {
 		}
 	}
 
+	/**
+	 * Translate to balloon template.
+	 *
+	 * @param rows the rows
+	 * @return the string
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public String translateToBalloonTemplate( ArrayList<CSVColumns> rows) throws IOException {
 
 		templateMap = new HashMap<String, String>();
@@ -169,16 +218,33 @@ public class Translator {
 		return output.toString();
 	}
 
+	/**
+	 * Gets the proper header.
+	 *
+	 * @param content the content
+	 * @return the proper header
+	 */
 	public String getProperHeader(String content){
 		columnTitle = new ArrayList<String>();
 		translateLine(content,true);
 		return columnTitle.get(0);
 	}
 
+	/**
+	 * Gets the column title.
+	 *
+	 * @return the column title
+	 */
 	public ArrayList<String> getColumnTitle(){
 		return columnTitle;
 	}
 
+	/**
+	 * Gets the formated document.
+	 *
+	 * @param content the content
+	 * @return the formated document
+	 */
 	public StyledDocument getFormatedDocument(String content){
 		StyleContext context = new StyleContext();
 		DefaultStyledDocument document = new DefaultStyledDocument(context);
@@ -218,6 +284,13 @@ public class Translator {
 		return document;
 	}
 
+	/**
+	 * Translate line.
+	 *
+	 * @param line the line
+	 * @param generateHeader the generate header
+	 * @return the string
+	 */
 	private String translateLine(String line, boolean generateHeader){
 		StringBuffer sbout= new StringBuffer();
 		offset=0;
@@ -368,6 +441,13 @@ public class Translator {
 			columnTitle.add(header);
 		return sbout.toString();
 	}
+	
+	/**
+	 * Gets the word.
+	 *
+	 * @param chararray the chararray
+	 * @return the word
+	 */
 	private String getWord(char[] chararray){
 		wordparser.setLength(0);
 
@@ -399,6 +479,13 @@ public class Translator {
 		return wordparser.toString();
 	}
 
+	/**
+	 * Gets the table column.
+	 *
+	 * @param rawStatement the raw statement
+	 * @return the table column
+	 * @throws Exception the exception
+	 */
 	public String getTableColumn(String rawStatement) throws Exception {	
 
 		String aggregateFunction = null;		

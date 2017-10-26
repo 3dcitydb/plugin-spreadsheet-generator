@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -25,21 +25,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * copy from matching plugin writen by Claus.
- */
 package org.citydb.plugins.spreadsheet_gen.events;
 
 import org.citydb.api.event.Event;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class StatusDialogMessage.
+ */
 public class StatusDialogMessage extends Event {
+	
+	/** The message. */
 	private String message;
 	
+	/**
+	 * Instantiates a new status dialog message.
+	 *
+	 * @param message the message
+	 * @param source the source
+	 */
 	public StatusDialogMessage(String message, Object source) {
 		super(EventType.STATUS_DIALOG_MESSAGE, GLOBAL_CHANNEL, source);
 		this.message = message;
 	}
 
+	/**
+	 * Gets the message.
+	 *
+	 * @return the message
+	 */
 	public String getMessage() {
 		return message;
 	}

@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -39,52 +39,90 @@ import org.citydb.api.event.global.ViewEvent;
 import org.citydb.api.plugin.extension.view.View;
 import org.citydb.api.plugin.extension.view.ViewListener;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SPSHGView.
+ */
 public class SPSHGView  extends View implements ViewListener{
+	
+	/** The component. */
 	private final SPSHGPanel component;
 	
+	/**
+	 * Instantiates a new SPSHG view.
+	 *
+	 * @param spshg the spshg
+	 */
 	public SPSHGView(SPSHGPlugin spshg){
 		component = new SPSHGPanel(spshg);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.View#getIcon()
+	 */
 	@Override
 	public Icon getIcon() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.View#getLocalizedTitle()
+	 */
 	@Override
 	public String getLocalizedTitle() {
 		return Util.I18N.getString("spshg.general.title");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.View#getToolTip()
+	 */
 	@Override
 	public String getToolTip() {
 		return Util.I18N.getString("spshg.general.tooltip");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.View#getViewComponent()
+	 */
 	@Override
 	public Component getViewComponent() {
 		return component;
 	}
 	
+	/**
+	 * Switch locale.
+	 */
 	public void switchLocale() {
 		component.switchLocale();
 	}
 	
+	/**
+	 * Save settings.
+	 */
 	public void saveSettings(){
 		component.saveSettings();
 	}
 	
+	/**
+	 * Load settings.
+	 */
 	public void loadSettings(){
 		component.loadSettings();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.ViewListener#viewActivated(org.citydb.api.event.global.ViewEvent)
+	 */
 	@Override
 	public void viewActivated(ViewEvent e) {
 		if (component!=null  && e.getView() instanceof SPSHGView)
 			component.panelIsVisible(true);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.ViewListener#viewDeactivated(org.citydb.api.event.global.ViewEvent)
+	 */
 	@Override
 	public void viewDeactivated(ViewEvent e) {
 		if (component!=null  && e.getView() instanceof SPSHGView)

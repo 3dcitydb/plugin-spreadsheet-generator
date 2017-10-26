@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -37,12 +37,30 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.api.controller.LogController;
 import org.citydb.api.registry.ObjectRegistry;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class TemplateWriter.
+ */
 public class TemplateWriter implements Runnable {
+	
+	/** The path. */
 	private String path;
+	
+	/** The table data model. */
 	private TableDataModel tableDataModel;
+	
+	/** The separator phrase. */
 	private String separatorPhrase;
+	
+	/** The log controller. */
 	private final LogController logController;
 	
+	/**
+	 * Instantiates a new template writer.
+	 *
+	 * @param path the path
+	 * @param tableDataModel the table data model
+	 */
 	public TemplateWriter(String path, TableDataModel tableDataModel){
 		this.path=path;
 		this.tableDataModel=tableDataModel;
@@ -50,6 +68,9 @@ public class TemplateWriter implements Runnable {
 		logController = ObjectRegistry.getInstance().getLogController();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run() {
 				File output= new File(path);

@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -29,9 +29,19 @@ package org.citydb.plugins.spreadsheet_gen.database;
 
 import org.citydb.api.database.DatabaseType;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Queries.
+ */
 public class Queries {
 	// not in used.
-/*    public static final String QUERY_GET_GMLIDS =
+/**
+	 * Gets the ids.
+	 *
+	 * @param type the type
+	 * @return the string
+	 */
+	/*    public static final String QUERY_GET_GMLIDS =
 		"SELECT co.gmlid " +
 		"FROM CITYOBJECT co " +
 		"WHERE " +

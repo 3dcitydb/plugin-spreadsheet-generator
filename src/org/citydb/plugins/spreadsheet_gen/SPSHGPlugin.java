@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -43,13 +43,25 @@ import org.citydb.api.plugin.extension.config.PluginConfigEvent;
 import org.citydb.api.plugin.extension.view.View;
 import org.citydb.api.plugin.extension.view.ViewExtension;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SPSHGPlugin.
+ */
 public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<ConfigImpl>  {
+	
+	/** The config. */
 	private ConfigImpl config;
+	
+	/** The current locale. */
 	private Locale currentLocale;
+	
+	/** The view. */
 	private SPSHGView view;
 
 	/**
-	 * @param args
+	 * The main method.
+	 *
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 		// test run
@@ -57,11 +69,17 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 		starter.run(args, new SPSHGPlugin());
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.view.ViewExtension#getView()
+	 */
 	@Override
 	public View getView() {
 		return view;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.Plugin#init(java.util.Locale)
+	 */
 	@Override
 	public void init(Locale locale) {
 		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.gui.locale", locale);	
@@ -71,16 +89,25 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 		switchLocale(locale);
 	}
 
+	/**
+	 * Inits the cloud services.
+	 */
 	private void initCloudServices(){
 		GoogleSpreadSheetService gsss=new GoogleSpreadSheetService();
 		CloudServiceRegistery.getInstance().registerService(gsss,gsss.getServiceName());
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.Plugin#shutdown()
+	 */
 	@Override
 	public void shutdown() {
 		saveSettings();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.Plugin#switchLocale(java.util.Locale)
+	 */
 	@Override
 	public void switchLocale(Locale locale) {
 		if (locale.equals(currentLocale))
@@ -91,6 +118,9 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 		view.switchLocale();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.config.ConfigExtension#configLoaded(org.citydb.api.plugin.extension.config.PluginConfig)
+	 */
 	@Override
 	public void configLoaded(ConfigImpl config2) {
 		boolean reload = this.config != null;		
@@ -100,15 +130,26 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 			loadSettings();	
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.config.ConfigExtension#getConfig()
+	 */
 	@Override
 	public ConfigImpl getConfig() {
 		return config;
 	}
 	
+	/**
+	 * Sets the config.
+	 *
+	 * @param config the new config
+	 */
 	public void setConfig(ConfigImpl config) {
 		this.config = config;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.api.plugin.extension.config.ConfigExtension#handleEvent(org.citydb.api.plugin.extension.config.PluginConfigEvent)
+	 */
 	@Override
 	public void handleEvent(PluginConfigEvent event) {
 		switch (event) {
@@ -123,10 +164,16 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 		
 	}
 	
+	/**
+	 * Load settings.
+	 */
 	public void loadSettings() {
 		view.loadSettings();	
 	}
 	
+	/**
+	 * Save settings.
+	 */
 	public void saveSettings() {
 		view.saveSettings();
 	}

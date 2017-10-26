@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -39,15 +39,34 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.api.event.EventDispatcher;
 import org.citydb.api.registry.ObjectRegistry;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SharingListTableDataModel.
+ */
 @SuppressWarnings("serial")
 public class SharingListTableDataModel  extends AbstractTableModel{
+	
+	/** The Constant delColumnNumber. */
 	public final static int delColumnNumber=2;
+	
+	/** The column names. */
 	private String[] columnNames;
+	
+	/** The rows. */
 	private ArrayList<Users> rows = new ArrayList<Users>() ;
+	
+	/** The del icon. */
 	ImageIcon delIcon;
+	
+	/** The blank icon. */
 	ImageIcon blankIcon;
+	
+	/** The event dispatcher. */
 	final EventDispatcher eventDispatcher;
 	
+	/**
+	 * Instantiates a new sharing list table data model.
+	 */
 	SharingListTableDataModel(){
 		columnNames = new String[3];
 		columnNames[0]=Util.I18N.getString("spshg.sharing.column.email");
@@ -63,6 +82,9 @@ public class SharingListTableDataModel  extends AbstractTableModel{
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 */
 	@Override
 	public Class<?> getColumnClass(int arg0) {
 		switch(arg0){
@@ -73,16 +95,25 @@ public class SharingListTableDataModel  extends AbstractTableModel{
 		return super.getColumnClass(arg0);
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getColumnCount()
+	 */
 	@Override
 	public int getColumnCount() {
 		return columnNames.length;
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
 	@Override
 	public int getRowCount() {
 		return rows.size();
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 */
 	@Override
 	public Object getValueAt(int row, int col) {
 		// User can not delete the owner.
@@ -93,15 +124,26 @@ public class SharingListTableDataModel  extends AbstractTableModel{
 		return rows.get(row).getValue(col) ;
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
 	public String getColumnName(int col) {
 		return columnNames[col].toString();
 	}
 	
+	/**
+	 * Adds the new row.
+	 *
+	 * @param data the data
+	 */
 	public void addNewRow(Users data){
 		rows.add(data);
 		fireTableRowsInserted(rows.size()-1, rows.size()-1);
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
+	 */
 	public boolean isCellEditable(int row, int col) {
 		// email address and delete icon are not editable
 		if (col==delColumnNumber||col==0)
@@ -112,17 +154,30 @@ public class SharingListTableDataModel  extends AbstractTableModel{
 	}
 	
 	
+	/**
+	 * Removes the row.
+	 *
+	 * @param rowNum the row num
+	 */
 	public void removeRow(int rowNum){
 		if (rowNum>=rows.size()|| rowNum<0)return;
 		rows.remove(rowNum);
 		fireTableRowsDeleted(rowNum, rowNum);
 	}
 	
+	/**
+	 * Removes the user.
+	 *
+	 * @param user the user
+	 */
 	public void removeUser(Users user){
 		rows.remove(user);
 		fireTableRowsDeleted(0, rows.size());
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int)
+	 */
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		switch(columnIndex){
@@ -134,6 +189,12 @@ public class SharingListTableDataModel  extends AbstractTableModel{
 		fireTableRowsUpdated(rowIndex, rowIndex);
 	}
 	
+	/**
+	 * Gets the row.
+	 *
+	 * @param rowNum the row num
+	 * @return the row
+	 */
 	public Users getRow(int rowNum){
 		if (rowNum>=rows.size()|| rowNum<0)return null;
 		return rows.get(rowNum);

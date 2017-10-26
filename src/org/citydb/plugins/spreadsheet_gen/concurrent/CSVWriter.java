@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -39,12 +39,29 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class CSVWriter.
+ */
 public class CSVWriter extends DefaultWorkerImpl<RowofCSVWork>{
 
+	/** The bw. */
 	BufferedWriter bw;
+	
+	/** The osw. */
 	OutputStreamWriter osw;
+	
+	/** The fos. */
 	FileOutputStream fos;
+	
+	/** The counting storage. */
 	private static HashMap<Integer,AtomicInteger> countingStorage= new HashMap<Integer, AtomicInteger>();
+	
+	/**
+	 * Instantiates a new CSV writer.
+	 *
+	 * @param output the output
+	 */
 	public CSVWriter(File output){	
 		
 		try{
@@ -62,6 +79,10 @@ public class CSVWriter extends DefaultWorkerImpl<RowofCSVWork>{
 			// event
 		};
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#doWork(java.lang.Object)
+	 */
 	@Override
 	public void doWork(RowofCSVWork row) {
 		try{
@@ -80,6 +101,9 @@ public class CSVWriter extends DefaultWorkerImpl<RowofCSVWork>{
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#shutdown()
+	 */
 	@Override
 	public void shutdown() {
 		try{
@@ -89,10 +113,18 @@ public class CSVWriter extends DefaultWorkerImpl<RowofCSVWork>{
 		
 	}
 	
+	/**
+	 * Reset log storage.
+	 */
 	public static void resetLogStorage(){
 		countingStorage.clear();
 	}
 
+	/**
+	 * Gets the rport structure.
+	 *
+	 * @return the rport structure
+	 */
 	public static HashMap<Integer,AtomicInteger> getRportStructure(){
 		
 		return countingStorage;

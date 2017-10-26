@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -32,8 +32,15 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.UploadFileWork;
 import org.citydb.api.concurrent.Worker;
 import org.citydb.api.concurrent.WorkerFactory;
 
+// TODO: Auto-generated Javadoc
+/**
+ * A factory for creating UploadFile objects.
+ */
 public class UploadFileFactory implements WorkerFactory<UploadFileWork>{
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.concurrent.WorkerFactory#createWorker()
+	 */
 	@Override
 	public Worker<UploadFileWork> createWorker() {
 		return new UploadFileWorker();

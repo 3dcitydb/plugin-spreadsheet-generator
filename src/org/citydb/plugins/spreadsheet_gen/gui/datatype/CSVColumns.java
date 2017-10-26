@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -36,13 +36,30 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog
 
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class CSVColumns.
+ */
 public class CSVColumns implements Comparable<CSVColumns>{
+	
+	/** The rownum. */
 	public int rownum;
+	
+	/** The title. */
 	public String title="";
+	
+	/** The textcontent. */
 	public String textcontent="";
+	
+	/** The comment. */
 	public String comment="";
+	
+	/** The document. */
 	public StyledDocument document;
 	
+	/**
+	 * Instantiates a new CSV columns.
+	 */
 	public CSVColumns(){
 		this.rownum=-1;
 		this.textcontent="";	
@@ -53,6 +70,14 @@ public class CSVColumns implements Comparable<CSVColumns>{
 		document = new DefaultStyledDocument(context);
 	}
 	
+	/**
+	 * Instantiates a new CSV columns.
+	 *
+	 * @param title the title
+	 * @param textcontent the textcontent
+	 * @param comment the comment
+	 * @param document the document
+	 */
 	public CSVColumns( String title, String textcontent, String comment,StyledDocument document ){
 		this.title=title;
 		this.textcontent=textcontent;
@@ -60,6 +85,13 @@ public class CSVColumns implements Comparable<CSVColumns>{
 		this.document=document;
 	}
 	
+	/**
+	 * Instantiates a new CSV columns.
+	 *
+	 * @param title the title
+	 * @param textcontent the textcontent
+	 * @param comment the comment
+	 */
 	public CSVColumns( String title, String textcontent, String comment){
 		this.title=title;
 		this.textcontent=textcontent;
@@ -71,6 +103,12 @@ public class CSVColumns implements Comparable<CSVColumns>{
 		} catch (BadLocationException e) {}
 	}
 	
+	/**
+	 * Gets the value.
+	 *
+	 * @param col the col
+	 * @return the value
+	 */
 	public String getValue(int col){
 		switch(col){
 			case 0: return title;
@@ -80,12 +118,27 @@ public class CSVColumns implements Comparable<CSVColumns>{
 		}
 	}
 	
+	/**
+	 * Sets the values.
+	 *
+	 * @param title the title
+	 * @param textcontent the textcontent
+	 * @param comment the comment
+	 * @param document the document
+	 */
 	public void setValues(String title, String textcontent, String comment,StyledDocument document){
 		this.title=title;
 		this.textcontent=textcontent;
 		this.comment=comment;
 		this.document=document;
 	}
+	
+	/**
+	 * Sets the value.
+	 *
+	 * @param col the col
+	 * @param obj the obj
+	 */
 	public void setValue(int col, Object obj){
 		
 		switch(col){
@@ -96,6 +149,9 @@ public class CSVColumns implements Comparable<CSVColumns>{
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
 	@Override
 	public int compareTo(CSVColumns o) {
 		if (!(o instanceof CSVColumns  )) return 0;

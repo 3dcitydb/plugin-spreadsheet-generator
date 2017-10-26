@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -29,6 +29,10 @@ package org.citydb.plugins.spreadsheet_gen.config;
 
 import javax.xml.bind.annotation.XmlType;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class IntoCloud.
+ */
 @XmlType(name="IntoCloud", propOrder={
 		"email",
 		"spreadsheetName",
@@ -36,34 +40,73 @@ import javax.xml.bind.annotation.XmlType;
 })
 
 public class IntoCloud {
+	
+	/** The service name. */
 	private String serviceName="";
+	
+	/**
+	 * Gets the service name.
+	 *
+	 * @return the service name
+	 */
 	public String getServiceName() {
 		return serviceName;
 	}
 
+	/**
+	 * Sets the service name.
+	 *
+	 * @param serviceName the new service name
+	 */
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
 
+	/** The email. */
 	private String email="";
+	
+	/** The spreadsheet name. */
 	private String spreadsheetName="";
 	
+	/**
+	 * Gets the email.
+	 *
+	 * @return the email
+	 */
 	public String getEmail() {
 		return email;
 	}
 
+	/**
+	 * Sets the email.
+	 *
+	 * @param email the new email
+	 */
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
+	/**
+	 * Gets the spreadsheet name.
+	 *
+	 * @return the spreadsheet name
+	 */
 	public String getSpreadsheetName() {
 		return spreadsheetName;
 	}
 
+	/**
+	 * Sets the spreadsheet name.
+	 *
+	 * @param spreadsheetName the new spreadsheet name
+	 */
 	public void setSpreadsheetName(String spreadsheetName) {
 		this.spreadsheetName = spreadsheetName;
 	}
 
+	/**
+	 * Instantiates a new into cloud.
+	 */
 	public IntoCloud(){
 		
 	}

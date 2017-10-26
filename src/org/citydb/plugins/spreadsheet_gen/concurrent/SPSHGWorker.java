@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -48,20 +48,49 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class SPSHGWorker.
+ */
 public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
+	
+	/** The io writer pool. */
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
 	
+	/** The bth. */
 	private BalloonTemplateHandler bth;
+	
+	/** The connection. */
 	private Connection connection;
+	
+	/** The seperator character. */
 	private String seperatorCharacter;
+	
+	/** The lod. */
 	private int lod;
+	
+	/** The counter. */
 	public static long counter=0;
 
+	/** The event dispatcher. */
 	private final EventDispatcher eventDispatcher;
+	
+	/** The selected cloud service. */
 	private CloudService selectedCloudService=null;
+	
+	/** The should run. */
 	private boolean shouldRun;
 	
 	
+	/**
+	 * Instantiates a new SPSHG worker.
+	 *
+	 * @param dbConnectionPool the db connection pool
+	 * @param ioWriterPool the io writer pool
+	 * @param config the config
+	 * @param template the template
+	 * @throws SQLException the SQL exception
+	 */
 	public SPSHGWorker(DatabaseConnectionPool dbConnectionPool,
 			WorkerPool<RowofCSVWork> ioWriterPool,
 			ConfigImpl config, String template)throws SQLException{
@@ -89,6 +118,9 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		lod=2;		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#doWork(java.lang.Object)
+	 */
 	@Override
 	public void doWork(CityObjectWork cityobj) {
 		try {
@@ -119,6 +151,9 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		catch (Exception e) {}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#shutdown()
+	 */
 	@Override
 	public void shutdown() {
 		this.shouldRun=false;
@@ -131,6 +166,13 @@ public class SPSHGWorker extends DefaultWorkerImpl<CityObjectWork>{
 		}
 	}
 	
+	/**
+	 * Generate header.
+	 *
+	 * @param header the header
+	 * @param separator the separator
+	 * @return the string
+	 */
 	public static String generateHeader(ArrayList<String>header,String separator){
 		StringBuffer sb=new StringBuffer();
 		boolean firstround=true;

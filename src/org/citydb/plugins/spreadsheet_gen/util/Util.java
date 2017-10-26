@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -36,16 +36,44 @@ import java.util.ResourceBundle;
 import org.citygml4j.model.citygml.CityGMLClass;
 
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Util.
+ */
 public class Util {
+	
+	/** The i18n. */
 	public static ResourceBundle I18N;
 	
+	/** The Constant NUMBER_COLUMN_KEY. */
 	public static final String NUMBER_COLUMN_KEY = "NUMBER_COLUMN_KEY";
+	
+	/** The number column value. */
 	public static int NUMBER_COLUMN_VALUE = 1;
+	
+	/** The Constant STRING_COLUMN_KEY. */
 	public static final String STRING_COLUMN_KEY = "STRING_COLUMN_KEY";
+	
+	/** The string column value. */
 	public static int STRING_COLUMN_VALUE = 2;
 	
+	/** The clipboard. */
 	public static ClipboardHandler clipboard =new ClipboardHandler();
 
+	/**
+	 * Sets the constraints.
+	 *
+	 * @param gridx the gridx
+	 * @param gridy the gridy
+	 * @param weightx the weightx
+	 * @param weighty the weighty
+	 * @param fill the fill
+	 * @param insetTop the inset top
+	 * @param insetLeft the inset left
+	 * @param insetBottom the inset bottom
+	 * @param insetRight the inset right
+	 * @return the grid bag constraints
+	 */
 	public static GridBagConstraints setConstraints(int gridx, int gridy, double weightx, double weighty, int fill,
 			int insetTop, int insetLeft, int insetBottom, int insetRight) {
 		GridBagConstraints constraint = new GridBagConstraints();
@@ -59,6 +87,21 @@ public class Util {
 		return constraint;
 	}
 	
+	/**
+	 * Sets the constraints.
+	 *
+	 * @param anchor the anchor
+	 * @param gridx the gridx
+	 * @param gridy the gridy
+	 * @param weightx the weightx
+	 * @param weighty the weighty
+	 * @param fill the fill
+	 * @param insetTop the inset top
+	 * @param insetLeft the inset left
+	 * @param insetBottom the inset bottom
+	 * @param insetRight the inset right
+	 * @return the grid bag constraints
+	 */
 	public static GridBagConstraints setConstraints(int anchor, int gridx, int gridy, double weightx, double weighty, int fill,
 			int insetTop, int insetLeft, int insetBottom, int insetRight) {
 		GridBagConstraints constraint = new GridBagConstraints();
@@ -72,6 +115,12 @@ public class Util {
 		return constraint;
 	}
 	
+	/**
+	 * Check workspace timestamp.
+	 *
+	 * @param timestamp the timestamp
+	 * @return true, if successful
+	 */
 	public static boolean checkWorkspaceTimestamp(String timestamp) {
 		boolean success = true;
 		if (timestamp.length() > 0) {		
@@ -86,6 +135,12 @@ public class Util {
 		return success;
 	}
 
+	/**
+	 * Class id 2 city object.
+	 *
+	 * @param classId the class id
+	 * @return the city GML class
+	 */
 	public static CityGMLClass classId2cityObject(int classId) {
 		CityGMLClass cityObjectType = CityGMLClass.UNDEFINED;
 		switch (classId) {
@@ -149,6 +204,7 @@ public class Util {
 		return cityObjectType;
 	}
 	
+	/** The Constant _3DCITYDB_TABLES_AND_COLUMNS. */
 	@SuppressWarnings("serial")
 	public static final HashMap<String, Integer> _3DCITYDB_TABLES_AND_COLUMNS = new HashMap<String, Integer>() {{
 		

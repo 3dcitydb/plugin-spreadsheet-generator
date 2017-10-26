@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -30,28 +30,62 @@ package org.citydb.plugins.spreadsheet_gen.config;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class XLSXFile.
+ */
 @XmlType(name="OutputXLSXFileType", propOrder={
 		"outputPath"
 })
 public class XLSXFile {
 	
+	/** The output path. */
 	private String outputPath="";
+	
+	/** The last visit path. */
 	@XmlTransient
 	private String lastVisitPath="";
 	
 	
+	/**
+	 * Gets the output path.
+	 *
+	 * @return the output path
+	 */
 	public String getOutputPath() {
 		return outputPath;
 	}
+	
+	/**
+	 * Sets the output path.
+	 *
+	 * @param outputPath the new output path
+	 */
 	public void setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
 	}
+	
+	/**
+	 * Gets the last visit path.
+	 *
+	 * @return the last visit path
+	 */
 	public String getLastVisitPath() {
 		return lastVisitPath;
 	}
+	
+	/**
+	 * Sets the last visit path.
+	 *
+	 * @param lastVisit the new last visit path
+	 */
 	public void setLastVisitPath(String lastVisit) {
 		this.lastVisitPath = lastVisit;
 	}
+	
+	/**
+	 * Instantiates a new XLSX file.
+	 */
 	public XLSXFile(){
 		
 	}

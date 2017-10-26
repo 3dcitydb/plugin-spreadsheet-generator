@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,20 +27,44 @@
  */
 package org.citydb.plugins.spreadsheet_gen.controller.cloudservice;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class CaptchaRequiredException.
+ */
 @SuppressWarnings("serial")
 public class CaptchaRequiredException extends Exception {
 
+	/** The captcha token. */
 	private String captchaToken;
+	
+	/** The captcha url. */
 	private String captchaUrl;
 
+	/**
+	 * Instantiates a new captcha required exception.
+	 *
+	 * @param captchaToken the captcha token
+	 * @param captchaUrl the captcha url
+	 */
 	public CaptchaRequiredException(String captchaToken,String captchaUrl){
 		this.captchaToken=captchaToken;
 		this.captchaUrl=captchaUrl;
 	}
 	
+	/**
+	 * Gets the captcha token.
+	 *
+	 * @return the captcha token
+	 */
 	public String getCaptchaToken(){
 		return captchaToken;
 	}
+	
+	/**
+	 * Gets the captcha url.
+	 *
+	 * @return the captcha url
+	 */
 	public String getCaptchaUrl(){
 		return captchaUrl;
 		

@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,10 +27,24 @@
  */
 package org.citydb.plugins.spreadsheet_gen.events;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Enum EventType.
+ */
 public enum EventType {
+	
+	/** The interrupt. */
 	INTERRUPT,
+	
+	/** The status dialog message. */
 	STATUS_DIALOG_MESSAGE,
+	
+	/** The status dialog title. */
 	STATUS_DIALOG_TITLE,
+	
+	/** The upload event. */
 	UPLOAD_EVENT,
+	
+	/** The sharing event. */
 	SHARING_EVENT
 }

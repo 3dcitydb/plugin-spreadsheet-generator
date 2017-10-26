@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,16 +27,35 @@
  */
 package org.citydb.plugins.spreadsheet_gen.controller.cloudservice;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class AuthenticationException.
+ */
 @SuppressWarnings("serial")
 public class AuthenticationException extends Exception {
+	
+	/** The message. */
 	String message;
+	
+	/**
+	 * Instantiates a new authentication exception.
+	 */
 	public AuthenticationException(){
 		message="unknown";
 	}
+	
+	/**
+	 * Instantiates a new authentication exception.
+	 *
+	 * @param message the message
+	 */
 	public AuthenticationException(String message){
 		this.message=message;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Throwable#getMessage()
+	 */
 	public String getMessage(){
 		return message;
 	}

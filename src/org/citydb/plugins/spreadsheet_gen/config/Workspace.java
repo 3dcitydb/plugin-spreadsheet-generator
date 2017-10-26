@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  * 
- * Copyright 2013 - 2016
+ * Copyright 2013 - 2017
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -29,40 +29,81 @@ package org.citydb.plugins.spreadsheet_gen.config;
 
 import javax.xml.bind.annotation.XmlType;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Workspace.
+ */
 @XmlType(name="WorkspaceType", propOrder={
 		"name",
 		"timestamp"
 })
 public class Workspace {
 
+	/** The name. */
 	private String name = "LIVE";
+	
+	/** The timestamp. */
 	private String timestamp = "";
 
+	/**
+	 * Instantiates a new workspace.
+	 */
 	public Workspace() {
 	}
 	
+	/**
+	 * Instantiates a new workspace.
+	 *
+	 * @param name the name
+	 */
 	public Workspace(String name) {
 		setName(name);
 	}
 	
+	/**
+	 * Instantiates a new workspace.
+	 *
+	 * @param name the name
+	 * @param timestamp the timestamp
+	 */
 	public Workspace(String name, String timestamp) {
 		this(name);
 		setTimestamp(timestamp);
 	}
 
+	/**
+	 * Gets the name.
+	 *
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name.
+	 *
+	 * @param name the new name
+	 */
 	public void setName(String name) {
 		if (name != null)
 			this.name = name;
 	}
 
+	/**
+	 * Gets the timestamp.
+	 *
+	 * @return the timestamp
+	 */
 	public String getTimestamp() {
 		return timestamp;
 	}
 
+	/**
+	 * Sets the timestamp.
+	 *
+	 * @param timestamp the new timestamp
+	 */
 	public void setTimestamp(String timestamp) {
 		if (timestamp != null)
 			this.timestamp = timestamp;
