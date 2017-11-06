@@ -31,15 +31,15 @@
 	<classpathentry kind="lib" path="lib/third_party/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/share/citygml4j/relaxngDatatype.jar"/>
 	<classpathentry kind="lib" path="lib/share/citygml4j/xsom.jar"/>
-	<classpathentry kind="lib" path="lib/share/h2/h2-1.4.190.jar"/>
 	<classpathentry kind="lib" path="lib/share/kml-collada/kml-collada-jaxb.jar"/>
 	<classpathentry kind="lib" path="lib/share/tomcat-juli/tomcat-jdbc.jar"/>
 	<classpathentry kind="lib" path="lib/share/tomcat-juli/tomcat-juli.jar"/>
 	<classpathentry kind="lib" path="lib/share/args4j/args4j-2.33.jar"/>
 	<classpathentry kind="lib" path="lib/share/postgis/postgis-jdbc-2.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/share/kml-collada/texture-atlas-creator-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/share/citygml4j/citygml4j-2.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/share/jts/jts-core-1.14.0.jar"/>
 	<classpathentry kind="lib" path="lib/share/postgis/postgresql-42.1.3.jar"/>
+	<classpathentry kind="lib" path="lib/share/citygml4j/citygml4j-2.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/share/h2/h2-1.4.196.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
