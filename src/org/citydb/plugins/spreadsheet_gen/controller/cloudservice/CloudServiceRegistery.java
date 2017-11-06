@@ -33,65 +33,26 @@ import java.util.Set;
 import org.citydb.plugins.spreadsheet_gen.controller.cloudservice.CloudService;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class CloudServiceRegistery.
- */
 public class CloudServiceRegistery {
-	
-	/** The instance. */
 	private static CloudServiceRegistery INSTANCE=new CloudServiceRegistery();
-	
-	/** The servicelist. */
 	private LinkedHashMap<String, CloudService> servicelist= new LinkedHashMap<String, CloudService>();
-	
-	/** The current service. */
 	private String currentService="";
-	
-	/** The is service selected. */
 	private boolean isServiceSelected=false;
-	
-	/**
-	 * Instantiates a new cloud service registery.
-	 */
 	private CloudServiceRegistery(){
 		isServiceSelected=false;
 	}
-	
-	/**
-	 * Gets the single instance of CloudServiceRegistery.
-	 *
-	 * @return single instance of CloudServiceRegistery
-	 */
 	public static CloudServiceRegistery getInstance() {
 		return INSTANCE;
 	}
 	
-	/**
-	 * Register service.
-	 *
-	 * @param service the service
-	 * @param name the name
-	 */
 	public void registerService(CloudService service, String name){
 		servicelist.put(name, service);
 	}
 	
-	/**
-	 * Gets the listof services.
-	 *
-	 * @return the listof services
-	 */
 	public Set<String> getListofServices(){
 		return servicelist.keySet();
 	}
 	
-	/**
-	 * Select service.
-	 *
-	 * @param name the name
-	 * @return true, if successful
-	 */
 	public boolean selectService(String name){
 		if (servicelist.containsKey(name)){
 			currentService=name;
@@ -102,20 +63,10 @@ public class CloudServiceRegistery {
 		return false;
 	}
 	
-	/**
-	 * Gets the selected service.
-	 *
-	 * @return the selected service
-	 */
 	public CloudService getSelectedService(){
 		return servicelist.get(currentService);
 	}
 	
-	/**
-	 * Checks if is service selected.
-	 *
-	 * @return true, if is service selected
-	 */
 	public boolean isServiceSelected(){
 		return isServiceSelected;
 	}

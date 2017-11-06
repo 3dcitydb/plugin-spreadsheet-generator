@@ -55,48 +55,20 @@ import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
 import org.citygml4j.model.gml.geometry.primitives.Envelope;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class DBManager.
- */
 public class DBManager {
-	
-	/** The log. */
 	private final Logger LOG = Logger.getInstance();
-	
-	/** The workerpool. */
 	private final WorkerPool<CityObjectWork> workerpool;
-	
-	/** The config. */
 	private ConfigImpl config;	
 	
-	/** The should run. */
 	private volatile boolean shouldRun = true;
-	
-	/** The is interrupted. */
 	private AtomicBoolean isInterrupted = new AtomicBoolean(false);
 	
-	/** The connection. */
 	private Connection connection;
-	
-	/** The database adapter. */
 	private AbstractDatabaseAdapter databaseAdapter;
-	
-	/** The db srs. */
 	private DatabaseSrs dbSrs;
-	
-	/** The db connection pool. */
 	private DatabaseConnectionPool dbConnectionPool;
 
 	
-	/**
-	 * Instantiates a new DB manager.
-	 *
-	 * @param dbConnectionPool the db connection pool
-	 * @param config the config
-	 * @param workerpool the workerpool
-	 * @throws SQLException the SQL exception
-	 */
 	public DBManager(DatabaseConnectionPool dbConnectionPool,
 			ConfigImpl config,
 			WorkerPool<CityObjectWork> workerpool)throws SQLException{
@@ -106,11 +78,6 @@ public class DBManager {
 		init();
 	}
 	
-	/**
-	 * Inits the.
-	 *
-	 * @throws SQLException the SQL exception
-	 */
 	public void init() throws SQLException{
 		databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
 		connection = dbConnectionPool.getConnection();
@@ -123,12 +90,6 @@ public class DBManager {
 		}
 	}
 
-	/**
-	 * Query objects.
-	 *
-	 * @param desirableCityObject the desirable city object
-	 * @throws SQLException the SQL exception
-	 */
 	public void queryObjects( HashSet<CityGMLClass> desirableCityObject) throws SQLException {		
 		BoundingBox bbx = config.getBoundingbox();
 		ResultSet rs = null;
@@ -212,12 +173,6 @@ public class DBManager {
 		
 	}
 	
-	/**
-	 * Start query.
-	 *
-	 * @param desirableCityObjects the desirable city objects
-	 * @throws SQLException the SQL exception
-	 */
 	public void startQuery(HashSet<CityGMLClass> desirableCityObjects) throws SQLException {
 		try {
 			queryObjects(desirableCityObjects);
@@ -234,13 +189,6 @@ public class DBManager {
 		}
 	}
 
-	/**
-	 * Filter.
-	 *
-	 * @param envelope the envelope
-	 * @param bbx the bbx
-	 * @return true, if successful
-	 */
 	private boolean filter(Envelope envelope, BoundingBox bbx) {
 		if (!envelope.isSetLowerCorner() || !envelope.isSetUpperCorner())
 			return true;
@@ -274,9 +222,6 @@ public class DBManager {
 			return true;
 	}
 	
-	/**
-	 * Shutdown.
-	 */
 	public void shutdown() {
 		if (isInterrupted.compareAndSet(false, true)) {
 			shouldRun = false;

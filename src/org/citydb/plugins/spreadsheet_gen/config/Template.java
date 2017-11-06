@@ -36,104 +36,48 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class Template.
- */
 @XmlType(name="TemplateType", propOrder={
 		"path"
 })
 public class Template {
 
-	/** The path. */
 	private String path="";
-	
-	/** The columns list. */
 	@XmlTransient
 	private ArrayList<CSVColumns> columnsList=null;
-	
-	/** The is manual template. */
 	@XmlTransient
 	private boolean isManualTemplate=false;
-	
-	/** The last visit path. */
 	@XmlTransient
 	private String lastVisitPath="";
 
-	/**
-	 * Instantiates a new template.
-	 */
 	public Template(){
 	}
-	
-	/**
-	 * Gets the columns list.
-	 *
-	 * @return the columns list
-	 */
 	public ArrayList<CSVColumns> getColumnsList() {
 		return columnsList;
 	}
 
-	/**
-	 * Sets the columns list.
-	 *
-	 * @param columnsList the new columns list
-	 */
 	public void setColumnsList(ArrayList<CSVColumns> columnsList) {
 		this.columnsList = columnsList;
 	}
 	
-	/**
-	 * Checks if is manual template.
-	 *
-	 * @return true, if is manual template
-	 */
 	public boolean isManualTemplate() {
 		return isManualTemplate;
 	}
-	
-	/**
-	 * Sets the manual template.
-	 *
-	 * @param isManualTemplate the new manual template
-	 */
 	public void setManualTemplate(boolean isManualTemplate) {
 		this.isManualTemplate = isManualTemplate;
 	}
 	
-	/**
-	 * Gets the path.
-	 *
-	 * @return the path
-	 */
 	public String getPath() {
 		return path;
 	}
 
-	/**
-	 * Sets the path.
-	 *
-	 * @param path the new path
-	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 
-	/**
-	 * Gets the last visit path.
-	 *
-	 * @return the last visit path
-	 */
 	public String getLastVisitPath() {
 		return lastVisitPath;
 	}
 
-	/**
-	 * Sets the last visit path.
-	 *
-	 * @param lastVisitPath the new last visit path
-	 */
 	public void setLastVisitPath(String lastVisitPath) {
 		this.lastVisitPath = lastVisitPath;
 	}

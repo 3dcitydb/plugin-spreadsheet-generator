@@ -27,61 +27,26 @@
  */
 package org.citydb.plugins.spreadsheet_gen.concurrent.work;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class CityObjectWork.
- */
 public class CityObjectWork {
-	
-	/** The gmlid. */
 	private String gmlid;
-	
-	/** The classid. */
 	private int classid;
-	
-	/**
-	 * Instantiates a new city object work.
-	 *
-	 * @param gmlid the gmlid
-	 * @param classID the class ID
-	 */
 	public CityObjectWork(String gmlid, int classID){
 		this.gmlid=gmlid;
 		this.classid=classID;
 	}
 	
-	/**
-	 * Gets the gmlid.
-	 *
-	 * @return the gmlid
-	 */
 	public String getGmlid() {
 		return gmlid;
 	}
 
-	/**
-	 * Sets the gmlid.
-	 *
-	 * @param gmlid the new gmlid
-	 */
 	public void setGmlid(String gmlid) {
 		this.gmlid = gmlid;
 	}
 
-	/**
-	 * Gets the classid.
-	 *
-	 * @return the classid
-	 */
 	public int getClassid() {
 		return classid;
 	}
 
-	/**
-	 * Sets the classid.
-	 *
-	 * @param classid the new classid
-	 */
 	public void setClassid(int classid) {
 		this.classid = classid;
 	}

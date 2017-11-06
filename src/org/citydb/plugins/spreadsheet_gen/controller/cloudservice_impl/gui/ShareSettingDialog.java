@@ -75,76 +75,34 @@ import org.citydb.api.event.EventHandler;
 import org.citydb.api.registry.ObjectRegistry;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class ShareSettingDialog.
- */
 @SuppressWarnings("serial")
 public class ShareSettingDialog extends JDialog implements EventHandler{
-	
-	/** The Constant BORDER_THICKNESS. */
 	protected static final int BORDER_THICKNESS = 5;
-	
-	/** The Constant MAX_TEXTFIELD_HEIGHT. */
 	protected static final int MAX_TEXTFIELD_HEIGHT = 20;
-	
-	/** The Constant MAX_LABEL_WIDTH. */
 	protected static final int MAX_LABEL_WIDTH = 60;
-	
-	/** The Constant PREFERRED_WIDTH. */
 	private static final int PREFERRED_WIDTH = 400;
-	
-	/** The Constant PREFERRED_HEIGHT. */
 	private static final int PREFERRED_HEIGHT = 410;
 	
-	/** The view controller. */
 	private final ViewController viewController;
-	
-	/** The access settings. */
 	private JComboBox accessSettings = new JComboBox();
 	
-	/** The table data model. */
 	private SharingListTableDataModel tableDataModel=new SharingListTableDataModel();
-	
-	/** The table. */
 	private JTable table ;
-	
-	/** The scroll pane. */
 	private JScrollPane scrollPane ;
 	
-	/** The email text. */
 	private JTextArea emailText=new JTextArea();
-	
-	/** The scope combo box. */
 	private JComboBox scopeComboBox;
-	
-	/** The add new person button. */
 	private JButton addNewPersonButton = new JButton("");
-	
-	/** The progress bar. */
 	private JProgressBar progressBar;
-	
-	/** The ok button. */
 	private JButton okButton=new JButton("");
 
 	
-	/** The gsss. */
 	final GoogleSpreadSheetService gsss;
 	
-	/** The current user. */
 	private Users currentUser;
-	
-	/** The event dispatcher. */
 	final EventDispatcher eventDispatcher;
-	
-	/** The selected scope index. */
 	public int selectedScopeIndex=0;
 	
-	/**
-	 * Instantiates a new share setting dialog.
-	 *
-	 * @param frame the frame
-	 */
 	public ShareSettingDialog(JFrame frame) {
 		super(frame, Util.I18N.getString("spshg.dialog.sharesettings.dialogtitle"), true);
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
@@ -155,9 +113,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 	}
 
 
-	/**
-	 * Inits the.
-	 */
 	private void init() {
 		this.setSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
 		Box mainPanel = Box.createVerticalBox();
@@ -258,13 +213,7 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		loadPermissionList();
 		
 	}
-	
-	/** The ac. */
 	ActionListener ac;
-	
-	/**
-	 * Adds the listeners.
-	 */
 	private void addListeners() {
 		addWindowListener(new WindowListener() {
 			public void windowClosed(WindowEvent e) {
@@ -347,17 +296,11 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 
 	}
 	
-	/**
-	 * Email text field lost focus.
-	 */
 	private void emailTextFieldLostFocus(){
 		emailText.setText(Util.I18N.getString("spshg.dialog.sharesettings.message"));
 		emailText.setForeground(Color.gray);
 	}
 	
-	/**
-	 * Load permission list.
-	 */
 	private void loadPermissionList(){
 		showProcessGUI(true);
 		ShareSettingController ssc= new ShareSettingController(gsss);
@@ -367,9 +310,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 	}
 	
 	
-	/**
-	 * Action performed table selection.
-	 */
 	public void actionPerformedTableSelection(){
 
 		if (table.getSelectedColumn()==SharingListTableDataModel.delColumnNumber){
@@ -385,9 +325,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Initialize scope combo box.
-	 */
 	private void initializeScopeComboBox(){
 		//selectedIndex:0
 		accessSettings.addItem(Util.I18N.getString("spshg.dialog.sharesettings.access.private"));
@@ -405,12 +342,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		accessSettings.addActionListener(ac);
 	}
 	
-	/**
-	 * Gets the scope combo box state.
-	 *
-	 * @param selectedIndex the selected index
-	 * @return the scope combo box state
-	 */
 	private Users getScopeComboBoxState(int selectedIndex){
 		int type,scope;
 		switch (selectedIndex){
@@ -429,11 +360,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		return new Users(null, null, type, scope);
 	}
 	
-	/**
-	 * Sets the scope combo box.
-	 *
-	 * @param user the new scope combo box
-	 */
 	private void setScopeComboBox(Users user){
 		if (user.getScope()== GoogleSpreadSheetService.SCOPE_DEFAULT){
 			if (user.getPermissionType()== GoogleSpreadSheetService.ROLE_READER){
@@ -476,9 +402,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.Component#handleEvent(java.awt.Event)
-	 */
 	@Override
 	public void handleEvent(Event event) throws Exception {
 		if (event.getEventType() == EventType.SHARING_EVENT) {
@@ -537,11 +460,6 @@ public class ShareSettingDialog extends JDialog implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Show process GUI.
-	 *
-	 * @param b the b
-	 */
 	private void showProcessGUI(boolean b){
 		progressBar.setIndeterminate(b);
 		progressBar.setVisible(b);

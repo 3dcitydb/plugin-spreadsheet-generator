@@ -36,61 +36,25 @@ import com.google.gdata.data.docs.DocumentListEntry;
 import com.google.gdata.data.extensions.LastModifiedBy;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class Spreadsheet.
- */
 public class Spreadsheet {
-	
-	/** The Constant NEW. */
 	public final static int NEW=0;;
-	
-	/** The Constant OVERWRITE. */
 	public final static int OVERWRITE=1;
-	
-	/** The name. */
 	String name;
-	
-	/** The resource id. */
 	String resourceId;
-	
-	/** The link. */
 	String link;
-	
-	/** The updated by. */
 	String updatedBy;
-	
-	/** The last update. */
 	String lastUpdate;
-	
-	/** The type. */
 	int type;
-	
-	/** The entry. */
 	DocumentListEntry entry;
-	
-	/**
-	 * Instantiates a new spreadsheet.
-	 *
-	 * @param entry the entry
-	 */
 	Spreadsheet(DocumentListEntry entry){
 		this.type=OVERWRITE;
 		setEntry(entry);
 	}
 	
-	/**
-	 * Instantiates a new spreadsheet.
-	 */
 	Spreadsheet(){
 		this.type=NEW;
 	}
 	
-	/**
-	 * Sets the entry.
-	 *
-	 * @param entry the new entry
-	 */
 	public void setEntry(DocumentListEntry entry){
 		this.name=entry.getTitle().getPlainText();
 		this.resourceId= entry.getResourceId();
@@ -104,38 +68,18 @@ public class Spreadsheet {
 	}
 	
 	
-	/**
-	 * Gets the info.
-	 *
-	 * @return the info
-	 */
 	public String getInfo(){
 		return String.format(Util.I18N.getString("spshg.message.overwrite.on"),name,updatedBy,lastUpdate);
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString(){
 		if (this.type==OVERWRITE)
 			return getInfo();
 		return Util.I18N.getString("spshg.message.overwrite.new");
 	}
-	
-	/**
-	 * Gets the type.
-	 *
-	 * @return the type
-	 */
 	public int getType(){
 		return this.type;
 	}
 	
-	/**
-	 * Gets the entry.
-	 *
-	 * @return the entry
-	 */
 	public DocumentListEntry getEntry(){
 		return this.entry;
 	}

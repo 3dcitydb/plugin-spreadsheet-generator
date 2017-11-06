@@ -31,45 +31,17 @@ import org.citydb.plugins.spreadsheet_gen.controller.cloudservice_impl.gui.Users
 
 import org.citydb.api.event.Event;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class SharingEvent.
- */
 public class SharingEvent extends Event {
-	
-	/** The type. */
 	private int type;
-	
-	/** The user. */
 	private Users user;
-	
-	/** The message. */
 	private String message;
-	
-	/** The message title. */
 	private String messageTitle;
 	
-	/**
-	 * Instantiates a new sharing event.
-	 *
-	 * @param type the type
-	 * @param source the source
-	 * @param user the user
-	 */
 	public SharingEvent(int type, Object source, Users user) {
 		super(EventType.SHARING_EVENT, GLOBAL_CHANNEL, source);
 		this.type = type;
 		this.user = user;
 	}
-	
-	/**
-	 * Instantiates a new sharing event.
-	 *
-	 * @param type the type
-	 * @param source the source
-	 * @param messageTitle the message title
-	 * @param message the message
-	 */
 	public SharingEvent(int type, Object source, String messageTitle,String message) {
 		super(EventType.SHARING_EVENT, GLOBAL_CHANNEL, source);
 		this.type = type;
@@ -78,38 +50,16 @@ public class SharingEvent extends Event {
 		this.messageTitle=messageTitle;
 	}
 
-	/**
-	 * Gets the type.
-	 *
-	 * @return the type
-	 */
 	public int getType() {
 		return this.type;
 	}
 
-	/**
-	 * Gets the user.
-	 *
-	 * @return the user
-	 */
 	public Users getUser() {
 		return this.user;
 	}
-	
-	/**
-	 * Gets the message.
-	 *
-	 * @return the message
-	 */
 	public String getMessage() {
 		return message;
 	}
-	
-	/**
-	 * Gets the message title.
-	 *
-	 * @return the message title
-	 */
 	public String getMessageTitle() {
 		return messageTitle;
 	}

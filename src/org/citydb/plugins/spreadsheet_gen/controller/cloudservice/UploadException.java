@@ -27,61 +27,26 @@
  */
 package org.citydb.plugins.spreadsheet_gen.controller.cloudservice;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class UploadException.
- */
 @SuppressWarnings("serial")
 public class UploadException extends Exception {
-	
-	/** The Constant UNKNOWN. */
 	public final static int UNKNOWN=0;
-	
-	/** The Constant UPLOAD_ERROR. */
 	public final static int UPLOAD_ERROR=1;
-	
-	/** The Constant PUBLISH_ERROR. */
 	public final static int PUBLISH_ERROR=2;
 	
-	/** The message. */
 	String message;
-	
-	/** The type. */
 	int type;
-	
-	/**
-	 * Instantiates a new upload exception.
-	 *
-	 * @param type the type
-	 */
 	public UploadException(int type){
 		message="unknown";
 		this.type=type;
 	}
-	
-	/**
-	 * Instantiates a new upload exception.
-	 *
-	 * @param type the type
-	 * @param message the message
-	 */
 	public UploadException(int type,String message){
 		this.message=message;
 		this.type=type;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Throwable#getMessage()
-	 */
 	public String getMessage(){
 		return message;
 	}
-	
-	/**
-	 * Gets the type.
-	 *
-	 * @return the type
-	 */
 	public int getType(){
 		return this.type;
 	}

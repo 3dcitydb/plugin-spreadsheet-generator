@@ -122,274 +122,129 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class SPSHGPanel.
- */
 @SuppressWarnings("serial")
 public class SPSHGPanel extends JPanel implements EventHandler{
 	
-	/** The Constant BORDER_THICKNESS. */
 	protected static final int BORDER_THICKNESS = 5;
-	
-	/** The Constant MAX_TEXTFIELD_HEIGHT. */
 	protected static final int MAX_TEXTFIELD_HEIGHT = 20;
-	
-	/** The Constant MAX_LABEL_WIDTH. */
 	protected static final int MAX_LABEL_WIDTH = 60;
-	
-	/** The Constant PREFERRED_WIDTH. */
 	private static final int PREFERRED_WIDTH = 560;
-	
-	/** The Constant PREFERRED_HEIGHT. */
 	private static final int PREFERRED_HEIGHT = 780;
 
 	
-	/** The log controller. */
 	private final LogController logController;
-	
-	/** The view controller. */
 	private final ViewController viewController;
-	
-	/** The db controller. */
 	private final DatabaseController dbController;
-	
-	/** The db pool. */
 	private final DatabaseConnectionPool dbPool;
 	
-	/** The plugin. */
 	private final SPSHGPlugin plugin;
 	
-	/** The main lock. */
 	private final ReentrantLock mainLock = new ReentrantLock();
-	
-	/** The j panel input. */
 	private Box jPanelInput;
 	
-	/** The csv columns panel. */
 	// +columns panel
 	private JPanel csvColumnsPanel;
-	
-	/** The template label. */
 	private JLabel templateLabel= new JLabel("");
-	
-	/** The browse panel. */
 	private JPanel browsePanel;
-	
-	/** The browse text. */
 	private JTextField browseText = new JTextField("");
-	
-	/** The browse button. */
 	private JButton browseButton = new JButton("");
-	
-	/** The edit template button. */
 	private JButton editTemplateButton = new JButton("");
-	
-	/** The manually template button. */
 	private JButton manuallyTemplateButton = new JButton("");
 //	private boolean isManullyTemplate=false;
 	
-	/** The content source. */
-//-------------
+	//-------------
 	private JPanel contentSource;
-	
-	/** The gf pref label. */
 	private JLabel gfPrefLabel= new JLabel("");
-	
-	/** The generate data for. */
 	private JTextArea generateDataFor= new JTextArea(2,10);
-	
-	/** The edit generate data. */
 	private JLabel editGenerateData= new JLabel();
-	
-	/** The city object popup. */
 	private JPopupMenu cityObjectPopup = new JPopupMenu();
 	
-	/** The versioning panel. */
 	// +Versioning panel
 	private JPanel versioningPanel;
-	
-	/** The workspace label. */
 	private JLabel workspaceLabel = new JLabel();
-	
-	/** The workspace text. */
 	private JTextField workspaceText = new JTextField("LIVE");
-	
-	/** The timestamp label. */
 	private JLabel timestampLabel = new JLabel();
-	
-	/** The timestamp text. */
 	private JTextField timestampText = new JTextField("");
 	
-	/** The bb X panel. */
 	// +BBX Panel
 	private BoundingBoxPanel bbXPanel;
 
-	/** The output panel. */
 	//+Output Panel
 	private JPanel outputPanel;
-	
-	/** The output button group. */
 	private ButtonGroup outputButtonGroup = new ButtonGroup();
 	
-	/** The csv radio button. */
 	//++ CSV RadioButtun
 	private JRadioButton csvRadioButton = new JRadioButton("");
-	
-	/** The csv panel. */
 	private JPanel csvPanel;
 	
-	/** The browse output label. */
 	private JLabel browseOutputLabel = new JLabel("");
-	
-	/** The browse output text. */
 	private JTextField browseOutputText = new JTextField("");
-	
-	/** The browse output button. */
 	private JButton browseOutputButton = new JButton("");
 
-	/** The separator label. */
 	//	private JPanel advanceTemplate;
 	private JLabel separatorLabel = new JLabel("");
-	
-	/** The separator text. */
 	private JTextField separatorText= new JTextField("");
-	
-	/** The separator list popup. */
 	private JPopupMenu separatorListPopup= new JPopupMenu();
-	
-	/** The predefiend label. */
 	JLabel predefiendLabel= new JLabel("");
 		
-	/** The xlsx radio button. */
 	//++ xlsx RadioButtun
 	private JRadioButton xlsxRadioButton = new JRadioButton("");
-	
-	/** The xlsx panel. */
 	private JPanel xlsxPanel;
 
-	/** The xlsx browse output text. */
 	private JTextField xlsxBrowseOutputText = new JTextField("");
-	
-	/** The xlsx browse output button. */
 	private JButton xlsxBrowseOutputButton = new JButton("");
 	
 	//++ Online RadioButtun  
 	
-	/** The online radio button. */
 	private JRadioButton onlineRadioButton = new JRadioButton("");
-	
-	/** The online panel. */
 	private JPanel onlinePanel;
 	
-	/** The service type. */
 	private JLabel serviceType= new JLabel("");
-	
-	/** The service combo box. */
 	private JComboBox serviceComboBox= new JComboBox();
 	
-	/** The email label. */
 	private JLabel emailLabel = new JLabel("");
-	
-	/** The email text. */
 	private JTextField emailText = new JTextField("",15);
 	
-	/** The pass label. */
 	private JLabel passLabel = new JLabel("");
-	
-	/** The pass text. */
 	private JPasswordField  passText = new JPasswordField ("",15);
 	
-	/** The captcha box. */
 	private Box captchaBox = Box.createVerticalBox();
-	
-	/** The captcha image. */
 	private JLabel captchaImage = new JLabel("");
-	
-	/** The captcha text. */
 	private JTextField captchaText = new JTextField("",15);
-	
-	/** The captcha token. */
 	private String captchaToken = null;
 	  
-	/** The spreadsheet name label. */
 	private JLabel spreadsheetNameLabel = new JLabel("");
-	
-	/** The spreadsheet name text. */
 	private JTextField spreadsheetNameText = new JTextField("",15);
-	
-	/** The link to sp sheet button. */
 	private JLabel linkToSpSheetButton= new JLabel();
-	
-	/** The privacy button. */
 	private JLabel privacyButton= new JLabel();
 	
-	/** The success upload. */
 	private boolean successUpload=false;
-	
-	/** The upload result URL. */
 	private String uploadResultURL="";
 	
-	/** The export button. */
 	private JButton exportButton = new JButton("");
-	
-	/** The config. */
 	private ConfigImpl config;
 	
-	/** The manual panel. */
 	// manual template generator
 	private JPanel manualPanel;
-	
-	/** The right hand menu. */
 	private JPanel rightHandMenu ;
-	
-	/** The scroll pane. */
 	private JScrollPane scrollPane ;
-	
-	/** The table. */
 	private JTable table;
-	
-	/** The table data model. */
 	private TableDataModel tableDataModel=new TableDataModel();
-	
-	/** The up button. */
 	private JButton upButton = new JButton("");
-	
-	/** The down button. */
 	private JButton downButton = new JButton("");
-	
-	/** The edit button. */
 	private JButton editButton = new JButton("");
 	
-	/** The add button. */
 	private JButton addButton = new JButton("");
-	
-	/** The remove button. */
 	private JButton removeButton = new JButton("");
-	
-	/** The save button. */
 	private JButton saveButton = new JButton("");
-	
-	/** The save message. */
 	private JLabel saveMessage = new JLabel("");
 
-	/** The previousvisit by save template. */
 	private String previousvisitBySaveTemplate="";
 	
-	/** The file chooser template. */
 	final JFileChooser fileChooserTemplate = new JFileChooser();
-	
-	/** The file chooser CSV out. */
 	final JFileChooser fileChooserCSVOut = new JFileChooser();
-	
-	/** The file chooser XLSX out. */
 	final JFileChooser fileChooserXLSXOut = new JFileChooser();
 	
-	/**
-	 * Instantiates a new SPSHG panel.
-	 *
-	 * @param plugin the plugin
-	 */
 	SPSHGPanel(SPSHGPlugin plugin){
 		this.plugin=plugin;
 		viewController = ObjectRegistry.getInstance().getViewController();
@@ -406,9 +261,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 	}
 	
-	/**
-	 * Inits the gui.
-	 */
 	private void initGui() {
 		jPanelInput = Box.createVerticalBox();
 		
@@ -668,11 +520,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		});
 	}
 	
-	/**
-	 * Sets the enabled workspace.
-	 *
-	 * @param enable the new enabled workspace
-	 */
 	public void setEnabledWorkspace(boolean enable) {
 		((TitledBorder)versioningPanel.getBorder()).setTitleColor(enable ? 
 				UIManager.getColor("TitledBorder.titleColor"):
@@ -685,9 +532,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		timestampText.setEnabled(enable);
 	}
 	
-	/**
-	 * Creates the popup menu.
-	 */
 	private void createPopupMenu() {
 		JMenuItem menuItem;
 		separatorListPopup.removeAll();
@@ -700,9 +544,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 
-	/**
-	 * Switch locale.
-	 */
 	public void switchLocale() {
 		resetPreferedSize();
 		csvColumnsPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.csvcolumns.border")));	
@@ -765,9 +606,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		updateSelectedCityObjectLable();
 	}
 	
-	/**
-	 * Align GUI.
-	 */
 	private void alignGUI(){
 		int righthandMargin= Math.max(rightHandMenu.getPreferredSize().width, browseButton.getPreferredSize().width);
 		rightHandMenu.setPreferredSize(new Dimension(righthandMargin,rightHandMenu.getPreferredSize().height));
@@ -782,9 +620,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		manuallyTemplateButton.setPreferredSize(new Dimension(righthandMargin,manuallyTemplateButton.getPreferredSize().height));
 	}
 	
-	/**
-	 * Modify table columns size.
-	 */
 	private void modifyTableColumnsSize(){
 		TableColumn column = null;
 		table.setRowHeight(15);
@@ -799,9 +634,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		column.setMinWidth(140);
 	}
 	
-	/**
-	 * Reset prefered size.
-	 */
 	private void resetPreferedSize(){
 		rightHandMenu.setPreferredSize(null);
 		browseButton.setPreferredSize(null);
@@ -816,9 +648,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 	}
 	
-	/**
-	 * Clear gui.
-	 */
 	private void clearGui() {
 //		separatorText.setText("[Comma]");
 		browseText.setText("");
@@ -837,9 +666,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		setOutputEnabledValues();
 	}
 	
-	/**
-	 * Adds the listeners.
-	 */
 	private void addListeners() {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
@@ -1008,28 +834,16 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		});
 	}
 	
-	/**
-	 * Panel is visible.
-	 *
-	 * @param b the b
-	 */
 	public void panelIsVisible(boolean b){
 		// nothing to do!
 	}
 	
-	/**
-	 * Make new template.
-	 */
 	private void makeNewTemplate(){
 		config.getTemplate().setManualTemplate(true);
 		tableDataModel.reset();
 		setOutputEnabledValues();	
 		browseText.setEnabled(false);
 	}
-	
-	/**
-	 * Modify buttons visibility.
-	 */
 	public void modifyButtonsVisibility(){
 		checkButtonsVisibilityInManuallTemplate();
 		if (table.getSelectedRowCount()!=1){
@@ -1047,10 +861,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 			upButton.setEnabled(false);
         } 
 	}
-	
-	/**
-	 * Check buttons visibility in manuall template.
-	 */
 	public void checkButtonsVisibilityInManuallTemplate(){
 		if (tableDataModel.getRowCount()==0 || table.getSelectedRowCount()==0){
 			editButton.setEnabled(false);
@@ -1065,9 +875,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Do export.
-	 */
 	private void doExport() {
 		final ReentrantLock lock = this.mainLock;
 		lock.lock();
@@ -1304,16 +1111,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Update selected city object lable.
-	 */
 	public void updateSelectedCityObjectLable(){
 		generateDataFor.setText(SelectedCityObjects.getInstance().getSelectedObjectsString());
 	}
 	
-	/**
-	 * Initialize city object popup.
-	 */
 	public void initializeCityObjectPopup(){
 		LinkedHashMap<String, Integer> data= SelectedCityObjects.getInstance().getChilds();
 		HashSet<JCheckBoxMenuItem> allCheckBoxes= new HashSet<JCheckBoxMenuItem>();
@@ -1351,11 +1152,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	}
 	
 	//------------------ Manual Template
-	/**
-	 * Show add new column dialog.
-	 *
-	 * @param isedit the isedit
-	 */
 	// show dialog -add
 	private void showAddNewColumnDialog(boolean isedit){
 		final NewCSVColumnDialog csvColumnDialog;
@@ -1376,39 +1172,21 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		});
 	}
 	
-	/**
-	 * Adds the new column in manual CSV.
-	 *
-	 * @param csvc the csvc
-	 */
 	// add new row
 	public void addNewColumnInManualCSV(CSVColumns csvc){
 		tableDataModel.addNewRow(csvc);
 		
 	}
-	
-	/**
-	 * Edits the column in manual CSV.
-	 *
-	 * @param csvc the csvc
-	 */
 	// edit an specific row
 	public void editColumnInManualCSV(CSVColumns csvc){
 		tableDataModel.editRow(csvc);
 		
 	}
-	
-	/**
-	 * Removes the selected columen from manual temolate.
-	 */
 	// remove a selected row
 	private void removeSelectedColumenFromManualTemolate(){
 		tableDataModel.removeRow(table.getSelectedRows());
 	}
 
-	/**
-	 * Initialze file choosers.
-	 */
 	private void initialzeFileChoosers(){	
 		FileNameExtensionFilter filter1 = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
 		fileChooserTemplate.addChoosableFileFilter(filter1);
@@ -1426,9 +1204,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		fileChooserXLSXOut.setFileFilter(filter3);
 	}
 	
-	/**
-	 * Save manually generated template.
-	 */
 	private void saveManuallyGeneratedTemplate(){
 
 		if (previousvisitBySaveTemplate!=null && previousvisitBySaveTemplate.length()>0) {
@@ -1456,11 +1231,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Chose template file.
-	 *
-	 * @return true, if successful
-	 */
 	private boolean choseTemplateFile() {
 		String previousvisit =config.getTemplate().getLastVisitPath();
 		if (previousvisit!=null && previousvisit.length()>0) {
@@ -1479,9 +1249,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		return true;
 	}
 	
-	/**
-	 * Output file.
-	 */
 	private void outputFile() {
 		String previousvisit =config.getOutput().getCsvfile().getLastVisitPath();
 		if (previousvisit!=null && previousvisit.length()>0) {
@@ -1506,9 +1273,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Xlsx output file.
-	 */
 	private void xlsxOutputFile() {
 		String previousvisit =config.getOutput().getXlsxfile().getLastVisitPath();
 		if (previousvisit!=null && previousvisit.length()>0) {
@@ -1533,11 +1297,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Sets the after upload panel enable.
-	 *
-	 * @param aFlag the new after upload panel enable
-	 */
 	private void setAfterUploadPanelEnable(boolean aFlag){
 		linkToSpSheetButton.setEnabled(aFlag);
 		aFlag=aFlag&&CloudServiceRegistery.getInstance().isServiceSelected()&&
@@ -1547,18 +1306,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		
 	}
 	
-	/**
-	 * Checks if is successfully uploaded.
-	 *
-	 * @return true, if is successfully uploaded
-	 */
 	public boolean isSuccessfullyUploaded(){
 		return successUpload;
 	}
 	
-	/**
-	 * Sets the output enabled values.
-	 */
 	private void setOutputEnabledValues() {
 		
 		browseText.setEnabled(true);
@@ -1587,13 +1338,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		setAfterUploadPanelEnable(successUpload);
 	}
 
-	/**
-	 * Creates the image icon.
-	 *
-	 * @param path the path
-	 * @param description the description
-	 * @return the image icon
-	 */
 	public ImageIcon createImageIcon(String path, String description) {
 		java.net.URL imgURL = getClass().getResource(path);
 		if (imgURL != null) {
@@ -1602,16 +1346,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		return null;
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.JComponent#getPreferredSize()
-	 */
 	public Dimension getPreferredSize() {
 		return new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT);
 	}
 	
-	/**
-	 * Load settings.
-	 */
 	public void loadSettings(){
 		config = plugin.getConfig();
 		if (config==null) return;
@@ -1646,9 +1384,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	}
 	
 	
-	/**
-	 * Save settings.
-	 */
 	public void saveSettings(){	
 		if (config==null) return;
 		
@@ -1684,23 +1419,10 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		config.getOutput().getCloud().setSpreadsheetName(spreadsheetNameText.getText());
 	}
 	
-	/**
-	 * Error message.
-	 *
-	 * @param title the title
-	 * @param text the text
-	 */
 	private void errorMessage(String title, String text) {
 		JOptionPane.showMessageDialog(viewController.getTopFrame(), text, title, JOptionPane.ERROR_MESSAGE);
 	}
 	
-	/**
-	 * Authenticate.
-	 *
-	 * @param userName the user name
-	 * @param password the password
-	 * @return true, if successful
-	 */
 	// given from gdata library samples
 	private boolean authenticate(String userName, String password) {
 		try {
@@ -1740,11 +1462,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Custom button clicked.
-	 *
-	 * @param type the type
-	 */
 	// custom button
 	public void customButtonClicked(int type){
 		switch(type){
@@ -1769,9 +1486,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.Component#handleEvent(java.awt.Event)
-	 */
 	@Override
 	public void handleEvent(Event e) throws Exception {
 		if (e.getEventType() == EventType.UPLOAD_EVENT) {
@@ -1791,9 +1505,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	}
 
 	
-	/**
-	 * Load existing template.
-	 */
 	public void loadExistingTemplate(){
 		if (browseText.getText()==null||browseText.getText().trim().length()<1)
 			return;
@@ -1852,12 +1563,6 @@ public class SPSHGPanel extends JPanel implements EventHandler{
 	}
 	
 	
-	/**
-	 * Checks if is file path valid.
-	 *
-	 * @param path the path
-	 * @return true, if is file path valid
-	 */
 	private boolean isFilePathValid(String path){
 		try{
 		if (path==null || path.trim().length()==0)

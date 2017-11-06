@@ -31,10 +31,6 @@ import javax.xml.bind.annotation.XmlType;
 
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class Output.
- */
 @XmlType(name="OutputType", propOrder={
 		"type",
 		"csvfile",
@@ -43,105 +39,50 @@ import javax.xml.bind.annotation.XmlType;
 })
 
 public class Output {
-	
-	/** The Constant CSV_FILE_CONFIG. */
 	public static final String CSV_FILE_CONFIG="CSV_FILE";
-	
-	/** The Constant XLSX_FILE_CONFIG. */
 	public static final String XLSX_FILE_CONFIG="XLSX_FILE";
-	
-	/** The Constant ONLINE_CONFIG. */
 	public static final String ONLINE_CONFIG="INTOCLOUD";
 	
-	/** The type. */
 	private String type = CSV_FILE_CONFIG;
 	
-	/** The csvfile. */
 	private CSVFile csvfile;
-	
-	/** The xlsxfile. */
 	private XLSXFile xlsxfile;
-	
-	/** The cloud. */
 	private IntoCloud cloud;
 	
-	/**
-	 * Gets the type.
-	 *
-	 * @return the type
-	 */
 	public String getType() {
 		return type;
 	}
 
-	/**
-	 * Sets the type.
-	 *
-	 * @param type the new type
-	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
-	/**
-	 * Gets the csvfile.
-	 *
-	 * @return the csvfile
-	 */
 	public CSVFile getCsvfile() {
 		return csvfile;
 	}
 
-	/**
-	 * Sets the csvfile.
-	 *
-	 * @param csvfile the new csvfile
-	 */
 	public void setCsvfile(CSVFile csvfile) {
 		this.csvfile = csvfile;
 	}
 
-	/**
-	 * Gets the xlsxfile.
-	 *
-	 * @return the xlsxfile
-	 */
 	public XLSXFile getXlsxfile() {
 		return xlsxfile;
 	}
 
-	/**
-	 * Sets the xlsxfile.
-	 *
-	 * @param xlsxfile the new xlsxfile
-	 */
 	public void setXlsxfile(XLSXFile xlsxfile) {
 		this.xlsxfile = xlsxfile;
 	}
 	
-	/**
-	 * Instantiates a new output.
-	 */
 	public Output(){
 		csvfile = new CSVFile();
 		xlsxfile = new XLSXFile();
 		cloud = new IntoCloud();
 	}
 
-	/**
-	 * Gets the cloud.
-	 *
-	 * @return the cloud
-	 */
 	public IntoCloud getCloud() {
 		return cloud;
 	}
 
-	/**
-	 * Sets the cloud.
-	 *
-	 * @param cloud the new cloud
-	 */
 	public void setCloud(IntoCloud cloud) {
 		this.cloud = cloud;
 	}

@@ -33,33 +33,14 @@ import java.util.Set;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class SeparatorPhrase.
- */
 public class SeparatorPhrase {
-	
-	/** The predefiend phrase. */
 	private LinkedHashMap<String,String> predefiendPhrase= new LinkedHashMap<String,String>();
-	
-	/** The temp phrase. */
 	private String tempPhrase=""; 
-	
-	/** The instance. */
 	private static SeparatorPhrase INSTANCE= new SeparatorPhrase();
 	
-	/**
-	 * Gets the single instance of SeparatorPhrase.
-	 *
-	 * @return single instance of SeparatorPhrase
-	 */
 	public static SeparatorPhrase getInstance(){
 		return INSTANCE;
 	}
-	
-	/**
-	 * Load.
-	 */
 	public void load(){
 		predefiendPhrase.clear();
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.comma"),",");
@@ -68,21 +49,10 @@ public class SeparatorPhrase {
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.space")," ");
 	}
 	
-	/**
-	 * Gets the nicknames.
-	 *
-	 * @return the nicknames
-	 */
 	public Set<String> getNicknames(){
 		return predefiendPhrase.keySet();
 	}
 	
-	/**
-	 * Decode.
-	 *
-	 * @param encoded the encoded
-	 * @return the string
-	 */
 	public synchronized String decode(String encoded){
 		
 		for (String key:predefiendPhrase.keySet()){
@@ -91,29 +61,16 @@ public class SeparatorPhrase {
 		return encoded;
 	}
 	
-	/**
-	 * Gets the temp phrase.
-	 *
-	 * @return the temp phrase
-	 */
 	public String getTempPhrase(){
 		if (tempPhrase.length()==0)
 			renewTempPhrase();
 		return tempPhrase;
 	}
 	
-	/**
-	 * Renew temp phrase.
-	 */
 	public void renewTempPhrase(){
 		tempPhrase="_$"+System.currentTimeMillis()+"$_";
 	}
 	
-	/**
-	 * Gets the into cloud default seperator.
-	 *
-	 * @return the into cloud default seperator
-	 */
 	public synchronized String  getIntoCloudDefaultSeperator(){
 		return ",";
 	}

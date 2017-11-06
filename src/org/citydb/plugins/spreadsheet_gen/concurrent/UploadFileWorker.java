@@ -46,32 +46,14 @@ import org.citydb.api.controller.LogController;
 import org.citydb.api.event.EventDispatcher;
 import org.citydb.api.registry.ObjectRegistry;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class UploadFileWorker.
- */
 public class UploadFileWorker extends DefaultWorkerImpl<UploadFileWork>{
-	
-	/** The Constant URL. */
 	public final static String URL="URL_INTO_CLOUD";
-	
-	/** The event dispatcher. */
 	private final EventDispatcher eventDispatcher;
-	
-	/** The log controller. */
 	private final LogController logController;
-	
-	/**
-	 * Instantiates a new upload file worker.
-	 */
 	public UploadFileWorker(){
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 		logController= ObjectRegistry.getInstance().getLogController();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#doWork(java.lang.Object)
-	 */
 	@Override
 	public void doWork(UploadFileWork work) {
 		eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.upload"), this));
@@ -99,15 +81,14 @@ public class UploadFileWorker extends DefaultWorkerImpl<UploadFileWork>{
 		}
 		
 	}
-	
 	/**
-	 * Upload file.
-	 *
-	 * @param filepath the filepath
-	 * @param title the title
+	 * 
+	 * @param title
 	 * @return address of spreadsheet; null|exception means it was not
 	 *         successful;
-	 * @throws Exception the exception
+	 * @throws ServiceException
+	 * @throws IOException
+	 * @throws MalformedURLException
 	 */
 	private String uploadFile(String filepath,String title) throws Exception {
 		if (filepath == null) {
@@ -116,9 +97,6 @@ public class UploadFileWorker extends DefaultWorkerImpl<UploadFileWork>{
 		return CloudServiceRegistery.getInstance().getSelectedService().uploadFile(filepath, title);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.citydb.api.concurrent.DefaultWorkerImpl#shutdown()
-	 */
 	@Override
 	public void shutdown() {
 		// No idea!

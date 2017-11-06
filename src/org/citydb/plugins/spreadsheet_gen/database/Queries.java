@@ -29,19 +29,9 @@ package org.citydb.plugins.spreadsheet_gen.database;
 
 import org.citydb.api.database.DatabaseType;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class Queries.
- */
 public class Queries {
 	// not in used.
-/**
-	 * Gets the ids.
-	 *
-	 * @param type the type
-	 * @return the string
-	 */
-	/*    public static final String QUERY_GET_GMLIDS =
+/*    public static final String QUERY_GET_GMLIDS =
 		"SELECT co.gmlid " +
 		"FROM CITYOBJECT co " +
 		"WHERE " +

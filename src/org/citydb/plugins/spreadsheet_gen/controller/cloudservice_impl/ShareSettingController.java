@@ -40,103 +40,49 @@ import com.google.gdata.util.VersionConflictException;
 import org.citydb.api.event.EventDispatcher;
 import org.citydb.api.registry.ObjectRegistry;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class ShareSettingController.
- */
 public class ShareSettingController implements Runnable{
 
-	/** The Constant TASK_ADD_NEW. */
 	public final static int TASK_ADD_NEW=1;
-	
-	/** The Constant TASK_UPDATE_PERMISSION. */
 	public final static int TASK_UPDATE_PERMISSION=2;
-	
-	/** The Constant TASK_REMOVE. */
 	public final static int TASK_REMOVE=3;
-	
-	/** The Constant TASK_LOAD_CURRENT_STATE. */
 	public final static int TASK_LOAD_CURRENT_STATE=4;
-	
-	/** The Constant TASK_VALUE_CHANGED. */
 	public final static int TASK_VALUE_CHANGED=5;
-	
-	/** The Constant FINISH_UPDATE. */
 	public final static int FINISH_UPDATE=6;
-	
-	/** The Constant TASK_CANCELD. */
 	// may be by exception
 	public final static int TASK_CANCELD=7;
 	
-	/** The Acl entty list. */
 	public static volatile List<AclEntry> AclEnttyList= new ArrayList<AclEntry>();
 	
-	/** The type. */
 	private int type=0;
-	
-	/** The gsss. */
 	private GoogleSpreadSheetService gsss=null;
-	
-	/** The user. */
 	private Users user=null;
-	
-	/** The scope. */
 	private int scope;
-	
-	/** The event dispatcher. */
 	final EventDispatcher eventDispatcher;
 	
-	/**
-	 * Instantiates a new share setting controller.
-	 *
-	 * @param gsss the gsss
-	 */
 	public ShareSettingController(GoogleSpreadSheetService gsss){
 		this.gsss=gsss;
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 	}
 	
-	/**
-	 * Adds the new ACLE ntry.
-	 *
-	 * @param newUser the new user
-	 */
 	public void addNewACLENtry(Users newUser ){
 		type= TASK_ADD_NEW;
 		this.user=newUser;
 		this.scope=GoogleSpreadSheetService.SCOPE_USER;
 	}
 	
-	/**
-	 * Load initial state.
-	 */
 	public void loadInitialState(){
 		type= TASK_LOAD_CURRENT_STATE;
 	}
 	
-	/**
-	 * Update permission.
-	 *
-	 * @param user the user
-	 */
 	public void updatePermission(Users user ){
 		this.user=user;
 		type= TASK_UPDATE_PERMISSION;
 	}
 	
-	/**
-	 * Removes the ACL entrl.
-	 *
-	 * @param user the user
-	 */
 	public void removeACLEntrl(Users user){
 		this.user=user;
 		type= TASK_REMOVE;
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
 	@Override
 	public void run() {
 		AclEntry acle;

@@ -36,28 +36,14 @@ import org.citydb.api.concurrent.Worker;
 import org.citydb.api.concurrent.WorkerFactory;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * A factory for creating Writer objects.
- */
 public class WriterFactory implements WorkerFactory<RowofCSVWork>{
 	
-	/** The output. */
 	private File output;
 	
-	/**
-	 * Instantiates a new writer factory.
-	 *
-	 * @param output the output
-	 */
 	public WriterFactory(File output){
 		this.output=output;
 		
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.citydb.api.concurrent.WorkerFactory#createWorker()
-	 */
 	@Override
 	public Worker<RowofCSVWork> createWorker() {
 		return new CSVWriter(output);

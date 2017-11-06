@@ -27,44 +27,20 @@
  */
 package org.citydb.plugins.spreadsheet_gen.controller.cloudservice;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class CaptchaRequiredException.
- */
 @SuppressWarnings("serial")
 public class CaptchaRequiredException extends Exception {
 
-	/** The captcha token. */
 	private String captchaToken;
-	
-	/** The captcha url. */
 	private String captchaUrl;
 
-	/**
-	 * Instantiates a new captcha required exception.
-	 *
-	 * @param captchaToken the captcha token
-	 * @param captchaUrl the captcha url
-	 */
 	public CaptchaRequiredException(String captchaToken,String captchaUrl){
 		this.captchaToken=captchaToken;
 		this.captchaUrl=captchaUrl;
 	}
 	
-	/**
-	 * Gets the captcha token.
-	 *
-	 * @return the captcha token
-	 */
 	public String getCaptchaToken(){
 		return captchaToken;
 	}
-	
-	/**
-	 * Gets the captcha url.
-	 *
-	 * @return the captcha url
-	 */
 	public String getCaptchaUrl(){
 		return captchaUrl;
 		

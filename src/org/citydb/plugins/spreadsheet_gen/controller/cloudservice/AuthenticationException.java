@@ -27,35 +27,16 @@
  */
 package org.citydb.plugins.spreadsheet_gen.controller.cloudservice;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class AuthenticationException.
- */
 @SuppressWarnings("serial")
 public class AuthenticationException extends Exception {
-	
-	/** The message. */
 	String message;
-	
-	/**
-	 * Instantiates a new authentication exception.
-	 */
 	public AuthenticationException(){
 		message="unknown";
 	}
-	
-	/**
-	 * Instantiates a new authentication exception.
-	 *
-	 * @param message the message
-	 */
 	public AuthenticationException(String message){
 		this.message=message;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Throwable#getMessage()
-	 */
 	public String getMessage(){
 		return message;
 	}

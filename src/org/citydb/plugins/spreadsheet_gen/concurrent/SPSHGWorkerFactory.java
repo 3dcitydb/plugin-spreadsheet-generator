@@ -36,32 +36,11 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 
-// TODO: Auto-generated Javadoc
-/**
- * A factory for creating SPSHGWorker objects.
- */
 public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
-	
-	/** The db pool. */
 	private final DatabaseConnectionPool dbPool;
-	
-	/** The io writer pool. */
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
-	
-	/** The config. */
 	private final ConfigImpl config;
-	
-	/** The template. */
 	private String template;
-	
-	/**
-	 * Instantiates a new SPSHG worker factory.
-	 *
-	 * @param dbPool the db pool
-	 * @param ioWriterPool the io writer pool
-	 * @param config the config
-	 * @param template the template
-	 */
 	public SPSHGWorkerFactory(DatabaseConnectionPool dbPool,
 			WorkerPool<RowofCSVWork> ioWriterPool,
 			ConfigImpl config, String template){
@@ -71,10 +50,6 @@ public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
 		this.config=config;
 		this.template=template;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.citydb.api.concurrent.WorkerFactory#createWorker()
-	 */
 	@Override
 	public Worker<CityObjectWork> createWorker() {
 		SPSHGWorker worker =null;

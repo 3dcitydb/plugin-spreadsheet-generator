@@ -32,15 +32,8 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.UploadFileWork;
 import org.citydb.api.concurrent.Worker;
 import org.citydb.api.concurrent.WorkerFactory;
 
-// TODO: Auto-generated Javadoc
-/**
- * A factory for creating UploadFile objects.
- */
 public class UploadFileFactory implements WorkerFactory<UploadFileWork>{
 
-	/* (non-Javadoc)
-	 * @see org.citydb.api.concurrent.WorkerFactory#createWorker()
-	 */
 	@Override
 	public Worker<UploadFileWork> createWorker() {
 		return new UploadFileWorker();

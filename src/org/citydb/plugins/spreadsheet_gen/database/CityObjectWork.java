@@ -27,38 +27,17 @@
  */
 package org.citydb.plugins.spreadsheet_gen.database;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class CityObjectWork.
- */
 public class CityObjectWork {
-	
-	/** The gmlid. */
 	private String gmlid;
 
-	/**
-	 * Instantiates a new city object work.
-	 *
-	 * @param gmlid the gmlid
-	 */
 	public CityObjectWork(String gmlid){
 		this.gmlid=gmlid;
 	}
 	
-	/**
-	 * Gets the gmlid.
-	 *
-	 * @return the gmlid
-	 */
 	public String getGmlid() {
 		return gmlid;
 	}
 
-	/**
-	 * Sets the gmlid.
-	 *
-	 * @param gmlid the new gmlid
-	 */
 	public void setGmlid(String gmlid) {
 		this.gmlid = gmlid;
 	}

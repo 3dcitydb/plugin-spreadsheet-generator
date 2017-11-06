@@ -27,24 +27,10 @@
  */
 package org.citydb.plugins.spreadsheet_gen.events;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Enum EventType.
- */
 public enum EventType {
-	
-	/** The interrupt. */
 	INTERRUPT,
-	
-	/** The status dialog message. */
 	STATUS_DIALOG_MESSAGE,
-	
-	/** The status dialog title. */
 	STATUS_DIALOG_TITLE,
-	
-	/** The upload event. */
 	UPLOAD_EVENT,
-	
-	/** The sharing event. */
 	SHARING_EVENT
 }

@@ -84,100 +84,45 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class NewCSVColumnDialog.
- */
 @SuppressWarnings("serial")
 public class NewCSVColumnDialog extends JDialog {
 
-	/** The Constant BORDER_THICKNESS. */
 	protected static final int BORDER_THICKNESS = 5;
-	
-	/** The Constant MAX_TEXTFIELD_HEIGHT. */
 	protected static final int MAX_TEXTFIELD_HEIGHT = 20;
-	
-	/** The Constant MAX_LABEL_WIDTH. */
 	protected static final int MAX_LABEL_WIDTH = 60;
-	
-	/** The Constant PREFERRED_WIDTH. */
 	private static final int PREFERRED_WIDTH = 50;
-	
-	/** The Constant PREFERRED_HEIGHT. */
 	private static final int PREFERRED_HEIGHT = 50;
-	
-	/** The Constant EOL. */
 	public static final String EOL="[EOL]";
 	
-	/** The view controller. */
 	private final ViewController viewController;
 	
-	/** The title text. */
 	private JTextField titleText;
-	
-	/** The comment text. */
 	private JTextArea commentText;
-	
-	/** The content. */
 	private JTextPane content;
-	
-	/** The eol button. */
 	private JButton addFieldButton, insertButton, cancelButton, functionButton,eolButton;
-	
-	/** The tree. */
 	private JTree tree;
-	
-	/** The new CSV column. */
 	private CSVColumns newCSVColumn;
 
 
-	/** The document. */
 	private StyledDocument document;
-	
-	/** The EOL style. */
 	private static Style labelStyle,defaultStyle,EOLStyle;
-	
-	/** The caret position dot. */
 	private int caretPositionDot;
-	
-	/** The caret position mark. */
 	private int caretPositionMark;
 	
-	/** The is edit mode. */
 	private boolean isEditMode = false;
 
-	/** The popup. */
 	private JPopupMenu popup;
-	
-	/** The aggregations. */
 	private Set<String> aggregations;
-	
-	/** The 3 dcitydbcontent. */
 	private HashMap<String, Set<String>> _3dcitydbcontent;
-	
-	/** The panel. */
 	final SPSHGPanel panel;
 
-	/** The hilit. */
 	// Highlight
 	final Highlighter hilit;
-	
-	/** The painter. */
 	final Highlighter.HighlightPainter painter;
-	
-	/** The highlight color. */
 	private Color highlightColor= Color.lightGray;
 	
-	/** The old tree selected paths. */
 	// 
 	private String oldTreeSelectedPaths=null;
-	
-	/**
-	 * Instantiates a new new CSV column dialog.
-	 *
-	 * @param frame the frame
-	 * @param panel the panel
-	 */
 	public NewCSVColumnDialog(JFrame frame, SPSHGPanel panel) {
 		
 		super(frame, Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
@@ -191,13 +136,6 @@ public class NewCSVColumnDialog extends JDialog {
 		init();
 	}
 
-	/**
-	 * Instantiates a new new CSV column dialog.
-	 *
-	 * @param frame the frame
-	 * @param panel the panel
-	 * @param ncsvc the ncsvc
-	 */
 	public NewCSVColumnDialog(JFrame frame, SPSHGPanel panel, CSVColumns ncsvc) {
 		super(frame, Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
 		hilit = new DefaultHighlighter();
@@ -210,9 +148,6 @@ public class NewCSVColumnDialog extends JDialog {
 		init();
 	}
 
-	/**
-	 * Inits the.
-	 */
 	private void init() {
 		BalloonTemplateHandler dummy = new BalloonTemplateHandlerImpl("", null);
 		aggregations = dummy.getSupportedAggregationFunctions();
@@ -381,9 +316,6 @@ public class NewCSVColumnDialog extends JDialog {
 		
 	}
 
-	/**
-	 * Adds the listeners.
-	 */
 	private void addListeners() {
 		// UI listeners
 		tree.addMouseListener(new MouseListener() {
@@ -549,9 +481,6 @@ public class NewCSVColumnDialog extends JDialog {
 		});
 	}
 	
-	/**
-	 * Make function popup.
-	 */
 	private void makeFunctionPopup() {
 		popup = new JPopupMenu();
 		JMenuItem menuItem;
@@ -563,11 +492,6 @@ public class NewCSVColumnDialog extends JDialog {
 		}
 	}
 	
-	/**
-	 * Insert in content.
-	 *
-	 * @param st the st
-	 */
 	public void insertInContent(String st){
 		try {
 			if (caretPositionDot != caretPositionMark)
@@ -585,9 +509,6 @@ public class NewCSVColumnDialog extends JDialog {
 
 	}
 	
-	/**
-	 * Insert EOL.
-	 */
 	public void insertEOL(){
 		try {
 			if (caretPositionDot != caretPositionMark)
@@ -605,11 +526,6 @@ public class NewCSVColumnDialog extends JDialog {
 	}
 
 	
-	/**
-	 * Adds the field from DB.
-	 *
-	 * @param aggr the aggr
-	 */
 	public void addFieldFromDB(String aggr) {
 		TreePath[] paths = tree.getSelectionPaths();
 		String result;
@@ -631,11 +547,6 @@ public class NewCSVColumnDialog extends JDialog {
 		}
 	}
 	
-	/**
-	 * Replace aggregation function.
-	 *
-	 * @param aggr the aggr
-	 */
 	private void replaceAggregationFunction(String aggr){
 		try {
 			if (caretPositionDot == caretPositionMark) // nothing selected.
@@ -686,22 +597,12 @@ public class NewCSVColumnDialog extends JDialog {
 	
 	
 
-	/**
-	 * Generate tree.
-	 *
-	 * @return the j tree
-	 */
 	private JTree generateTree() {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("3D City DB");
 		createNodes(top);
 		return new JTree(top);
 	}
 
-	/**
-	 * Creates the nodes.
-	 *
-	 * @param top the top
-	 */
 	private void createNodes(DefaultMutableTreeNode top) {
 		DefaultMutableTreeNode category = null;
 		DefaultMutableTreeNode node = null;
@@ -724,22 +625,11 @@ public class NewCSVColumnDialog extends JDialog {
 		}
 	}
 
-	/**
-	 * Error message.
-	 *
-	 * @param title the title
-	 * @param text the text
-	 */
 	private void errorMessage(String title, String text) {
 		JOptionPane.showMessageDialog(this, text, title,
 				JOptionPane.ERROR_MESSAGE);
 	}
 	
-	/**
-	 * Gets the default style.
-	 *
-	 * @return the default style
-	 */
 	public static Style getDefaultStyle(){
 		if (defaultStyle==null){
 			StyleContext context = new StyleContext();
@@ -754,11 +644,6 @@ public class NewCSVColumnDialog extends JDialog {
 		return defaultStyle;
 	}
 	
-	/**
-	 * Gets the label style.
-	 *
-	 * @return the label style
-	 */
 	public static Style getLabelStyle(){
 		if (labelStyle!=null)
 			return labelStyle;
@@ -771,11 +656,6 @@ public class NewCSVColumnDialog extends JDialog {
 		return labelStyle;
 	}
 			
-	/**
-	 * Gets the EOL style.
-	 *
-	 * @return the EOL style
-	 */
 	public static Style getEOLStyle(){
 		if (EOLStyle!=null)
 			return EOLStyle;

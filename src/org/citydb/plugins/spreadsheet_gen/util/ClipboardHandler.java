@@ -35,24 +35,12 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class ClipboardHandler.
- */
 public class ClipboardHandler implements ClipboardOwner{
 	
-	/**
-	 * Instantiates a new clipboard handler.
-	 */
 	ClipboardHandler(){
 		
 	}
 	
-	/**
-	 * Contains BBX.
-	 *
-	 * @return true, if successful
-	 */
 	public boolean containsBBX(){
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	    if (clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) 
@@ -61,8 +49,7 @@ public class ClipboardHandler implements ClipboardOwner{
 	}
 	
 	/**
-	 * put following string in clipboard: BBOX=xmin,ymin,xmax,ymax.
-	 *
+	 * put following string in clipboard: BBOX=xmin,ymin,xmax,ymax
 	 * @param bbx order list of xmin,ymin,xmax,ymax
 	 */
 	public void copy(double[] bbx){
@@ -76,11 +63,6 @@ public class ClipboardHandler implements ClipboardOwner{
 	    clipboard.setContents(stringSelection, this );
 	}
 	
-	/**
-	 * Copy.
-	 *
-	 * @param content the content
-	 */
 	public void copy(String content){
 	    StringSelection stringSelection = new StringSelection( content );
 	    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -88,9 +70,7 @@ public class ClipboardHandler implements ClipboardOwner{
 	}
 	
 	/**
-	 * Paste.
-	 *
-	 * @return the double[]
+	 * 
 	 * @return: 4 values:BBOX=xmin,ymin,xmax,ymax
 	 */
 	public double[] paste(){
@@ -119,9 +99,6 @@ public class ClipboardHandler implements ClipboardOwner{
 	    return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
-	 */
 	@Override
 	public void lostOwnership(Clipboard arg0, Transferable arg1) {
 		// TODO Auto-generated method stub

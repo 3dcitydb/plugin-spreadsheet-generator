@@ -76,47 +76,20 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import com.csvreader.CsvReader;
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class SpreadsheetExporter.
- */
 public class SpreadsheetExporter implements EventHandler{
-	
-	/** The db pool. */
 	private final DatabaseConnectionPool dbPool;
-	
-	/** The plugin. */
 	private final SPSHGPlugin plugin;
-	
-	/** The event dispatcher. */
 	private final EventDispatcher eventDispatcher;
-	
-	/** The log controller. */
 	private final LogController logController;	
 	
-	/** The should run. */
 	private volatile boolean shouldRun = true;
-	
-	/** The is interrupted. */
 	private AtomicBoolean isInterrupted = new AtomicBoolean(false);
 	
-	/** The worker pool. */
 	private WorkerPool<CityObjectWork> workerPool;
-	
-	/** The io writer pool. */
 	private SingleWorkerPool<RowofCSVWork> ioWriterPool;
-	
-	/** The uploader pool. */
 	private SingleWorkerPool<UploadFileWork> uploaderPool;
 	
-	/** The dbm. */
 	private DBManager dbm = null;
-	
-	/**
-	 * Instantiates a new spreadsheet exporter.
-	 *
-	 * @param plugin the plugin
-	 */
 	public SpreadsheetExporter(SPSHGPlugin plugin){
 		this.plugin = plugin;		
 		dbPool = DatabaseConnectionPool.getInstance();
@@ -125,18 +98,10 @@ public class SpreadsheetExporter implements EventHandler{
 		
 	}
 	
-	/**
-	 * Cleanup.
-	 */
 	public void cleanup() {
 		eventDispatcher.removeEventHandler(this);
 	}
 	
-	/**
-	 * Do process.
-	 *
-	 * @return true, if successful
-	 */
 	public boolean doProcess(){
 		
 /*		BalloonTemplateHandlerImpl bth = new BalloonTemplateHandlerImpl();
@@ -322,9 +287,6 @@ public class SpreadsheetExporter implements EventHandler{
 		return shouldRun;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.citydb.api.event.EventHandler#handleEvent(org.citydb.api.event.Event)
-	 */
 	@Override
 	public void handleEvent(Event e) throws Exception {
 		if (isInterrupted.compareAndSet(false, true)) {
@@ -335,9 +297,6 @@ public class SpreadsheetExporter implements EventHandler{
 		}
 	}
 	
-	/**
-	 * Write report.
-	 */
 	public void  writeReport(){
 		HashMap<Integer,AtomicInteger> countingStorage= CSVWriter.getRportStructure();
 //		StringBuffer mReport= new StringBuffer();
@@ -360,14 +319,6 @@ public class SpreadsheetExporter implements EventHandler{
 
 	}
 	
-	/**
-	 * Convert to XSLX.
-	 *
-	 * @param csvPath the csv path
-	 * @param path the path
-	 * @param filename the filename
-	 * @throws Exception the exception
-	 */
 	public void convertToXSLX(String csvPath, String path, String filename) throws Exception {
 		// convert csv to excel
 		Workbook workbook = new XSSFWorkbook();

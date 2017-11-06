@@ -39,31 +39,18 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class TableDataModel.
- */
 @SuppressWarnings("serial")
 public class TableDataModel extends AbstractTableModel {
 //	private String[] columnNames = {"Column's Title",
 //			"Column's Content",
-/** The column names. */
 //		"Comment"};
 	private String[] columnNames=null;
-	
-	/** The rows. */
 	private ArrayList<CSVColumns> rows = new ArrayList<CSVColumns>() ;
 	
-	/**
-	 * Instantiates a new table data model.
-	 */
 	public TableDataModel(){
 		updateColumnsTitle();
 	}
 	
-	/**
-	 * Update columns title.
-	 */
 	public void updateColumnsTitle(){
 		columnNames= new String[3];
 		columnNames[0]=Util.I18N.getString("spshg.csvcolumns.manual.header.title");
@@ -72,74 +59,40 @@ public class TableDataModel extends AbstractTableModel {
 		fireTableStructureChanged();
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
-	 */
 	public String getColumnName(int col) {
 		return columnNames[col];
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getRowCount()
-	 */
 	public int getRowCount() {
 		return rows.size();
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getColumnCount()
-	 */
 	public int getColumnCount() {
 		return columnNames.length;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getValueAt(int, int)
-	 */
 	public Object getValueAt(int row, int col) {
 		return rows.get(row).getValue(col) ;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
-	 */
 	public boolean isCellEditable(int row, int col) {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int)
-	 */
 	public void setValueAt(Object value, int row, int col) {
 		 rows.get(row).setValue(col,value);
 	}
 	
-	/**
-	 * Adds the new row.
-	 *
-	 * @param data the data
-	 */
 	public void addNewRow(CSVColumns data){
 		data.rownum=rows.size();
 		rows.add(data);
 		fireTableRowsInserted(rows.size()-1, rows.size()-1);
 	}
-	
-	/**
-	 * Edits the row.
-	 *
-	 * @param data the data
-	 */
 	public void editRow(CSVColumns data){
 		rows.set(data.rownum, data);
 		fireTableRowsUpdated(data.rownum,data.rownum);
 	}
 	
-	/**
-	 * Removes the row.
-	 *
-	 * @param index the index
-	 */
 	public void removeRow(int[] index){
 		if (index==null || index.length<0) return;
 		Arrays.sort(index);
@@ -153,12 +106,6 @@ public class TableDataModel extends AbstractTableModel {
 		}
 	}
 	
-	/**
-	 * Move.
-	 *
-	 * @param index the index
-	 * @param moveUp the move up
-	 */
 	public void move(int index,boolean moveUp){
 		if (index<0 || index>=rows.size()) return;
 		if (moveUp &&index==0) return;
@@ -170,39 +117,19 @@ public class TableDataModel extends AbstractTableModel {
 		fireTableDataChanged();
 	}
 	
-	/**
-	 * Gets the CSV column.
-	 *
-	 * @param index the index
-	 * @return the CSV column
-	 */
 	public CSVColumns getCSVColumn(int index){
 		if (index<0 || index>=rows.size()) return null;
 		return rows.get(index);
 	}
 	
-	/**
-	 * Checks if is separator phrase suitable.
-	 *
-	 * @param phrase the phrase
-	 * @return true, if is separator phrase suitable
-	 */
 	public boolean isSeparatorPhraseSuitable(String phrase){
 		return false;
 	}
 	
-	/**
-	 * Gets the rows.
-	 *
-	 * @return the rows
-	 */
 	public ArrayList<CSVColumns> getRows(){
 		return rows;
 	}
 	
-	/**
-	 * Reset.
-	 */
 	public void reset(){
 		int size= rows.size();
 		rows = new ArrayList<CSVColumns>();

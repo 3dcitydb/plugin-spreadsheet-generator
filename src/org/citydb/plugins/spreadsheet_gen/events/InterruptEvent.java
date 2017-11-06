@@ -25,50 +25,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * copy from matching plugin writen by Claus.
+ */
 package org.citydb.plugins.spreadsheet_gen.events;
 
 import org.citydb.api.event.Event;
 import org.citydb.api.log.LogLevel;
 
-// TODO: Auto-generated Javadoc
-/**
- * The Class InterruptEvent.
- */
 public class InterruptEvent extends Event {
-	
-	/** The log message. */
 	private String logMessage;
-	
-	/** The log level type. */
 	private LogLevel logLevelType;
 	
-	/**
-	 * Instantiates a new interrupt event.
-	 *
-	 * @param logMessage the log message
-	 * @param logLevelType the log level type
-	 * @param source the source
-	 */
 	public InterruptEvent(String logMessage, LogLevel logLevelType, Object source) {
 		super(EventType.INTERRUPT, GLOBAL_CHANNEL, source);
 		this.logMessage = logMessage;
 		this.logLevelType = logLevelType;
 	}
 
-	/**
-	 * Gets the log message.
-	 *
-	 * @return the log message
-	 */
 	public String getLogMessage() {
 		return logMessage;
 	}
 
-	/**
-	 * Gets the log level type.
-	 *
-	 * @return the log level type
-	 */
 	public LogLevel getLogLevelType() {
 		return logLevelType;
 	}
