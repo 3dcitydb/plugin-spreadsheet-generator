@@ -1,4 +1,6 @@
-﻿3D City Database Importer/Exporter Spreadsheet Generator Plugin v2.2.1
+﻿@pluginName@
+
+Version @version@ (@date@)
 
   This software is free software and is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,48 +35,47 @@ You may obtain a copy of the License at
 2. Copyright
 ------------
 
-(C) 2013 - 2017
-Chair of Geoinformatics
-Technical University of Munich, Germany
-https://www.gis.bgu.tum.de/
+(C) @vendorCopyright@
+@vendorName@
+@vendorOrganisation@, @vendorCountry@
+@vendorWebsiteUrl@
 
 
 3. About
 --------
 
-By using the SPSHG (Spreadsheet Generator) plugin, it is possible to export 
-data from a 3D City Database (3DCityDB) instance into tables. Supported 
-output formats are Microsoft Excel and CSV. 
+By using the @pluginShortName@, it is possible to export
+data from a @citydbName@ instance into tables. Supported output
+formats are Microsoft Excel and CSV.
 
 
 4. Requirements
 ---------------
 
-This version of the Spreadsheet Generator Plugin shall only be used with
-version 3.3 of the 3D City Database Importer/Exporter. 
+This version of the @pluginShortName@ shall only be used with
+version @impexpVersion@ of the @impexpName@.
 It cannot be guaranteed that the extension does correctly work with any
-previous or later version of the 3D City Database Importer/Exporter.
+previous or later version of the @impexpName@.
 
 
 5. (Un)Installation
 -------------------
 
-The plugin is shipped as a precompiled and ready-to-use JAR package
-called "spreadsheet_generator.jar". Following simple steps will guide you 
-through the install process:  
+The plugin is shipped as a precompiled and ready-to-use ZIP package
+called "@zipName@".
 
-* Open the folder that contains your locally installed instance of the
-  Importer/Exporter version 3.3.x (the installation directory).
-* Open the plugins subfolder. If it is not available, create a new subfolder
-  and name it "plugins". 
-* Extract the downloaded zip file in the plugins folder. As a result a new
-  folder named "spreadsheet_generator" will be created. The 
-  spreadsheet_generator folder will contain all required files and 
-  subfolders.
-* Run the Importer/Exporter.
+The following simple steps will guide you through the install process:
+* Open the installation directory of your local installation of the
+  @impexpName@ version @impexpVersion@.
+* Open the "plugins" subfolder. If it is not available, create a new
+  subfolder and name it "plugins".
+* Extract the downloaded ZIP file in the plugins folder. As a result a new
+  folder named "@pkgName@" will be created. This
+  folder will contain all required files and subfolders.
+* Run the @impexpName@.
 
-If you want to uninstall the Spreadsheet Generator Plugin, simply delete
-the "spreadsheet" subfolder and all its contents.
+If you want to uninstall the @pluginShortName@, simply delete
+the "@pkgName@" subfolder and all its contents.
 
 
 6. Developers
@@ -97,14 +98,14 @@ thomas.kolbe@tum.de
 8. Websites
 -----------
 
-Official Spreadsheet Generator Plugin website: 
-http://www.3dcitydb.org/
+Official @citydbName@ website:
+@citydbWebsiteUrl@
 
 Related websites:
-https://github.com/3dcitydb/plugin-spreadsheet-generator
-https://www.gis.bgu.tum.de/
-http://www.citygml.org/
-http://www.citygmlwiki.org/
+@pluginUrl@
+@vendorWebsiteUrl@
+http://www.citygml.org
+http://www.citygmlwiki.org
 http://www.opengeospatial.org/standards/citygml
 
 
