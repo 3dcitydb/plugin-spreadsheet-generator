@@ -17,7 +17,7 @@ repositories {
         url 'https://dl.bintray.com/3dcitydb/maven'
     }
     maven {
-        url 'http://maven.imagej.net/content/repositories/thirdparty/'
+        url 'https://maven.imagej.net/content/repositories/thirdparty/'
     }
     jcenter()
 }
