@@ -2,7 +2,6 @@ ext {
     date = new Date()
     pluginShortName = 'Spreadsheet Generator Plugin'
     pluginName = '3D City Database Importer/Exporter ' + pluginShortName
-
     pluginUrl = 'https://github.com/3dcitydb/plugin-spreadsheet-generator'
 
     // vendor information
