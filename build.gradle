@@ -45,6 +45,7 @@ jar {
 distributions.main.contents {
     from jar
     from('resources/doc/README.txt') {
+        filteringCharset = 'UTF-8'
         filter(ReplaceTokens, tokens: [
                 pluginName: project.pluginName,
                 pluginShortName: project.pluginShortName,
