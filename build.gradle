@@ -50,7 +50,7 @@ distributions.main.contents {
                 pluginName: project.pluginName,
                 pluginShortName: project.pluginShortName,
                 version: project.version,
-                date: project.date.format('yyy-MM-dd'),
+                date: project.date.format('yyyy-MM-dd'),
                 impexpName: project.impexpName,
                 impexpVersion: project.impexpVersion,
                 pkgName: "$project.name-$project.version".toString(),
