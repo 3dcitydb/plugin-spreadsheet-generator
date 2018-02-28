@@ -67,7 +67,7 @@ distributions.main.contents {
         ])
     }
     into('lib') {
-        from configurations.runtime.exclude(group: 'org.citydb')
+        from configurations.compile.copy().exclude(group: 'org.citydb')
     }
     into('templates') {
         from 'resources/templates'
