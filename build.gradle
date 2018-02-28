@@ -1,6 +1,6 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-group 'org.citydb'
+group 'org.citydb.plugins'
 version '3.0.0'
 
 apply plugin: 'java'
