@@ -1,10 +1,13 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
 group 'org.citydb.plugins'
 version '3.0.0'
 
-apply plugin: 'java'
-apply plugin: 'distribution'
 apply from: 'properties.gradle'
 
 sourceCompatibility = 1.8
@@ -76,8 +79,4 @@ distributions.main.contents {
         from 'resources/license/APACHE-2.0.txt'
         from 'resources/license/LICENSE.txt'
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
 }
