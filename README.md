@@ -29,7 +29,7 @@ Each version of the Spreadsheet Generator plugin is built against a specific ver
 
 Documentation
 -------------
-A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](http://www.3dcitydb.org/3dcitydb/documentation/).
+A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](https://www.3dcitydb.org/3dcitydb/documentation/).
 
 Contributing
 ------------
