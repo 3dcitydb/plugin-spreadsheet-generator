@@ -21,7 +21,7 @@ Installation
 ------------
 The Spreadsheet Generator plugin is shipped with the universal installer of the Importer/Exporter tool. When running the setup wizard, you can choose to install the plugin. This is the recommended and easiest way to install the plugin.
 
-Alternatively, you may download the software from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases) and unzip it into the `plugins` folder within the installation folder of the Importer/Exporter. After a restart of the Importer/Exporter, the Spreadsheet Generator will be ready to be used.
+Alternatively, you may download the software from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases) (or build it from source) and unzip it into the `plugins` folder within the installation folder of the Importer/Exporter. After a restart of the Importer/Exporter, the Spreadsheet Generator will be ready to be used.
 
 System requirements
 -------------------
@@ -29,13 +29,21 @@ Each version of the Spreadsheet Generator plugin is built against a specific ver
 
 Documentation
 -------------
-A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](http://www.3dcitydb.org/3dcitydb/documentation/).
+A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](https://www.3dcitydb.org/3dcitydb/documentation/).
 
 Contributing
 ------------
 * To file bugs found in the software create a GitHub issue.
 * To contribute code for fixing filed issues create a pull request with the issue id.
 * To propose a new feature create a GitHub issue and open a discussion.
+
+Building
+--------
+The Spreadsheet Generator plugin uses [Gradle](https://gradle.org/) as build system. To build the plugin from source, clone the repository to your local machine and run the following command from the root of the repository.
+
+    > gradlew installDist
+    
+The build process will produce the plugin software package under `build/install`. Simply copy the contents of this folder into the `plugins` folder of your Importer/Exporter installation to use the plugin.
 
 Developers
 ----------
