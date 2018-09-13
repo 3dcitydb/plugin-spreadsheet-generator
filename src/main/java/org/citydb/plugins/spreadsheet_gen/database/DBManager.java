@@ -48,6 +48,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,6 +69,8 @@ public class DBManager {
 	private DatabaseSrs dbSrs;
 	private DatabaseConnectionPool dbConnectionPool;
 	private Queries queries;
+	
+	public static long numCityObjects = 0;
 	
 	public DBManager(DatabaseConnectionPool dbConnectionPool,
 			ConfigImpl config,
@@ -110,9 +113,11 @@ public class DBManager {
 		}
 					
 		try {				
+			numCityObjects = 0;
 			spatialQuery = connection.prepareStatement(queries.getIds()); 				
 			spatialQuery.setObject(1, databaseAdapter.getGeometryConverter().getDatabaseObject(GeometryObject.createEnvelope(bbx), connection));
 
+			ArrayList<CityObjectWork> cows = new ArrayList<>();
 			rs = spatialQuery.executeQuery();
 			
 			while (rs.next() && shouldRun) {
@@ -139,9 +144,14 @@ public class DBManager {
 				if (desirableCityObject.contains(Util.getCityGMLClass(classId))){
 					countingStorage.get(Util.getCityGMLClass(classId)).incrementAndGet();
 					CityObjectWork cow =new CityObjectWork(gmlId,classId);
-					workerpool.addWork(cow);						
+					numCityObjects++;
+					cows.add(cow);
 				}
-			}				
+			}
+			
+			for (CityObjectWork cow : cows) {
+				workerpool.addWork(cow);
+			}
 
 		}
 		catch (SQLException sqlEx) {
@@ -169,10 +179,7 @@ public class DBManager {
 
 				spatialQuery = null;
 			}
-
-			
 		}
-		
 	}
 	
 	public void startQuery(HashSet<CityGMLClass> desirableCityObjects) throws SQLException {
@@ -229,6 +236,5 @@ public class DBManager {
 			shouldRun = false;
 		}
 	}
-
 
 }

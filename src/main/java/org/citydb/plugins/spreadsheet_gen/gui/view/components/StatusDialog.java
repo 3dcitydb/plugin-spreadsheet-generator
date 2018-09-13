@@ -33,6 +33,8 @@ package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
+import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
+import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.events.EventType;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogTitle;
@@ -103,7 +105,7 @@ public class StatusDialog extends JDialog implements EventHandler {
 		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 		messageLabel = new JLabel(statusMessage);
 		button = new JButton(Util.I18N.getString("common.button.cancel"));		
-		progressBar = new JProgressBar();
+		progressBar = new JProgressBar(0, 100);
 
 		setLayout(new GridBagLayout()); {
 			main = new JPanel();
@@ -137,7 +139,8 @@ public class StatusDialog extends JDialog implements EventHandler {
 				add(button, Util.setConstraints(0,1,0.0,0.0,GridBagConstraints.NONE,5,5,5,5));
 
 			pack();
-			progressBar.setIndeterminate(true);
+			//progressBar.setIndeterminate(true);
+			progressBar.setValue(0);
 			
 			addWindowListener(new WindowListener() {
 				public void windowClosed(WindowEvent e) {
@@ -174,18 +177,17 @@ public class StatusDialog extends JDialog implements EventHandler {
 		if (e.getEventType() == EventType.INTERRUPT) {
 			acceptStatusUpdate = false;
 			messageLabel.setText(Util.I18N.getString("common.dialog.msg.abort"));
-			progressBar.setIndeterminate(true);
+			//progressBar.setIndeterminate(true);
 			//TODO stop current work.
 		}
 		else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {
 			messageLabel.setText(((StatusDialogMessage)e).getMessage());
+			progressBar.setValue(((int) SPSHGWorker.counter) * 100 / ((int) DBManager.numCityObjects));
 		}
 
 		else if (e.getEventType() == EventType.STATUS_DIALOG_TITLE && acceptStatusUpdate) {
 			titleLabel.setText(((StatusDialogTitle)e).getTitle());
 		}
-		
-
 	}
 	
 }

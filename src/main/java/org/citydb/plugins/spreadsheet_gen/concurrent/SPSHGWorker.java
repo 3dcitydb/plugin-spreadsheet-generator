@@ -35,6 +35,7 @@ import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.registry.ObjectRegistry;
@@ -43,94 +44,89 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-
-
 public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
-	
+
 	private BalloonTemplateHandler bth;
 	private Connection connection;
 	private String seperatorCharacter;
 	private int lod;
-	public static long counter=0;
+	public static long counter = 0;
 
 	private final EventDispatcher eventDispatcher;
 	private boolean shouldRun;
 	private String schema;
-	
-	public SPSHGWorker(DatabaseConnectionPool dbConnectionPool,
-			WorkerPool<RowofCSVWork> ioWriterPool,
-			ConfigImpl config, String template)throws SQLException{
+
+	public SPSHGWorker(DatabaseConnectionPool dbConnectionPool, WorkerPool<RowofCSVWork> ioWriterPool, ConfigImpl config, String template) throws SQLException {
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
-		this.ioWriterPool=ioWriterPool;
+		this.ioWriterPool = ioWriterPool;
 
 		connection = dbConnectionPool.getConnection();
-		
+
 		// try and change workspace if needed
 		if (dbConnectionPool.getActiveDatabaseAdapter().hasVersioningSupport()) {
-			dbConnectionPool.getActiveDatabaseAdapter().getWorkspaceManager().gotoWorkspace(connection, 
-					config.getWorkspace());
+			dbConnectionPool.getActiveDatabaseAdapter().getWorkspaceManager().gotoWorkspace(connection, config.getWorkspace());
 		}
-		
-		seperatorCharacter =SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
-		shouldRun=true;
+
+		seperatorCharacter = SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
+		shouldRun = true;
 		bth = new BalloonTemplateHandler(template, dbConnectionPool.getActiveDatabaseAdapter());
-		lod=2;
+		lod = 2;
 		schema = dbConnectionPool.getActiveDatabaseAdapter().getSchemaManager().getDefaultSchema();
 	}
-	
+
 	@Override
 	public void doWork(CityObjectWork cityobj) {
 		try {
 			if (!this.shouldRun)
 				return;
 			String data = bth.getBalloonContent(cityobj.getGmlid(), lod, connection, schema);
-			String[] cells=data.split("\\Q"+SeparatorPhrase.getInstance().getTempPhrase()+"\\E");
-		
-			StringBuffer sb=new StringBuffer();
-			boolean firstround=true;
-			
-			for (String st:cells){
-				if (!firstround){
+			String[] cells = data.split("\\Q" + SeparatorPhrase.getInstance().getTempPhrase() + "\\E");
+
+			StringBuffer sb = new StringBuffer();
+			boolean firstround = true;
+
+			for (String st : cells) {
+				if (!firstround) {
 					sb.append(seperatorCharacter);
 					sb.append("\"");
-				}else{
+				} else {
 					sb.append('"');
-					firstround=false;
+					firstround = false;
 				}
-				sb.append(st);	
+				sb.append(st);
 				sb.append("\"");
 			}
 			sb.append("\r\n");
-			ioWriterPool.addWork(new RowofCSVWork(sb.toString(),cityobj.getClassid()));
+			ioWriterPool.addWork(new RowofCSVWork(sb.toString(), cityobj.getClassid()));
 			counter++;
-			eventDispatcher.triggerEvent(new StatusDialogMessage(" "+counter, this));
+			eventDispatcher.triggerEvent(new StatusDialogMessage(" " + counter + " / " + DBManager.numCityObjects, this));
+		} catch (Exception e) {
 		}
-		catch (Exception e) {}
 	}
 
 	@Override
 	public void shutdown() {
-		this.shouldRun=false;
+		this.shouldRun = false;
 		if (connection != null) {
 			try {
 				connection.close();
+			} catch (SQLException sqlEx) {
 			}
-			catch (SQLException sqlEx) {}
 			connection = null;
 		}
 	}
-	
-	public static String generateHeader(ArrayList<String>header,String separator){
-		StringBuffer sb=new StringBuffer();
-		boolean firstround=true;
-		for (String st:header){
-			if (!firstround){
+
+	public static String generateHeader(ArrayList<String> header, String separator) {
+		StringBuffer sb = new StringBuffer();
+		boolean firstround = true;
+		for (String st : header) {
+			if (!firstround) {
 				sb.append(separator);
 				sb.append("\"");
-			}else{
+			} else {
 				sb.append('"');
-				firstround=false;
+				firstround = false;
 			}
 			sb.append(st);
 			sb.append("\"");
