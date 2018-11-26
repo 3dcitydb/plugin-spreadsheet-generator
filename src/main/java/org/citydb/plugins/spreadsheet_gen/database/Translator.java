@@ -121,7 +121,7 @@ public class Translator {
 					output.append(cellSeparator);
 					output.append(tmpout);
 					if (header != null)
-						columnTitle.add(header);
+						columnTitle.add(header.trim());
 				}
 
 			}
@@ -143,7 +143,7 @@ public class Translator {
 		templateMap.put("GMLID", "CITYOBJECT__GMLID");
 
 		for (CSVColumns row:rows){
-			header= row.title;
+			header= row.title.trim();
 			tmpout= translateLine(row.textcontent,false);
 
 			String templateCSVcolumn = header;
