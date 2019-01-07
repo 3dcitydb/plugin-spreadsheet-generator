@@ -9,7 +9,7 @@ ext {
     vendorOrganisation = 'Technical University of Munich'
     vendorCountry = 'Germany'
     vendorWebsiteUrl = 'https://www.gis.bgu.tum.de'
-    vendorCopyright = '2013-' + date.format('yyy')
+    vendorCopyright = '2013-' + date.format('yyyy')
 
     // 3D City Database
     citydbName = '3D City Database'
@@ -18,5 +18,5 @@ ext {
 
     // Importer/Exporter
     impexpName = citydbName + ' Importer/Exporter'
-    impexpVersion = '4.0.0'
+    impexpVersion = '4.1.0'
 }
