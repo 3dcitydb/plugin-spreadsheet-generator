@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.citydb.plugins'
-version '3.0.0'
+version '3.1.0'
 
 apply from: 'properties.gradle'
 
@@ -16,7 +16,7 @@ repositories {
     maven {
         url 'http://download.osgeo.org/webdav/geotools'
     }
-    maven{
+    maven {
         url 'https://dl.bintray.com/3dcitydb/maven'
     }
     jcenter()
