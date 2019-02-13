@@ -81,7 +81,8 @@ the "@pkgName@" subfolder and all its contents.
 6. Developers
 -------------
 
-Zhihang Yao <zhihang.yao@tuml.de>
+Son H. Nguyen<son.nguyen@tum.de>
+Zhihang Yao <zyao@virtualcitysystems.de>
 Thomas H. Kolbe <thomas.kolbe@tu-berlin.de>
 (and of the previous version)
 Babak Naderi <b.naderi@mailbox.tu-berlin.de>
@@ -91,7 +92,7 @@ Javier Herreruela <javier.herreruela@tu-berlin.de>
 7. Contact
 ----------
 
-zhihang.yao@tum.de
+son.nguyen@tum.de
 thomas.kolbe@tum.de
 
 
