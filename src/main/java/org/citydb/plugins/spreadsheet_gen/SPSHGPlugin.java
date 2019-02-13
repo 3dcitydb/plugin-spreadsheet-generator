@@ -59,14 +59,6 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	public View getView() {
 		return view;
 	}
-
-	@Override
-	public void init(ViewController viewController, Locale locale) {
-		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
-		view = new SPSHGView(viewController, this);
-		loadSettings();
-		switchLocale(locale);
-	}
 	
 	@Override
 	public void shutdown() {
@@ -121,5 +113,13 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	
 	public void saveSettings() {
 		view.saveSettings();
+	}
+
+	@Override
+	public void initViewExtension(ViewController viewController, Locale locale) {
+		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
+		view = new SPSHGView(viewController, this);
+		loadSettings();
+		switchLocale(locale);
 	}
 }
