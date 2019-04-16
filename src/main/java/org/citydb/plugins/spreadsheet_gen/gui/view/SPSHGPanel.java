@@ -934,7 +934,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             
 			// warn the non-support of CityGML ADEs
 			if (showADEWarningDialog() != JOptionPane.OK_OPTION) {
-				log.warn("database export canceled.");
+				log.warn("Database export canceled.");
 				return;
 			}	
 
