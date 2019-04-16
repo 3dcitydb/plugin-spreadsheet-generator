@@ -38,7 +38,8 @@ import javax.xml.bind.annotation.XmlType;
 		"selectedcityobjects",
 		"workspace",
 		"boundingbox",
-		"output"
+		"output",
+		"showUnsupportedADEWarning"
 })
 public class ConfigImpl extends PluginConfig {
 	private Template template;
@@ -46,6 +47,7 @@ public class ConfigImpl extends PluginConfig {
 	private Workspace workspace;
 	private BoundingBox boundingbox;
 	private Output output;
+	private boolean showUnsupportedADEWarning = true;
 	
 	public ConfigImpl(){
 		template= new Template();
@@ -87,5 +89,10 @@ public class ConfigImpl extends PluginConfig {
 	public void setOutput(Output output) {
 		this.output = output;
 	}
-
+	public boolean isShowUnsupportedADEWarning() {
+		return showUnsupportedADEWarning;
+	}
+	public void setShowUnsupportedADEWarning(boolean showUnsupportedADEWarning) {
+		this.showUnsupportedADEWarning = showUnsupportedADEWarning;
+	}
 }
