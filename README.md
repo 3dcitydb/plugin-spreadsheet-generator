@@ -13,9 +13,9 @@ Note that releases of the software before version 2.1.0 continue to be licensed 
 
 Latest release
 --------------
-The latest stable release of the Spreadsheet Generator Plugin is 3.1.1.
+The latest stable release of the Spreadsheet Generator Plugin is 3.1.2.
 
-Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v3.1.1/plugin-spreadsheet-generator-3.1.1.zip). Previous releases are available from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
+Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v3.1.2/plugin-spreadsheet-generator-3.1.2.zip). Previous releases are available from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
 
 Installation
 ------------
