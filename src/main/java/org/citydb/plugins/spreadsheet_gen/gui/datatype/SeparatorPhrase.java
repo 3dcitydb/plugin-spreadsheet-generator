@@ -27,10 +27,10 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.datatype;
 
+import org.citydb.plugins.spreadsheet_gen.util.Util;
+
 import java.util.LinkedHashMap;
 import java.util.Set;
-
-import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
 public class SeparatorPhrase {

@@ -27,13 +27,13 @@
  */
 package org.citydb.plugins.spreadsheet_gen.util;
 
+import org.citygml4j.model.citygml.CityGMLClass;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-
-import org.citygml4j.model.citygml.CityGMLClass;
 
 
 public class Util {

@@ -37,6 +37,7 @@ import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
 import org.citydb.event.global.DatabaseConnectionStateEvent;
+import org.citydb.gui.components.common.DatePicker;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
@@ -56,6 +57,8 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
+import org.jdesktop.swingx.JXTextField;
+import org.jdesktop.swingx.prompt.PromptSupport;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -90,6 +93,7 @@ import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.TableColumn;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -151,9 +155,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     // +Versioning panel
     private JPanel versioningPanel;
     private JLabel workspaceLabel = new JLabel();
-    private JTextField workspaceText = new JTextField("LIVE");
+    private JXTextField workspaceText;
     private JLabel timestampLabel = new JLabel();
-    private JTextField timestampText = new JTextField("");
+    private DatePicker datePicker = new DatePicker();
 
     // +BBX Panel
     private BoundingBoxPanel bbXPanel;
@@ -321,10 +325,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         versioningPanel.setLayout(new GridBagLayout());
         versioningPanel.setBorder(BorderFactory.createTitledBorder(""));
 
+        workspaceText = new JXTextField();
+        workspaceText.setPromptForeground(Color.LIGHT_GRAY);
+        workspaceText.setFocusBehavior(PromptSupport.FocusBehavior.SHOW_PROMPT);
+
         versioningPanel.add(workspaceLabel, Util.setConstraints(0, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(workspaceText, Util.setConstraints(1, 0, 0.5, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        versioningPanel.add(workspaceText, Util.setConstraints(1, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
         versioningPanel.add(timestampLabel, Util.setConstraints(2, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 2, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(timestampText, Util.setConstraints(3, 0, 0.5, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        versioningPanel.add(datePicker, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
 
 
         bbXPanel = viewController.getComponentFactory().createBoundingBoxPanel();
@@ -416,7 +424,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         inputScrollPane.setBorder(null);
 
         viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText,
-                workspaceText, timestampText, browseOutputText, separatorText);
+                workspaceText, datePicker.getEditor(), browseOutputText, separatorText);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 initialzeFileChoosers();
@@ -433,7 +441,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         workspaceLabel.setEnabled(enable);
         workspaceText.setEnabled(enable);
         timestampLabel.setEnabled(enable);
-        timestampText.setEnabled(enable);
+        datePicker.setEnabled(enable);
     }
 
     private void createPopupMenu() {
@@ -471,6 +479,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         versioningPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("common.border.versioning")));
         workspaceLabel.setText(Util.I18N.getString("common.label.workspace"));
         timestampLabel.setText(Util.I18N.getString("common.label.timestamp"));
+        workspaceText.setPrompt(Language.I18N.getString("common.label.workspace.prompt"));
 
         bbXPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.bbxPanel.border")));
 
@@ -539,13 +548,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void clearGui() {
-//		separatorText.setText("[Comma]");
-        browseText.setText("");
-
-        workspaceText.setText("LIVE");
-        timestampText.setText("");
         csvRadioButton.setSelected(true);
-
         setOutputEnabledValues();
     }
 
@@ -800,20 +803,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                     return;
                 }
             }
+
             if (SelectedCityObjects.getInstance().getSelectedCityObjects().size() == 0) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                         Util.I18N.getString("spshg.dialog.error.incompleteData.featureclass"));
                 return;
             }
-            // workspace timestamp
-            if (!Util.checkWorkspaceTimestamp(config.getWorkspace().getTimestamp())) {
-                errorMessage(Util.I18N.getString("common.dialog.error.incorrectData"),
-                        Util.I18N.getString("common.dialog.error.incorrectData.date"));
-                return;
-            }
 
-
-            // bbx
+            // bbox
             if (!(config.getBoundingbox().getLowerCorner().isSetX() ||
                     config.getBoundingbox().getLowerCorner().isSetY() ||
                     config.getBoundingbox().getUpperCorner().isSetX() ||
@@ -823,8 +820,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 return;
             }
 
-
-            if (config.getOutput().getType() == Output.CSV_FILE_CONFIG) {
+            if (config.getOutput().getType().equals(Output.CSV_FILE_CONFIG)) {
                 // csv file
                 if (config.getOutput().getCsvfile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -1227,7 +1223,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseText.setText(config.getTemplate().getPath());
 
         workspaceText.setText(config.getWorkspace().getName());
-        timestampText.setText(config.getWorkspace().getTimestamp());
+        datePicker.setDate(config.getWorkspace().getTimestamp());
 
         bbXPanel.setBoundingBox(config.getBoundingbox());
 
@@ -1256,7 +1252,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
 
         config.getWorkspace().setName(workspaceText.getText());
-        config.getWorkspace().setTimestamp(timestampText.getText());
+        config.getWorkspace().setTimestamp(datePicker.getDate());
 
         config.setBoundingbox(bbXPanel.getBoundingBox());
 

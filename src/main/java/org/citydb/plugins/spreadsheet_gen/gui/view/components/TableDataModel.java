@@ -27,15 +27,13 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
+import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
+import org.citydb.plugins.spreadsheet_gen.util.Util;
+
+import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-
-
-import javax.swing.table.AbstractTableModel;
-
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
-import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 
 

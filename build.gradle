@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.citydb.plugins'
-version '3.1.2'
+version '3.2.0-SNAPSHOT'
 
 apply from: 'properties.gradle'
 
@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.citydb:impexp-client:4.2.1'
+    compile 'org.citydb:impexp-client:4.3.0-b20191124.1558'
     compile 'org.apache.poi:poi:3.17'
     compile 'org.apache.poi:poi-ooxml:3.17'
     compile 'org.apache.poi:poi-ooxml-schemas:3.17'

@@ -27,12 +27,12 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.datatype;
 
+import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-
-import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 
 
 

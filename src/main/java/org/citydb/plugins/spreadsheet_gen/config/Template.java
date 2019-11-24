@@ -27,12 +27,11 @@
  */
 package org.citydb.plugins.spreadsheet_gen.config;
 
-import java.util.ArrayList;
+import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
-
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
+import java.util.ArrayList;
 
 
 

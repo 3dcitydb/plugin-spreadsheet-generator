@@ -27,12 +27,12 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.datatype;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.FeatureClass;
 import org.citygml4j.model.citygml.CityGMLClass;
+
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 
 public class SelectedCityObjects {
