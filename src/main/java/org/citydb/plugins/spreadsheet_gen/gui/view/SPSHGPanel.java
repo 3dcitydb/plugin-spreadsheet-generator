@@ -884,12 +884,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 if (!dbController.isConnected())
                     return;
             }
-            
-			// warn the non-support of CityGML ADEs
-			if (showADEWarningDialog() != JOptionPane.OK_OPTION) {
-				log.warn("Database export canceled.");
-				return;
-			}	
 
             viewController.setStatusText(Util.I18N.getString("spshg.status.generation.start"));
             log.info(Util.I18N.getString("spshg.message.export.init"));
@@ -912,7 +906,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
             SeparatorPhrase.getInstance().renewTempPhrase();
             SpreadsheetExporter exporter = new SpreadsheetExporter(plugin);
-
 
             status.getButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -1275,26 +1268,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         }
     }
 
-    private int showADEWarningDialog() {
-		int selectedOption = JOptionPane.OK_OPTION;
-		
-		if (config.isShowUnsupportedADEWarning()
-				&& dbController.getActiveDatabaseAdapter().getConnectionMetaData().hasRegisteredADEs()) {
-			JPanel confirmPanel = new JPanel(new GridBagLayout());
-			JCheckBox confirmDialogNoShow = new JCheckBox(Language.I18N.getString("common.dialog.msg.noShow"));
-			confirmDialogNoShow.setIconTextGap(10);
-			confirmPanel.add(new JLabel(Util.I18N.getString("spshg.dialog.warning.ade.unsupported")), Util.setConstraints(0,0,1.0,0.0,GridBagConstraints.BOTH,0,0,0,0));
-			confirmPanel.add(confirmDialogNoShow, Util.setConstraints(0,2,1.0,0.0,GridBagConstraints.BOTH,10,0,0,0));
-			
-			selectedOption = JOptionPane.showConfirmDialog(viewController.getTopFrame(), confirmPanel, Language.I18N.getString("common.dialog.warning.title"), JOptionPane.OK_CANCEL_OPTION);
-			
-			if (confirmDialogNoShow.isSelected()) {
-				config.setShowUnsupportedADEWarning(false);
-			}							
-		}	
-		
-		return selectedOption;
-	}
 }
 
 class PopupPhraseActionListener implements ActionListener {
