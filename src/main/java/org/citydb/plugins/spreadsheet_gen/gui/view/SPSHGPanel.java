@@ -30,6 +30,7 @@ package org.citydb.plugins.spreadsheet_gen.gui.view;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.database.DatabaseConfigurationException;
 import org.citydb.config.project.global.LogLevel;
+import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.database.version.DatabaseVersionException;
@@ -37,7 +38,9 @@ import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
 import org.citydb.event.global.DatabaseConnectionStateEvent;
+import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
 import org.citydb.gui.components.common.DatePicker;
+import org.citydb.gui.components.feature.FeatureTypeTree;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
@@ -50,70 +53,29 @@ import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.events.EventType;
 import org.citydb.plugins.spreadsheet_gen.events.InterruptEvent;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SelectedCityObjects;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
+import org.citygml4j.model.module.citygml.CityGMLVersion;
 import org.jdesktop.swingx.JXTextField;
 import org.jdesktop.swingx.prompt.PromptSupport;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.MenuSelectionManager;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicCheckBoxMenuItemUI;
 import javax.swing.table.TableColumn;
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -151,6 +113,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private JTextArea generateDataFor = new JTextArea(2, 10);
     private JLabel editGenerateData = new JLabel();
     private JPopupMenu cityObjectPopup = new JPopupMenu();
+
+    private FeatureTypeTree typeTree;
 
     // +Versioning panel
     private JPanel versioningPanel;
@@ -302,20 +266,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         JPanel generateDataPanel = new JPanel(new BorderLayout());
         generateDataPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS, BORDER_THICKNESS + 1, BORDER_THICKNESS, BORDER_THICKNESS + 1));
-        Box generateData = Box.createHorizontalBox();
-        editGenerateData.setIcon(createImageIcon("/org/citydb/plugins/spreadsheet_gen/images/edit.png", "edit"));
-
-        generateData.add(gfPrefLabel);
-        generateData.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS, 0)));
-        generateData.add(editGenerateData);
-        generateData.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS, 0)));
-        generateDataPanel.add(generateData, BorderLayout.WEST);
-
-        generateDataFor.setLineWrap(true);
-        generateDataFor.setWrapStyleWord(true);
-        generateDataFor.setEditable(false);
-        generateDataFor.setFont(new Font("Arial", Font.PLAIN, 12));
-        generateDataPanel.add(new JScrollPane(generateDataFor), BorderLayout.CENTER);
+        typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
+        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 4);
+        typeTree.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(0,0,BORDER_THICKNESS,0)));
+        DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer)typeTree.getCellRenderer();
+        renderer.setLeafIcon(null);
+        renderer.setOpenIcon(null);
+        renderer.setClosedIcon(null);
+        generateDataPanel.add(typeTree);
 
         gfPrefLabel.setAlignmentY(TOP_ALIGNMENT);
         generateDataFor.setAlignmentY(TOP_ALIGNMENT);
@@ -502,7 +460,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         alignGUI();
         createPopupMenu();
-        updateSelectedCityObjectLable();
     }
 
     private void alignGUI() {
@@ -804,7 +761,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 }
             }
 
-            if (SelectedCityObjects.getInstance().getSelectedCityObjects().size() == 0) {
+            if (config.getFeatureTypeFilter().getTypeNames().size() == 0) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                         Util.I18N.getString("spshg.dialog.error.incompleteData.featureclass"));
                 return;
@@ -999,46 +956,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         }
     }
 
-    public void updateSelectedCityObjectLable() {
-        generateDataFor.setText(SelectedCityObjects.getInstance().getSelectedObjectsString());
-    }
-
-    public void initializeCityObjectPopup() {
-        LinkedHashMap<String, Integer> data = SelectedCityObjects.getInstance().getChilds();
-        HashSet<JCheckBoxMenuItem> allCheckBoxes = new HashSet<JCheckBoxMenuItem>();
-        JCheckBoxMenuItem jcbm;
-        JCheckBoxMenuItem jcbmroot;
-        // for root
-        jcbmroot = new JCheckBoxMenuItem(SelectedCityObjects.getInstance().getRoot());
-        jcbmroot.setUI(new StayOpenCheckBoxMenuItemUI());
-        PopupCityObjectActionListener cityObjectAcList = new PopupCityObjectActionListener(this, SelectedCityObjects.getInstance().getRootID());
-        jcbmroot.addActionListener(cityObjectAcList);
-        cityObjectPopup.add(jcbmroot);
-        if (SelectedCityObjects.getInstance().isCityObjectSelected(SelectedCityObjects.getInstance().getRootID()))
-            jcbmroot.setState(true);
-        else
-            jcbmroot.setState(false);
-
-        cityObjectPopup.addSeparator();
-
-        PopupCityObjectActionListener child;
-        for (String name : data.keySet()) {
-            jcbm = new JCheckBoxMenuItem(name);
-            jcbm.setUI(new StayOpenCheckBoxMenuItemUI());
-            child = new PopupCityObjectActionListener(this, data.get(name));
-            child.setRootCheckBoxes(jcbmroot);
-            jcbm.addActionListener(child);
-            cityObjectPopup.add(jcbm);
-            if (SelectedCityObjects.getInstance().isCityObjectSelected(data.get(name)))
-                jcbm.setState(true);
-            else
-                jcbm.setState(false);
-            allCheckBoxes.add(jcbm);
-        }
-        cityObjectAcList.setAllCheckBoxes(allCheckBoxes);
-
-    }
-
     //------------------ Manual Template
     // show dialog -add
     private void showAddNewColumnDialog(boolean isedit) {
@@ -1217,8 +1134,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         config = plugin.getConfig();
         if (config == null) return;
 
-        SelectedCityObjects.getInstance().initialize(config);
-        initializeCityObjectPopup();
+        FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
+        typeTree.getCheckingModel().clearChecking();
+        typeTree.setSelected(featureTypeFilter.getTypeNames());
 
         browseText.setText(config.getTemplate().getPath());
 
@@ -1250,6 +1168,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         config.getTemplate().setPath(browseText.getText());
         config.getTemplate().setColumnsList(tableDataModel.getRows());
 
+        // feature type filter
+        FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
+        featureTypeFilter.reset();
+        featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
 
         config.getWorkspace().setName(workspaceText.getText());
         config.getWorkspace().setTimestamp(datePicker.getDate());
@@ -1389,53 +1311,4 @@ class PopupPhraseActionListener implements ActionListener {
         target.setText(phrase);
     }
 
-}
-
-class PopupCityObjectActionListener implements ActionListener {
-    private Integer type;
-    private SPSHGPanel shshgpanel;
-    private HashSet<JCheckBoxMenuItem> allcheckBoxes;
-    private JCheckBoxMenuItem root;
-
-    PopupCityObjectActionListener(SPSHGPanel shshgpanel, Integer type) {
-        this.shshgpanel = shshgpanel;
-        this.type = type;
-    }
-
-    public void setAllCheckBoxes(HashSet<JCheckBoxMenuItem> allcheckBoxes) {
-        this.allcheckBoxes = allcheckBoxes;
-    }
-
-    public void setRootCheckBoxes(JCheckBoxMenuItem root) {
-        this.root = root;
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (((JCheckBoxMenuItem) e.getSource()).getState())
-            SelectedCityObjects.getInstance().selectCityObject(type);
-        else {
-            SelectedCityObjects.getInstance().removeCityObject(type);
-            if (root != null) root.setState(false);
-        }
-        if (type == SelectedCityObjects.getInstance().getRootID()) {
-            boolean state = SelectedCityObjects.getInstance().isCityObjectSelected(type);
-            for (JCheckBoxMenuItem jcbmi : allcheckBoxes) {
-                jcbmi.setState(state);
-            }
-        }
-        shshgpanel.updateSelectedCityObjectLable();
-    }
-
-}
-
-class StayOpenCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI {
-    @Override
-    protected void doClick(MenuSelectionManager msm) {
-        menuItem.doClick(0);
-    }
-
-    public static ComponentUI createUI(JComponent c) {
-        return new StayOpenCheckBoxMenuItemUI();
-    }
 }

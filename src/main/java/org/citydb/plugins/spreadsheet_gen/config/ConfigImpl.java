@@ -30,12 +30,13 @@ package org.citydb.plugins.spreadsheet_gen.config;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.project.database.Workspace;
 import org.citydb.config.project.plugin.PluginConfig;
+import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name="SpreadsheetGeneratorConfigType", propOrder={
 		"template",
-		"selectedcityobjects",
+		"featureTypeFilter",
 		"workspace",
 		"boundingbox",
 		"output",
@@ -43,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ConfigImpl extends PluginConfig {
 	private Template template;
-	private FeatureClass selectedcityobjects;
+	private FeatureTypeFilter featureTypeFilter;
 	private Workspace workspace;
 	private BoundingBox boundingbox;
 	private Output output;
@@ -51,18 +52,18 @@ public class ConfigImpl extends PluginConfig {
 	
 	public ConfigImpl(){
 		template= new Template();
-		selectedcityobjects= new FeatureClass();
+		featureTypeFilter = new FeatureTypeFilter();
 		workspace = new Workspace();
 		boundingbox = new BoundingBox();
 		output=new Output();		
 	}
 	
-	public FeatureClass getSelectedcityobjects() {
-		return selectedcityobjects;
+	public FeatureTypeFilter getFeatureTypeFilter() {
+		return featureTypeFilter;
 	}
 
-	public void setSelectedcityobjects(FeatureClass selectedcityobjects) {
-		this.selectedcityobjects = selectedcityobjects;
+	public void setFeatureTypeFilter(FeatureTypeFilter featureTypeFilter) {
+		this.featureTypeFilter = featureTypeFilter;
 	}
 
 	public Template getTemplate() {

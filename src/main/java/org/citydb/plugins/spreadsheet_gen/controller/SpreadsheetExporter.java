@@ -57,7 +57,6 @@ import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.events.EventType;
 import org.citydb.plugins.spreadsheet_gen.events.InterruptEvent;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogTitle;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SelectedCityObjects;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
@@ -224,8 +223,8 @@ public class SpreadsheetExporter implements EventHandler {
             SPSHGWorker.counter = 0;
             eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.generating"), this));
 
-            if (shouldRun)
-                dbm.startQuery(SelectedCityObjects.getInstance().getSelectedCityObjects());
+           if (shouldRun)
+                dbm.startQuery();
         } catch (SQLException sqlE) {
             log.error("SQL error: " + sqlE.getMessage());
             return false;
@@ -275,7 +274,7 @@ public class SpreadsheetExporter implements EventHandler {
 //		mReport.append(System.getProperty("line.separator"));
         int sum = 0;
         for (Integer mClass : countingStorage.keySet()) {
-            line.append(SelectedCityObjects.getInstance().getCityObjectName(org.citydb.util.Util.getCityGMLClass(mClass.intValue())));
+            line.append(ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(mClass.intValue()).getPath());
             line.append(": ");
             line.append(countingStorage.get(mClass).intValue());
             log.info(line.toString());
@@ -322,7 +321,7 @@ public class SpreadsheetExporter implements EventHandler {
                         if (valueArray[i] != null && String.valueOf(valueArray[i].trim()).length() > 0) {
                             String dbTableColumn = templateMap.get(spshColumnNames[i]);
                             Cell cell = row.createCell(i);
-                            int dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
+                            Integer dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
                             if (dataType == Util.NUMBER_COLUMN_VALUE) {
                                 try {
                                     cell.setCellValue(Double.valueOf(valueArray[i]));
