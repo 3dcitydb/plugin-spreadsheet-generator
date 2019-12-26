@@ -1132,6 +1132,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         typeTree.setSelected(featureTypeFilter.getTypeNames());
 
         browseText.setText(config.getTemplate().getPath());
+        config.getTemplate().setLastVisitPath(browseText.getText());
 
         workspaceText.setText(config.getWorkspace().getName());
         datePicker.setDate(config.getWorkspace().getTimestamp());
