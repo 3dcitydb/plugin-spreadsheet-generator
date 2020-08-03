@@ -13,9 +13,10 @@ Note that releases of the software before version 2.1.0 continue to be licensed 
 
 Latest release
 --------------
-The latest stable release of the Spreadsheet Generator Plugin is 3.1.2.
+The latest stable release of the Spreadsheet Generator Plugin is 3.1.3.
 
-Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v3.1.2/plugin-spreadsheet-generator-3.1.2.zip). Previous releases are available from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
+Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v3.1.3/plugin-spreadsheet-generator-3.1.3.zip). Previous releases are available from the
+ [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
 
 Installation
 ------------
@@ -29,7 +30,7 @@ Each version of the Spreadsheet Generator plugin is built against a specific ver
 
 Documentation
 -------------
-A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](https://www.3dcitydb.org/3dcitydb/documentation/).
+A complete and comprehensive documentation on the Spreadsheet Generator Plugin is installed with the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter) and is available [online](https://3dcitydb-docs.readthedocs.io/en/release-v4.2.3/impexp/plugins/spreadsheet.html).
 
 Contributing
 ------------
