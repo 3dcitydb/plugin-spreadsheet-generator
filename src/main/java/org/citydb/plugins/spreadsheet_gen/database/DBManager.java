@@ -34,16 +34,19 @@ import org.citydb.config.geometry.GeometryType;
 import org.citydb.config.project.database.DatabaseSrs;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
+import org.citydb.database.schema.mapping.FeatureType;
 import org.citydb.log.Logger;
 import org.citydb.modules.kml.database.Queries;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.registry.ObjectRegistry;
 import org.citydb.util.Util;
 import org.citygml4j.geometry.Point;
 import org.citygml4j.model.citygml.CityGMLClass;
 import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
 import org.citygml4j.model.gml.geometry.primitives.Envelope;
 
+import javax.xml.namespace.QName;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -95,13 +98,16 @@ public class DBManager {
 		queries = new Queries(databaseAdapter, schema);
 	}
 
-	public void queryObjects( HashSet<CityGMLClass> desirableCityObject) throws SQLException {		
+	public void queryObjects() throws SQLException {
 		BoundingBox bbx = config.getBoundingbox();
 		ResultSet rs = null;
 		PreparedStatement spatialQuery = null;
-		HashMap<CityGMLClass,AtomicInteger> countingStorage= new HashMap<CityGMLClass, AtomicInteger>();
-		for (CityGMLClass mClass:desirableCityObject)
-			countingStorage.put(mClass, new AtomicInteger(0));
+
+		HashMap<Integer, AtomicInteger> countingStorage= new HashMap<Integer, AtomicInteger>();
+		for (QName typeQName : config.getFeatureTypeFilter().getTypeNames()) {
+			int objectClassId = ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(typeQName).getObjectClassId();
+			countingStorage.put(objectClassId, new AtomicInteger(0));
+		}
 		
 		// check whether we have to transform the bounding box
 		if (bbx.getSrs().isSupported() && bbx.getSrs().getSrid() != dbSrs.getSrid()) {			
@@ -140,9 +146,10 @@ public class DBManager {
 					if (filter(tmp, bbx))
 						continue;
 				}
-				
-				if (desirableCityObject.contains(Util.getCityGMLClass(classId))){
-					countingStorage.get(Util.getCityGMLClass(classId)).incrementAndGet();
+
+				FeatureType featureType = ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(classId);
+				if (countingStorage.keySet().contains(classId) && featureType != null && featureType.isTopLevel()){
+					countingStorage.get(classId).incrementAndGet();
 					CityObjectWork cow =new CityObjectWork(gmlId,classId);
 					numCityObjects++;
 					cows.add(cow);
@@ -182,9 +189,9 @@ public class DBManager {
 		}
 	}
 	
-	public void startQuery(HashSet<CityGMLClass> desirableCityObjects) throws SQLException {
+	public void startQuery() throws SQLException {
 		try {
-			queryObjects(desirableCityObjects);
+			queryObjects();
 		}
 		finally {
 			if (connection != null) {

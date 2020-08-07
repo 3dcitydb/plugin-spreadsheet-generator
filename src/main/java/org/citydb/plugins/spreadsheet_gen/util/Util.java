@@ -40,9 +40,9 @@ public class Util {
 	public static ResourceBundle I18N;
 	
 	public static final String NUMBER_COLUMN_KEY = "NUMBER_COLUMN_KEY";
-	public static int NUMBER_COLUMN_VALUE = 1;
+	public static Integer NUMBER_COLUMN_VALUE = 1;
 	public static final String STRING_COLUMN_KEY = "STRING_COLUMN_KEY";
-	public static int STRING_COLUMN_VALUE = 2;
+	public static Integer STRING_COLUMN_VALUE = 2;
 
 	public static GridBagConstraints setConstraints(int gridx, int gridy, double weightx, double weighty, int fill,
 			int insetTop, int insetLeft, int insetBottom, int insetRight) {
