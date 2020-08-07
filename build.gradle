@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.citydb:impexp-client:4.2.3'
+    compile 'org.citydb:impexp-client:4.3.0-b20200807.1607'
     compile 'org.apache.poi:poi:3.17'
     compile 'org.apache.poi:poi-ooxml:3.17'
     compile 'org.apache.poi:poi-ooxml-schemas:3.17'
