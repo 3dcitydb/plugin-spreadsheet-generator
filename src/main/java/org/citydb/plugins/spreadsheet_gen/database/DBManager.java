@@ -40,9 +40,7 @@ import org.citydb.modules.kml.database.Queries;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.registry.ObjectRegistry;
-import org.citydb.util.Util;
 import org.citygml4j.geometry.Point;
-import org.citygml4j.model.citygml.CityGMLClass;
 import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
 import org.citygml4j.model.gml.geometry.primitives.Envelope;
 
@@ -53,7 +51,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -100,6 +97,10 @@ public class DBManager {
 
 	public void queryObjects() throws SQLException {
 		BoundingBox bbx = config.getBoundingbox();
+		if (!bbx.isValid()) {
+			throw new SQLException("Invalid bounding box for database query.");
+		}
+
 		ResultSet rs = null;
 		PreparedStatement spatialQuery = null;
 
