@@ -866,20 +866,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             }
 
             if (!dbPool.isConnected()) {
-                try {
 
-                    dbController.connect(true);
-
-
-                } catch (DatabaseConfigurationException e) {
-
-                    return;
-                } catch (SQLException e) {
-
-                    return;
-                } catch (DatabaseVersionException e1) {
-                    return;
-                }
+                dbController.connect(true);
 
                 if (!dbController.isConnected())
                     return;
@@ -905,7 +893,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             });
 
             SeparatorPhrase.getInstance().renewTempPhrase();
-            SpreadsheetExporter exporter = new SpreadsheetExporter(plugin);
+            SpreadsheetExporter exporter = new SpreadsheetExporter(plugin.getConfig());
 
             status.getButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

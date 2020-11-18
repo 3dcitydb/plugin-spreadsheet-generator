@@ -27,7 +27,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen;
 
-import org.citydb.plugin.ApplicationStarter;
+import org.citydb.ImpExpLauncher;
 import org.citydb.plugin.Plugin;
 import org.citydb.plugin.extension.config.ConfigExtension;
 import org.citydb.plugin.extension.config.PluginConfigEvent;
@@ -51,8 +51,11 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	 */
 	public static void main(String[] args) {
 		// test run
-		ApplicationStarter starter = new ApplicationStarter();
-		starter.run(args, new SPSHGPlugin());
+		ImpExpLauncher launcher = new ImpExpLauncher()
+				.withArgs(args)
+				.withPlugin(new SPSHGPlugin());
+
+		launcher.start();
 	}
 
 	@Override
