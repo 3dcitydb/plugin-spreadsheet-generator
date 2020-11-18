@@ -137,6 +137,7 @@ public class SPSHGPluginCli extends CliCommand {
 		} else {
 			pluginConfig.getOutput().setType(Output.CSV_FILE_CONFIG);
 			pluginConfig.getOutput().getCsvfile().setOutputPath(outputFileName);
+			pluginConfig.getOutput().getCsvfile().setSeparator(delimiter);
 		}
 
 		// run spreadsheet export
