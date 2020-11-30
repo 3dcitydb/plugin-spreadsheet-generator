@@ -28,19 +28,17 @@
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
 import org.citydb.config.i18n.Language;
-import org.citydb.config.project.database.DatabaseConfigurationException;
 import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.database.version.DatabaseVersionException;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
-import org.citydb.event.global.DatabaseConnectionStateEvent;
 import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
-import org.citydb.gui.components.common.DatePicker;
+import org.citydb.gui.components.common.TitledPanel;
 import org.citydb.gui.components.feature.FeatureTypeTree;
+import org.citydb.gui.util.GuiUtil;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
@@ -60,11 +58,8 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
 import org.citygml4j.model.module.citygml.CityGMLVersion;
-import org.jdesktop.swingx.JXTextField;
-import org.jdesktop.swingx.prompt.PromptSupport;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -74,21 +69,16 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 @SuppressWarnings("serial")
 public class SPSHGPanel extends JPanel implements EventHandler {
-
-    protected static final int BORDER_THICKNESS = 5;
+    protected static final int BORDER_THICKNESS = 3;
     private static final int PREFERRED_WIDTH = 560;
     private static final int PREFERRED_HEIGHT = 780;
 
     private final Logger log = Logger.getInstance();
-    ;
+
     private final ViewController viewController;
     private final DatabaseController dbController;
     private final DatabaseConnectionPool dbPool;
@@ -96,10 +86,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private final SPSHGPlugin plugin;
 
     private final ReentrantLock mainLock = new ReentrantLock();
-    private Box jPanelInput;
+    private JPanel jPanelInput;
 
     // +columns panel
-    private JPanel csvColumnsPanel;
+    private TitledPanel csvColumnsPanel;
     private JLabel templateLabel = new JLabel("");
     private JPanel browsePanel;
     private JTextField browseText = new JTextField("");
@@ -114,20 +104,17 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private JLabel editGenerateData = new JLabel();
     private JPopupMenu cityObjectPopup = new JPopupMenu();
 
+    // feature type panel
     private FeatureTypeTree typeTree;
-
-    // +Versioning panel
-    private JPanel versioningPanel;
-    private JLabel workspaceLabel = new JLabel();
-    private JXTextField workspaceText;
-    private JLabel timestampLabel = new JLabel();
-    private DatePicker datePicker = new DatePicker();
+    private JPanel featureTreePanel;
+    private TitledPanel featureFilterPanel;
 
     // +BBX Panel
-    private BoundingBoxPanel bbXPanel;
+    private BoundingBoxPanel bboxPanel;
+    private TitledPanel bboxFilterPanel;
 
     //+Output Panel
-    private JPanel outputPanel;
+    private TitledPanel outputPanel;
     private ButtonGroup outputButtonGroup = new ButtonGroup();
 
     //++ CSV RadioButtun
@@ -141,8 +128,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     //	private JPanel advanceTemplate;
     private JLabel separatorLabel = new JLabel("");
     private JTextField separatorText = new JTextField("");
-    private JPopupMenu separatorListPopup = new JPopupMenu();
-    JLabel predefiendLabel = new JLabel("");
+    private JComboBox<String> separatorComboBox;
 
     //++ xlsx RadioButtun
     private JRadioButton xlsxRadioButton = new JRadioButton("");
@@ -191,9 +177,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void initGui() {
-        jPanelInput = Box.createVerticalBox();
-
-        csvColumnsPanel = new JPanel(new BorderLayout());
+        csvColumnsPanel = new TitledPanel();
         Box insideCSVColumnsPanel = Box.createVerticalBox();
 
         JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, BORDER_THICKNESS, BORDER_THICKNESS));
@@ -207,7 +191,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseText.setColumns(10);
         browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
 
-
         JPanel buttonPanels = new JPanel();
         buttonPanels.setLayout(new GridBagLayout());
         JLabel jl = new JLabel();
@@ -216,10 +199,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         gbc.anchor = GridBagConstraints.EAST;
         buttonPanels.add(manuallyTemplateButton, gbc);
 
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS * 6, 0, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         browsePanel.add(buttonPanels, gbc);
-        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, 0, BORDER_THICKNESS));
 
         manualPanel = new JPanel();
         rightHandMenu = new JPanel();
@@ -251,53 +234,40 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         manualPanel.add(saveMessage, gbc);
         manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
 
-
         insideCSVColumnsPanel.add(templatePanel);
         insideCSVColumnsPanel.add(browsePanel);
         insideCSVColumnsPanel.add(manualPanel);
         manualPanel.setVisible(false);
-
-        csvColumnsPanel.add(insideCSVColumnsPanel, BorderLayout.CENTER);
+        csvColumnsPanel.build(insideCSVColumnsPanel);
 
         //-------------------------------------------------
         contentSource = new JPanel(new BorderLayout());
         contentSource.setBorder(BorderFactory.createTitledBorder(""));
         Box countentSourceBox = Box.createVerticalBox();
 
-        JPanel generateDataPanel = new JPanel(new BorderLayout());
-        generateDataPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS, BORDER_THICKNESS + 1, BORDER_THICKNESS, BORDER_THICKNESS + 1));
         typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
-        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 4);
-        typeTree.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(0,0,BORDER_THICKNESS,0)));
+        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 1);
         DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer)typeTree.getCellRenderer();
         renderer.setLeafIcon(null);
         renderer.setOpenIcon(null);
         renderer.setClosedIcon(null);
-        generateDataPanel.add(typeTree);
+        featureTreePanel = new JPanel();
+        featureTreePanel.setLayout(new GridBagLayout());
+        {
+            featureTreePanel.add(typeTree, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        }
+        featureFilterPanel = new TitledPanel();
+        featureFilterPanel.build(featureTreePanel);
 
         gfPrefLabel.setAlignmentY(TOP_ALIGNMENT);
         generateDataFor.setAlignmentY(TOP_ALIGNMENT);
         editGenerateData.setAlignmentY(TOP_ALIGNMENT);
-        //------------------------------
-        versioningPanel = new JPanel();
-        versioningPanel.setLayout(new GridBagLayout());
-        versioningPanel.setBorder(BorderFactory.createTitledBorder(""));
 
-        workspaceText = new JXTextField();
-        workspaceText.setPromptForeground(Color.LIGHT_GRAY);
-        workspaceText.setFocusBehavior(PromptSupport.FocusBehavior.SHOW_PROMPT);
+        bboxFilterPanel = new TitledPanel();
+        bboxPanel = viewController.getComponentFactory().createBoundingBoxPanel();
+        bboxFilterPanel.build(bboxPanel);
 
-        versioningPanel.add(workspaceLabel, Util.setConstraints(0, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(workspaceText, Util.setConstraints(1, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(timestampLabel, Util.setConstraints(2, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 2, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(datePicker, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
-
-        bbXPanel = viewController.getComponentFactory().createBoundingBoxPanel();
-
-        outputPanel = new JPanel();
-        outputPanel.setBorder(BorderFactory.createTitledBorder(""));
-        outputPanel.setLayout(new BorderLayout());
+        outputPanel = new TitledPanel();
 
         // radio buttons
         outputButtonGroup.add(csvRadioButton);
@@ -306,13 +276,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         xlsxRadioButton.setIconTextGap(10);
         csvRadioButton.setSelected(true);
 
-        countentSourceBox.add(generateDataPanel);
+        countentSourceBox.add(featureFilterPanel);
         countentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        countentSourceBox.add(versioningPanel);
         countentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        countentSourceBox.add(bbXPanel);
+        countentSourceBox.add(bboxFilterPanel);
         contentSource.add(countentSourceBox, BorderLayout.CENTER);
-
 
         //--------------------------csv file
         JPanel csvRadioButtonPanel = new JPanel();
@@ -320,8 +288,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         csvRadioButtonPanel.setLayout(new BorderLayout());
         csvRadioButtonPanel.add(csvRadioButton, BorderLayout.WEST);
 
-        separatorText.setColumns(10);
-        predefiendLabel.setIcon(createImageIcon("/org/citydb/plugins/spreadsheet_gen/images/edit.png", "Use predefiend list"));
+        separatorComboBox = new JComboBox<>();
+        separatorComboBox.setPreferredSize(new Dimension(100, separatorComboBox.getPreferredSize().height));
+        SeparatorPhrase.getInstance().load();
+        SeparatorPhrase.getInstance().getNicknames().forEach(name -> separatorComboBox.addItem(name));
 
         csvPanel = new JPanel();
         csvPanel.setLayout(new GridBagLayout());
@@ -333,9 +303,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
         Box separatorPhraseBox = Box.createHorizontalBox();
         separatorPhraseBox.add(separatorLabel);
-        separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS, 0)));
-        separatorPhraseBox.add(separatorText);
-        separatorPhraseBox.add(predefiendLabel);
+        separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS*3, 0)));
+        separatorPhraseBox.add(separatorComboBox);
         csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS));
 
         //--------------------------xlsx file
@@ -354,69 +323,41 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         outpuPanelBox.add(csvRadioButtonPanel);
         outpuPanelBox.add(csvPanel);
+        outpuPanelBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS*2)));
         outpuPanelBox.add(xlsxRadioButtonPanel);
         outpuPanelBox.add(xlsxPanel);
-        outputPanel.add(outpuPanelBox, BorderLayout.CENTER);
+        outputPanel.build(outpuPanelBox);
 
         JPanel exportButtonPanel = new JPanel();
         exportButtonPanel.add(exportButton);
 
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(csvColumnsPanel);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(contentSource);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(outputPanel);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-
-        this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
-        JPanel mainpanel = new JPanel(new BorderLayout());
-        mainpanel.add(jPanelInput, BorderLayout.NORTH);
-        mainpanel.add(exportButtonPanel, BorderLayout.SOUTH);
-
-        JScrollPane inputScrollPane = new JScrollPane(mainpanel);
-
-        this.add(inputScrollPane);
-        inputScrollPane.setBorder(null);
-
-        viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText,
-                workspaceText, datePicker.getEditor(), browseOutputText, separatorText);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                initialzeFileChoosers();
-            }
-        });
-    }
-
-    public void setEnabledWorkspace(boolean enable) {
-        ((TitledBorder) versioningPanel.getBorder()).setTitleColor(enable ?
-                UIManager.getColor("TitledBorder.titleColor") :
-                UIManager.getColor("Label.disabledForeground"));
-        versioningPanel.repaint();
-
-        workspaceLabel.setEnabled(enable);
-        workspaceText.setEnabled(enable);
-        timestampLabel.setEnabled(enable);
-        datePicker.setEnabled(enable);
-    }
-
-    private void createPopupMenu() {
-        JMenuItem menuItem;
-        separatorListPopup.removeAll();
-        SeparatorPhrase.getInstance().load();
-        Set<String> predefiendPhrase = SeparatorPhrase.getInstance().getNicknames();
-        for (String phrase : predefiendPhrase) {
-            menuItem = new JMenuItem(phrase);
-            menuItem.addActionListener(new PopupPhraseActionListener(separatorText, phrase));
-            separatorListPopup.add(menuItem);
+        jPanelInput = new JPanel();
+        jPanelInput.setLayout(new GridBagLayout());
+        {
+            jPanelInput.add(csvColumnsPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            jPanelInput.add(countentSourceBox, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            jPanelInput.add(outputPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
         }
+
+        JPanel view = new JPanel();
+        view.setLayout(new GridBagLayout());
+        view.add(jPanelInput, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, 0, 10, 0, 10));
+
+        JScrollPane scrollPane = new JScrollPane(view);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
+
+        setLayout(new GridBagLayout());
+        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 10, 10, 10, 10));
+        add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
+
+        viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText, browseOutputText, separatorText);
+        SwingUtilities.invokeLater(() -> initialzeFileChoosers());
     }
 
     public void switchLocale() {
         resetPreferedSize();
-        csvColumnsPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.csvcolumns.border")));
+        csvColumnsPanel.setTitle(Util.I18N.getString("spshg.csvcolumns.border"));
         templateLabel.setText(Util.I18N.getString("spshg.csvcolumns.usetemplate"));
 
         browseButton.setText(Util.I18N.getString("spshg.button.browse"));
@@ -434,14 +375,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         contentSource.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.border.contentsource")));
         gfPrefLabel.setText("<html>" + Util.I18N.getString("spshg.contentsource.generatedatafor.prefix") + "</html>");
 
-        versioningPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("common.border.versioning")));
-        workspaceLabel.setText(Util.I18N.getString("common.label.workspace"));
-        timestampLabel.setText(Util.I18N.getString("common.label.timestamp"));
-        workspaceText.setPrompt(Language.I18N.getString("common.label.workspace.prompt"));
+        featureFilterPanel.setTitle(Language.I18N.getString("filter.border.featureClass"));
 
-        bbXPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.bbxPanel.border")));
+        bboxFilterPanel.setTitle(Util.I18N.getString("spshg.bbxPanel.border"));
 
-        outputPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.outputPanel.border")));
+        outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
         csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
         xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
         separatorLabel.setText(Util.I18N.getString("spshg.csvPanel.separator"));
@@ -458,8 +396,18 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             modifyTableColumnsSize();
         }
 
+        UIManager.addPropertyChangeListener(e -> {
+            if ("lookAndFeel".equals(e.getPropertyName())) {
+                SwingUtilities.invokeLater(this::updateComponentUI);
+            }
+        });
+
         alignGUI();
-        createPopupMenu();
+        updateComponentUI();
+    }
+
+    private void updateComponentUI() {
+        featureTreePanel.setBorder(UIManager.getBorder("ScrollPane.border"));
     }
 
     private void alignGUI() {
@@ -470,8 +418,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseOutputButton.setPreferredSize(new Dimension(righthandMargin, browseOutputButton.getPreferredSize().height));
         xlsxBrowseOutputButton.setPreferredSize(new Dimension(righthandMargin, xlsxBrowseOutputButton.getPreferredSize().height));
         scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
-
-
         editTemplateButton.setPreferredSize(new Dimension(righthandMargin, editTemplateButton.getPreferredSize().height));
         manuallyTemplateButton.setPreferredSize(new Dimension(righthandMargin, manuallyTemplateButton.getPreferredSize().height));
     }
@@ -497,11 +443,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseOutputButton.setPreferredSize(null);
         xlsxBrowseOutputButton.setPreferredSize(null);
         scrollPane.setPreferredSize(null);
-
-
         editTemplateButton.setPreferredSize(null);
         manuallyTemplateButton.setPreferredSize(null);
-
     }
 
     private void clearGui() {
@@ -519,13 +462,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                         doExport();
                     }
                 };
-                //thread.setContextClassLoader(SPSHGPanel.class.getClassLoader());
                 thread.start();
             }
         });
 
         editGenerateData.addMouseListener(new MouseListener() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 cityObjectPopup.show(e.getComponent(), e.getX(), e.getY());
@@ -553,7 +494,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
             }
         });
-
 
         browseOutputButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -612,7 +552,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         });
 
         upButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 if (table.getSelectedRowCount() > 1) return;
@@ -636,7 +575,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             }
         });
         editButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 showAddNewColumnDialog(true);
@@ -666,29 +604,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         });
 
         saveButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveManuallyGeneratedTemplate();
 
-            }
-        });
-
-        predefiendLabel.addMouseListener(new MouseListener() {
-            public void mouseReleased(MouseEvent e) {
-                separatorListPopup.show(e.getComponent(), e.getX(), e.getY());
-            }
-
-            public void mousePressed(MouseEvent e) {
-            }
-
-            public void mouseExited(MouseEvent e) {
-            }
-
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            public void mouseClicked(MouseEvent e) {
             }
         });
     }
@@ -993,7 +912,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void saveManuallyGeneratedTemplate() {
-
         if (previousvisitBySaveTemplate != null && previousvisitBySaveTemplate.length() > 0) {
             fileChooserTemplate.setCurrentDirectory((new File(previousvisitBySaveTemplate)));
         }
@@ -1009,7 +927,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
             exportString = exportString + ".txt";
             previousvisitBySaveTemplate = exportString;
-//			TemplateWriter templateWriter = new TemplateWriter(exportString, tableDataModel,separatorTextInManualForm.getText());
             TemplateWriter templateWriter = new TemplateWriter(exportString, tableDataModel);
             Thread t = new Thread(templateWriter);
             t.start();
@@ -1082,7 +999,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void setOutputEnabledValues() {
-
         browseText.setEnabled(true);
         manualPanel.setVisible(config.getTemplate().isManualTemplate());
         if (config.getTemplate().isManualTemplate())
@@ -1093,18 +1009,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseOutputLabel.setEnabled(csvRadioButton.isSelected());
         separatorLabel.setEnabled(csvRadioButton.isSelected());
         separatorText.setEnabled(csvRadioButton.isSelected());
-        predefiendLabel.setEnabled(csvRadioButton.isSelected());
+        separatorComboBox.setEnabled(csvRadioButton.isSelected());
 
         xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
         xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
-    }
-
-    public ImageIcon createImageIcon(String path, String description) {
-        URL imgURL = getClass().getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL, description);
-        }
-        return null;
     }
 
     public Dimension getPreferredSize() {
@@ -1122,14 +1030,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
 
-        workspaceText.setText(config.getWorkspace().getName());
-        datePicker.setDate(config.getWorkspace().getTimestamp());
-
-        bbXPanel.setBoundingBox(config.getBoundingbox());
+        bboxPanel.setBoundingBox(config.getBoundingbox());
 
         browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
-        separatorText.setText(config.getOutput().getCsvfile().getSeparator());
-
+        separatorComboBox.setSelectedItem(config.getOutput().getCsvfile().getSeparator());
         xlsxBrowseOutputText.setText(config.getOutput().getXlsxfile().getOutputPath());
 
         csvRadioButton.setSelected(true);
@@ -1139,14 +1043,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         setOutputEnabledValues();
     }
 
-
     public void saveSettings() {
         if (config == null) return;
 
-//		if (templateRadioButton.isSelected())
-//			config.getTemplate().setType(Template.TEMPLATE_FILE);
-//		else
-//			config.getTemplate().setType(Template.TEMPLATE_MANUAL);
         config.getTemplate().setPath(browseText.getText());
         config.getTemplate().setColumnsList(tableDataModel.getRows());
 
@@ -1155,11 +1054,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         featureTypeFilter.reset();
         featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
 
-        config.getWorkspace().setName(workspaceText.getText());
-        config.getWorkspace().setTimestamp(datePicker.getDate());
-
-        config.setBoundingbox(bbXPanel.getBoundingBox());
-
+        config.setBoundingbox(bboxPanel.getBoundingBox());
 
         if (csvRadioButton.isSelected())
             config.getOutput().setType(Output.CSV_FILE_CONFIG);
@@ -1167,8 +1062,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             config.getOutput().setType(Output.XLSX_FILE_CONFIG);
 
         config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
-        config.getOutput().getCsvfile().setSeparator(separatorText.getText());
-
+        config.getOutput().getCsvfile().setSeparator((String)separatorComboBox.getSelectedItem());
         config.getOutput().getXlsxfile().setOutputPath(xlsxBrowseOutputText.getText());
     }
 
@@ -1178,12 +1072,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     @Override
     public void handleEvent(Event e) throws Exception {
-        if (e.getEventType() == org.citydb.event.global.EventType.DATABASE_CONNECTION_STATE) {
-            DatabaseConnectionStateEvent state = (DatabaseConnectionStateEvent) e;
-            setEnabledWorkspace(!state.isConnected() || (state.isConnected() && dbPool.getActiveDatabaseAdapter().hasVersioningSupport()));
-        }
+        //
     }
-
 
     public void loadExistingTemplate() {
         if (browseText.getText() == null || browseText.getText().trim().length() < 1)
@@ -1245,7 +1135,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         t.start();
     }
 
-
     private boolean isFilePathValid(String path) {
         try {
             if (path == null || path.trim().length() == 0)
@@ -1255,22 +1144,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         } catch (Exception e) {
             return false;
         }
-    }
-
-}
-
-class PopupPhraseActionListener implements ActionListener {
-    private JTextField target;
-    private String phrase;
-
-    PopupPhraseActionListener(JTextField target, String phrase) {
-        this.target = target;
-        this.phrase = phrase;
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent arg0) {
-        target.setText(phrase);
     }
 
 }
