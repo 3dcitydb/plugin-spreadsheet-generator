@@ -42,7 +42,6 @@ import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
 import org.citydb.log.Logger;
-import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
@@ -74,7 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SpreadsheetExporter implements EventHandler {
     private final DatabaseConnectionPool dbPool;
-    private final SPSHGPlugin plugin;
+    private final ConfigImpl config;
     private final EventDispatcher eventDispatcher;
     private final Logger log = Logger.getInstance();
 
@@ -86,8 +85,8 @@ public class SpreadsheetExporter implements EventHandler {
 
     private DBManager dbm = null;
 
-    public SpreadsheetExporter(SPSHGPlugin plugin) {
-        this.plugin = plugin;
+    public SpreadsheetExporter(ConfigImpl pluginConfig) {
+        config = pluginConfig;
         dbPool = DatabaseConnectionPool.getInstance();
         eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
     }
@@ -97,27 +96,13 @@ public class SpreadsheetExporter implements EventHandler {
     }
 
     public boolean doProcess() {
-		
-/*		BalloonTemplateHandlerImpl bth = new BalloonTemplateHandlerImpl();
-		HashMap<String, Set<String>> _3dcitydbcontent = bth.getSupportedTablesAndColumns();
-		Set<String> keys = _3dcitydbcontent.keySet();
-		for (String tableName:keys){
-			for (String column:_3dcitydbcontent.get(tableName)){
-			//	System.out.println("put(\"" + tableName + "__" + column + "\", 1);");
-				System.out.println(tableName + "_" + column + ":" + tableName + "/[COUNT]" + column);
-			}			
-		}*/
-
         eventDispatcher.addEventHandler(EventType.INTERRUPT, this);
-
-        ConfigImpl config = plugin.getConfig();
-
 
         // worker pool settings
         int minThreads = 2;
         int maxThreads = 10;
 
-        // checking templatefile
+        // checking template file
         File templatefile = null;
         if (!config.getTemplate().isManualTemplate()) {
             templatefile = new File(config.getTemplate().getPath());
@@ -131,10 +116,15 @@ public class SpreadsheetExporter implements EventHandler {
         Workspace workspace = config.getWorkspace();
 
         if (shouldRun && dbPool.getActiveDatabaseAdapter().hasVersioningSupport() &&
-                !dbPool.getActiveDatabaseAdapter().getWorkspaceManager().equalsDefaultWorkspaceName(workspace.getName()) &&
-                !dbPool.getActiveDatabaseAdapter().getWorkspaceManager().existsWorkspace(workspace, true))
-            return false;
-
+                !dbPool.getActiveDatabaseAdapter().getWorkspaceManager().equalsDefaultWorkspaceName(workspace.getName())) {
+            try {
+                log.info("Switching to database workspace " + workspace + ".");
+                dbPool.getActiveDatabaseAdapter().getWorkspaceManager().checkWorkspace(workspace);
+            } catch (SQLException e) {
+                log.error("Failed to switch to database workspace. Details: " + e.getMessage());
+                return false;
+            }
+        }
 
         // output file
         String filename = "";
