@@ -193,6 +193,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         // make a table
         table = new JTable(tableDataModel);
+        table.setShowVerticalLines(true);
+        table.setShowHorizontalLines(true);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         table.setCellSelectionEnabled(false);
         table.setColumnSelectionAllowed(false);
@@ -406,7 +408,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     private void modifyTableColumnsSize() {
         TableColumn column;
-        table.setRowHeight(17);
+        table.setRowHeight(20);
         table.setSurrendersFocusOnKeystroke(true);
         // title
         column = table.getColumnModel().getColumn(0);
