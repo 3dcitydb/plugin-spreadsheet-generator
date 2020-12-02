@@ -92,7 +92,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private final JButton manuallyTemplateButton = new JButton();
 
     //-------------
-    private JPanel contentSource;
     private final JLabel gfPrefLabel = new JLabel();
     private final JTextArea generateDataFor = new JTextArea(2, 10);
     private final JLabel editGenerateData = new JLabel();
@@ -160,36 +159,34 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void initGui() {
-        csvColumnsPanel = new TitledPanel();
+        csvColumnsPanel = new TitledPanel().withMargin(new Insets(0, 0, 10, 0));
         Box insideCSVColumnsPanel = Box.createVerticalBox();
 
-        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, BORDER_THICKNESS, BORDER_THICKNESS));
+        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         templatePanel.add(templateLabel);
 
         JPanel browsePanel = new JPanel();
         browsePanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
+        GridBagConstraints gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, 0, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         browsePanel.add(browseText, gbc);
         browseText.setColumns(10);
-        browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
         JPanel buttonPanels = new JPanel();
         buttonPanels.setLayout(new GridBagLayout());
-        JLabel jl = new JLabel();
-        buttonPanels.add(jl, Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        gbc = Util.setConstraints(1, 0, 1.0, 1.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0);
+        gbc = Util.setConstraints(1, 0, 1.0, 1.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.anchor = GridBagConstraints.EAST;
         buttonPanels.add(manuallyTemplateButton, gbc);
 
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS, 0, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0);
         gbc.gridwidth = 3;
         browsePanel.add(buttonPanels, gbc);
-        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, 0, BORDER_THICKNESS));
+        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0));
 
         manualPanel = new JPanel();
         rightHandMenu = new JPanel();
-        rightHandMenu.setLayout(new GridLayout(0, 1, 0, BORDER_THICKNESS));
+        rightHandMenu.setLayout(new GridLayout(0, 1, BORDER_THICKNESS, BORDER_THICKNESS));
 
         // make a table
         table = new JTable(tableDataModel);
@@ -210,14 +207,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         rightHandMenu.add(downButton);
 
         manualPanel.setLayout(new GridBagLayout());
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS*2, 0, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         manualPanel.add(scrollPane, gbc);
-        manualPanel.add(rightHandMenu, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        manualPanel.add(rightHandMenu, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
         gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         manualPanel.add(saveMessage, gbc);
-        manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
         insideCSVColumnsPanel.add(templatePanel);
         insideCSVColumnsPanel.add(browsePanel);
@@ -226,8 +223,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         csvColumnsPanel.build(insideCSVColumnsPanel);
 
         //-------------------------------------------------
-        contentSource = new JPanel(new BorderLayout());
-        contentSource.setBorder(BorderFactory.createTitledBorder(""));
         Box contentSourceBox = Box.createVerticalBox();
 
         typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
@@ -263,9 +258,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         contentSourceBox.add(featureFilterPanel);
         contentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        contentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
         contentSourceBox.add(bboxFilterPanel);
-        contentSource.add(contentSourceBox, BorderLayout.CENTER);
 
         //--------------------------csv file
         JPanel csvRadioButtonPanel = new JPanel();
@@ -285,7 +278,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         gbc.gridwidth = 3;
         csvPanel.add(browseOutputText, gbc);
         browseOutputText.setColumns(10);
-        csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
         Box separatorPhraseBox = Box.createHorizontalBox();
         separatorPhraseBox.add(separatorLabel);
         separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS*3, 0)));
@@ -304,11 +297,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         gbc.gridwidth = 3;
         xlsxPanel.add(xlsxBrowseOutputText, gbc);
         xlsxBrowseOutputText.setColumns(10);
-        xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
         outputPanelBox.add(csvRadioButtonPanel);
         outputPanelBox.add(csvPanel);
-        outputPanelBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS*2)));
+        outputPanelBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
         outputPanelBox.add(xlsxRadioButtonPanel);
         outputPanelBox.add(xlsxPanel);
         outputPanel.build(outputPanelBox);
@@ -333,7 +326,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
 
         setLayout(new GridBagLayout());
-        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 10, 10, 10, 10));
+        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 8, 0, 10, 0));
         add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
 
         viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText, browseOutputText, separatorText);
@@ -356,7 +349,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         saveButton.setText(Util.I18N.getString("spshg.button.save"));
         saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
 
-        contentSource.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.border.contentsource")));
         gfPrefLabel.setText("<html>" + Util.I18N.getString("spshg.contentsource.generatedatafor.prefix") + "</html>");
 
         featureFilterPanel.setTitle(Language.I18N.getString("filter.border.featureClass"));
