@@ -278,7 +278,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         JPanel csvPanel = new JPanel();
         csvPanel.setLayout(new GridBagLayout());
 
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         csvPanel.add(browseOutputText, gbc);
         browseOutputText.setColumns(10);
@@ -287,7 +287,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         separatorPhraseBox.add(separatorLabel);
         separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS*3, 0)));
         separatorPhraseBox.add(separatorComboBox);
-        csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS));
+        csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS));
 
         //--------------------------xlsx file
         JPanel xlsxRadioButtonPanel = new JPanel();
@@ -297,7 +297,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         JPanel xlsxPanel = new JPanel();
         xlsxPanel.setLayout(new GridBagLayout());
 
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(xlsxRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         xlsxPanel.add(xlsxBrowseOutputText, gbc);
         xlsxBrowseOutputText.setColumns(10);
