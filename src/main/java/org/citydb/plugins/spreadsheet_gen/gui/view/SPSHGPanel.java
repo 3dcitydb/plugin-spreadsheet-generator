@@ -599,7 +599,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             }
 
             // bbox
-            if (!(config.getBoundingbox().getLowerCorner().isSetX() ||
+            if (config.isUseBoundingBoxFilter() && !(config.getBoundingbox().getLowerCorner().isSetX() ||
                     config.getBoundingbox().getLowerCorner().isSetY() ||
                     config.getBoundingbox().getUpperCorner().isSetX() ||
                     config.getBoundingbox().getUpperCorner().isSetY())) {
