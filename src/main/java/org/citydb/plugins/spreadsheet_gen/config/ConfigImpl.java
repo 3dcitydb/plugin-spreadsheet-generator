@@ -32,9 +32,10 @@ import org.citydb.config.project.database.Workspace;
 import org.citydb.config.project.plugin.PluginConfig;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="SpreadsheetGeneratorConfigType", propOrder={
+@XmlType(name = "SpreadsheetGeneratorConfigType", propOrder = {
 		"template",
 		"featureTypeFilter",
 		"workspace",
@@ -43,21 +44,26 @@ import javax.xml.bind.annotation.XmlType;
 		"showUnsupportedADEWarning"
 })
 public class ConfigImpl extends PluginConfig {
+	@XmlAttribute
+	private boolean useFeatureTypeFilter = true;
+	@XmlAttribute
+	private boolean useBoundingBoxFilter;
+
 	private Template template;
 	private FeatureTypeFilter featureTypeFilter;
 	private Workspace workspace;
 	private BoundingBox boundingbox;
 	private Output output;
 	private boolean showUnsupportedADEWarning = true;
-	
-	public ConfigImpl(){
-		template= new Template();
+
+	public ConfigImpl() {
+		template = new Template();
 		featureTypeFilter = new FeatureTypeFilter();
 		workspace = new Workspace();
 		boundingbox = new BoundingBox();
-		output=new Output();		
+		output = new Output();
 	}
-	
+
 	public FeatureTypeFilter getFeatureTypeFilter() {
 		return featureTypeFilter;
 	}
@@ -66,33 +72,58 @@ public class ConfigImpl extends PluginConfig {
 		this.featureTypeFilter = featureTypeFilter;
 	}
 
+	public boolean isUseFeatureTypeFilter() {
+		return useFeatureTypeFilter;
+	}
+
+	public void setUseFeatureTypeFilter(boolean useFeatureTypeFilter) {
+		this.useFeatureTypeFilter = useFeatureTypeFilter;
+	}
+
 	public Template getTemplate() {
 		return template;
 	}
+
 	public void setTemplate(Template template) {
 		this.template = template;
 	}
+
 	public Workspace getWorkspace() {
 		return workspace;
 	}
+
 	public void setWorkspace(Workspace workspace) {
 		this.workspace = workspace;
 	}
+
 	public BoundingBox getBoundingbox() {
 		return boundingbox;
 	}
+
 	public void setBoundingbox(BoundingBox boundingbox) {
 		this.boundingbox = boundingbox;
 	}
+
+	public boolean isUseBoundingBoxFilter() {
+		return useBoundingBoxFilter;
+	}
+
+	public void setUseBoundingBoxFilter(boolean useBoundingBoxFilter) {
+		this.useBoundingBoxFilter = useBoundingBoxFilter;
+	}
+
 	public Output getOutput() {
 		return output;
 	}
+
 	public void setOutput(Output output) {
 		this.output = output;
 	}
+
 	public boolean isShowUnsupportedADEWarning() {
 		return showUnsupportedADEWarning;
 	}
+
 	public void setShowUnsupportedADEWarning(boolean showUnsupportedADEWarning) {
 		this.showUnsupportedADEWarning = showUnsupportedADEWarning;
 	}

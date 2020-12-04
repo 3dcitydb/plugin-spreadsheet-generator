@@ -101,10 +101,12 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private FeatureTypeTree typeTree;
     private JPanel featureTreePanel;
     private TitledPanel featureFilterPanel;
+    private JCheckBox useFeatureFilter;
 
     // +BBX Panel
     private BoundingBoxPanel bboxPanel;
     private TitledPanel bboxFilterPanel;
+    private JCheckBox useBBoxFilter;
 
     //+Output Panel
     private TitledPanel outputPanel;
@@ -236,14 +238,16 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         {
             featureTreePanel.add(typeTree, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
         }
-        featureFilterPanel = new TitledPanel();
+        useFeatureFilter = new JCheckBox();
+        featureFilterPanel = new TitledPanel().withToggleButton(useFeatureFilter);
         featureFilterPanel.build(featureTreePanel);
 
         gfPrefLabel.setAlignmentY(TOP_ALIGNMENT);
         generateDataFor.setAlignmentY(TOP_ALIGNMENT);
         editGenerateData.setAlignmentY(TOP_ALIGNMENT);
 
-        bboxFilterPanel = new TitledPanel();
+        useBBoxFilter = new JCheckBox();
+        bboxFilterPanel = new TitledPanel().withToggleButton(useBBoxFilter);
         bboxPanel = viewController.getComponentFactory().createBoundingBoxPanel();
         bboxFilterPanel.build(bboxPanel);
 
@@ -466,6 +470,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         xlsxBrowseOutputButton.addActionListener(e -> xlsxOutputFile());
         csvRadioButton.addActionListener(e -> setOutputEnabledValues());
         xlsxRadioButton.addActionListener(e -> setOutputEnabledValues());
+        useBBoxFilter.addActionListener(e -> setEnabledBBoxFilter());
+        useFeatureFilter.addActionListener(e -> setEnabledFeatureFilter());
 
         editTemplateButton.addActionListener(e -> {
             if (isFilePathValid(browseText.getText())) {
@@ -586,7 +592,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 }
             }
 
-            if (config.getFeatureTypeFilter().getTypeNames().size() == 0) {
+            if (config.isUseFeatureTypeFilter() && config.getFeatureTypeFilter().getTypeNames().size() == 0) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                         Util.I18N.getString("spshg.dialog.error.incompleteData.featureclass"));
                 return;
@@ -907,6 +913,22 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
     }
 
+    private void setEnabledBBoxFilter() {
+        bboxPanel.setEnabled(useBBoxFilter.isSelected());
+    }
+
+    private void setEnabledFeatureFilter() {
+        if (useFeatureFilter.isSelected()) {
+            typeTree.expandRow(0);
+        } else {
+            typeTree.collapseRow(0);
+            typeTree.setSelectionPath(null);
+        }
+
+        typeTree.setPathsEnabled(useFeatureFilter.isSelected());
+        typeTree.setEnabled(useFeatureFilter.isSelected());
+    }
+
     public Dimension getPreferredSize() {
         return new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT);
     }
@@ -918,11 +940,13 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
         typeTree.getCheckingModel().clearChecking();
         typeTree.setSelected(featureTypeFilter.getTypeNames());
+        useFeatureFilter.setSelected(config.isUseFeatureTypeFilter());
 
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
 
         bboxPanel.setBoundingBox(config.getBoundingbox());
+        useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
 
         browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
         separatorComboBox.setSelectedItem(config.getOutput().getCsvfile().getSeparator());
@@ -932,6 +956,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
             xlsxRadioButton.setSelected(true);
 
+        setEnabledBBoxFilter();
+        setEnabledFeatureFilter();
         setOutputEnabledValues();
     }
 
@@ -946,8 +972,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
         featureTypeFilter.reset();
         featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
+        config.setUseFeatureTypeFilter(useFeatureFilter.isSelected());
 
         config.setBoundingbox(bboxPanel.getBoundingBox());
+        config.setUseBoundingBoxFilter(useBBoxFilter.isSelected());
 
         if (csvRadioButton.isSelected())
             config.getOutput().setType(Output.CSV_FILE_CONFIG);

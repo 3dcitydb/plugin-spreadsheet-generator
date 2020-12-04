@@ -33,8 +33,6 @@ import org.citydb.config.Config;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.project.database.DatabaseConnection;
 import org.citydb.database.DatabaseController;
-import org.citydb.database.adapter.AbstractDatabaseAdapter;
-import org.citydb.database.schema.mapping.SchemaMapping;
 import org.citydb.log.Logger;
 import org.citydb.plugin.CliCommand;
 import org.citydb.plugin.cli.CliOptionBuilder;
@@ -46,15 +44,11 @@ import org.citydb.plugins.spreadsheet_gen.config.Template;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.registry.ObjectRegistry;
 import org.citydb.util.Util;
-import org.citygml4j.model.citygml.core.AbstractCityObject;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 @CommandLine.Command(
 		name = "spreadsheet-generate",
@@ -69,7 +63,7 @@ public class SPSHGPluginCli extends CliCommand {
 	@CommandLine.ArgGroup (exclusive = false)
 	private TypeNamesOption typeNamesOption;
 
-	@CommandLine.Option(names = {"-b", "--bbox"}, paramLabel = "<minx,miny,maxx,maxy[,srid] | auto>",
+	@CommandLine.Option(names = {"-b", "--bbox"}, paramLabel = "<minx,miny,maxx,maxy[,srid]>",
 			description = "Bounding box to use as spatial filter.")
 	private String bbox;
 
@@ -123,28 +117,16 @@ public class SPSHGPluginCli extends CliCommand {
 		templateConfig.setPath(templateFile.toAbsolutePath().toString());
 
 		// set feature types
+		pluginConfig.setUseFeatureTypeFilter(typeNamesOption != null);
 		if (typeNamesOption != null) {
 			pluginConfig.setFeatureTypeFilter(typeNamesOption.toFeatureTypeFilter());
 		}
 
 		// set bounding box
-		final SchemaMapping schemaMapping = ObjectRegistry.getInstance().getSchemaMapping();
-		final AbstractDatabaseAdapter databaseAdapter = database.getActiveDatabaseAdapter();
-
-		if ("auto".equalsIgnoreCase(bbox)) {
-			List<Integer> objectClassIds = Collections.singletonList(Util.getObjectClassId(AbstractCityObject.class));
-			if (typeNamesOption != null) {
-				objectClassIds = typeNamesOption.toFeatureTypeFilter().getTypeNames()
-						.stream()
-						.map(qName -> schemaMapping.getFeatureType(qName).getObjectClassId())
-						.collect(Collectors.toList());
-			}
-			boundingBox = databaseAdapter.getUtil().calcBoundingBox(pluginConfig.getWorkspace(), objectClassIds);
-		}
-
+		pluginConfig.setUseBoundingBoxFilter(boundingBox != null);
 		if (boundingBox != null) {
 			if (boundingBox.getSrs() == null) {
-				boundingBox.setSrs(databaseAdapter.getConnectionMetaData().getReferenceSystem());
+				boundingBox.setSrs(database.getActiveDatabaseAdapter().getConnectionMetaData().getReferenceSystem());
 			}
 			pluginConfig.setBoundingbox(boundingBox);
 		}
@@ -177,8 +159,6 @@ public class SPSHGPluginCli extends CliCommand {
 
 	@Override
 	public void preprocess(CommandLine commandLine) throws Exception {
-		if (!"auto".equalsIgnoreCase(bbox)) {
-			boundingBox = CliOptionBuilder.boundingBox(bbox, commandLine);
-		}
+		boundingBox = CliOptionBuilder.boundingBox(bbox, commandLine);
 	}
 }
