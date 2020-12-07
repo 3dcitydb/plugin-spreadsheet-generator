@@ -65,7 +65,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -256,7 +255,7 @@ public class SpreadsheetExporter implements EventHandler {
     }
 
     public void writeReport() {
-        HashMap<Integer, AtomicInteger> countingStorage = CSVWriter.getRportStructure();
+        Map<Integer, AtomicInteger> countingStorage = CSVWriter.getReportStructure();
 //		StringBuffer mReport= new StringBuffer();
         StringBuffer line = new StringBuffer();
 //		mReport.append(Util.I18N.getString("spshg.message.summery.title"));
