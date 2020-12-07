@@ -30,166 +30,123 @@ package org.citydb.plugins.spreadsheet_gen.database;
 import org.citydb.concurrent.WorkerPool;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.geometry.GeometryObject;
-import org.citydb.config.geometry.GeometryType;
-import org.citydb.config.project.database.DatabaseSrs;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
+import org.citydb.database.schema.TableEnum;
 import org.citydb.database.schema.mapping.FeatureType;
-import org.citydb.log.Logger;
-import org.citydb.modules.kml.database.Queries;
+import org.citydb.database.schema.mapping.MappingConstants;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.query.filter.FilterException;
+import org.citydb.query.filter.selection.operator.spatial.SpatialOperatorName;
+import org.citydb.query.filter.tiling.Tile;
 import org.citydb.registry.ObjectRegistry;
-import org.citygml4j.geometry.Point;
-import org.citygml4j.model.gml.geometry.primitives.DirectPosition;
-import org.citygml4j.model.gml.geometry.primitives.Envelope;
+import org.citydb.sqlbuilder.expression.IntegerLiteral;
+import org.citydb.sqlbuilder.expression.LiteralList;
+import org.citydb.sqlbuilder.schema.Column;
+import org.citydb.sqlbuilder.schema.Table;
+import org.citydb.sqlbuilder.select.Select;
+import org.citydb.sqlbuilder.select.operator.comparison.ComparisonFactory;
+import org.citydb.sqlbuilder.select.projection.Function;
+import org.citydb.sqlbuilder.select.projection.WildCardColumn;
 
 import javax.xml.namespace.QName;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 public class DBManager {
-	private final Logger LOG = Logger.getInstance();
-	private final WorkerPool<CityObjectWork> workerpool;
-	private ConfigImpl config;	
-	
+	private final WorkerPool<CityObjectWork> workerPool;
+	private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
+	private final Connection connection;
+	private final AbstractDatabaseAdapter databaseAdapter;
+	private final ConfigImpl config;
+
 	private volatile boolean shouldRun = true;
-	private AtomicBoolean isInterrupted = new AtomicBoolean(false);
-	
-	private Connection connection;
-	private AbstractDatabaseAdapter databaseAdapter;
-	private DatabaseSrs dbSrs;
-	private DatabaseConnectionPool dbConnectionPool;
-	private Queries queries;
-	
 	public static long numCityObjects = 0;
-	
+
 	public DBManager(DatabaseConnectionPool dbConnectionPool,
 			ConfigImpl config,
-			WorkerPool<CityObjectWork> workerpool)throws SQLException{
-		this.dbConnectionPool =dbConnectionPool;
-		this.config=config;
-		this.workerpool=workerpool;
-		init();
-	}
-	
-	public void init() throws SQLException{
-		databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
-		connection = dbConnectionPool.getConnection();
-		dbSrs = databaseAdapter.getConnectionMetaData().getReferenceSystem();
-
-		// try and change workspace for connection if needed
-		if (databaseAdapter.hasVersioningSupport()) {
-			databaseAdapter.getWorkspaceManager().gotoWorkspace(connection, 
-					config.getWorkspace());
-		}
-		String schema = databaseAdapter.getConnectionDetails().getSchema();
-		queries = new Queries(databaseAdapter, schema);
+			WorkerPool<CityObjectWork> workerPool)throws SQLException{
+		this.config = config;
+		this.workerPool = workerPool;
+		this.databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
+		this.connection = dbConnectionPool.getConnection();
 	}
 
 	public void queryObjects() throws SQLException {
-		BoundingBox bbx = config.getBoundingbox();
-		if (!bbx.isValid()) {
-			throw new SQLException("Invalid bounding box for database query.");
-		}
-
-		ResultSet rs = null;
-		PreparedStatement spatialQuery = null;
-
-		HashMap<Integer, AtomicInteger> countingStorage= new HashMap<Integer, AtomicInteger>();
-		for (QName typeQName : config.getFeatureTypeFilter().getTypeNames()) {
-			int objectClassId = ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(typeQName).getObjectClassId();
-			countingStorage.put(objectClassId, new AtomicInteger(0));
-		}
-		
-		// check whether we have to transform the bounding box
-		if (bbx.getSrs().isSupported() && bbx.getSrs().getSrid() != dbSrs.getSrid()) {			
-			try {
-				bbx = databaseAdapter.getUtil().transformBoundingBox(bbx, bbx.getSrs(), dbSrs);
-			} catch (SQLException sqlEx) {
-				LOG.error("Failed to initialize bounding box filter.");
+		// init feature counter
+		HashMap<Integer, AtomicInteger> countingStorage= new HashMap<>();
+		if (!config.isUseFeatureTypeFilter()) {
+			for (FeatureType featureType : ObjectRegistry.getInstance().getSchemaMapping().listTopLevelFeatureTypes(true)) {
+				countingStorage.put(featureType.getObjectClassId(), new AtomicInteger(0));
+			}
+		} else {
+			for (QName typeQName : config.getFeatureTypeFilter().getTypeNames()) {
+				int objectClassId = ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(typeQName).getObjectClassId();
+				countingStorage.put(objectClassId, new AtomicInteger(0));
 			}
 		}
-					
-		try {				
-			numCityObjects = 0;
-			spatialQuery = connection.prepareStatement(queries.getIds()); 				
-			spatialQuery.setObject(1, databaseAdapter.getGeometryConverter().getDatabaseObject(GeometryObject.createEnvelope(bbx), connection));
 
-			ArrayList<CityObjectWork> cows = new ArrayList<>();
-			rs = spatialQuery.executeQuery();
-			
+		// build query
+		Table cityObjectTable = new Table(TableEnum.CITYOBJECT.getName(), databaseAdapter.getConnectionDetails().getSchema());
+		Column gmlIdColumn = cityObjectTable.getColumn(MappingConstants.GMLID);
+		Column objectClassIdColumn = cityObjectTable.getColumn(MappingConstants.OBJECTCLASS_ID);
+		Column envelopeColumn = cityObjectTable.getColumn(MappingConstants.ENVELOPE);
+		Select select = new Select().addProjection(gmlIdColumn, objectClassIdColumn, envelopeColumn);
+
+		// feature type filter
+		Set<Integer> ids = countingStorage.keySet();
+		if (ids.size() == 1) {
+			select.addSelection(ComparisonFactory.equalTo(objectClassIdColumn, new IntegerLiteral(ids.iterator().next())));
+		} else if (ids.size() > 1) {
+			select.addSelection(ComparisonFactory.in(objectClassIdColumn, new LiteralList(ids.toArray(new Integer[ids.size()]))));
+		}
+
+		// bbox filter
+		if (config.isUseBoundingBoxFilter()) {
+			BoundingBox bbox = config.getBoundingbox();
+			if (!bbox.isValid()) {
+				throw new SQLException("Invalid bounding box for database query.");
+			}
+
+			GeometryObject bboxGeometryObject;
+			try {
+				bboxGeometryObject = new Tile(bbox, 1, 1).getFilterGeometry(databaseAdapter);
+			} catch (FilterException e) {
+				throw new SQLException("Failed to build bounding box geometry for spatial query.", e);
+			}
+			select.addSelection(databaseAdapter.getSQLAdapter().getBinarySpatialPredicate(SpatialOperatorName.INTERSECTS, envelopeColumn, bboxGeometryObject, false));
+		}
+
+		// calculate matched feature number
+		Select hitsQuery = new Select().addProjection(new Function("count", new WildCardColumn(new Table(select), false)));
+		try (PreparedStatement stmt = databaseAdapter.getSQLAdapter().prepareStatement(hitsQuery, connection);
+		     ResultSet rs = stmt.executeQuery()) {
+			numCityObjects = rs.next() ? rs.getLong(1) : 0;
+		}
+
+		// do database query
+		try (PreparedStatement psSelect = databaseAdapter.getSQLAdapter().prepareStatement(select, connection);
+		     ResultSet rs = psSelect.executeQuery()) {
 			while (rs.next() && shouldRun) {
-				String gmlId = rs.getString("gmlId");
-				int classId = rs.getInt("objectclass_id");
-				
-				GeometryObject envelope = null;
-				Object geomObj = rs.getObject("envelope");
-				if (!rs.wasNull() && geomObj != null)
-					envelope = databaseAdapter.getGeometryConverter().getEnvelope(geomObj);
-				
-				// check whether center point of the feature's envelope is within the tile extent
-				if (envelope != null && envelope.getGeometryType() == GeometryType.ENVELOPE) {
-					double coordinates[] = envelope.getCoordinates(0);
-					
-					Envelope tmp = new Envelope();
-					tmp.setLowerCorner(new Point(coordinates[0], coordinates[1], 0));
-					tmp.setUpperCorner(new Point(coordinates[3], coordinates[4], 0));
-					
-					if (filter(tmp, bbx))
-						continue;
-				}
-
+				String gmlId = rs.getString(1);
+				int classId = rs.getInt(2);
 				FeatureType featureType = ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(classId);
 				if (countingStorage.keySet().contains(classId) && featureType != null && featureType.isTopLevel()){
 					countingStorage.get(classId).incrementAndGet();
 					CityObjectWork cow =new CityObjectWork(gmlId,classId);
-					numCityObjects++;
-					cows.add(cow);
+					workerPool.addWork(cow);
 				}
-			}
-			
-			for (CityObjectWork cow : cows) {
-				workerpool.addWork(cow);
-			}
-
-		}
-		catch (SQLException sqlEx) {
-			throw sqlEx;
-		}
-		finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				}
-				catch (SQLException sqlEx) {
-					throw sqlEx;
-				}
-
-				rs = null;
-			}
-
-			if (spatialQuery != null) {
-				try {
-					spatialQuery.close();
-				}
-				catch (SQLException sqlEx) {
-					throw sqlEx;
-				}
-
-				spatialQuery = null;
 			}
 		}
 	}
-	
+
 	public void startQuery() throws SQLException {
 		try {
 			queryObjects();
@@ -200,45 +157,10 @@ public class DBManager {
 					connection.close();
 				}
 				catch (SQLException sqlEx) {}
-
-				connection = null;
 			}
 		}
 	}
 
-	private boolean filter(Envelope envelope, BoundingBox bbx) {
-		if (!envelope.isSetLowerCorner() || !envelope.isSetUpperCorner())
-			return true;
-
-		DirectPosition lowerCorner = envelope.getLowerCorner();
-		DirectPosition upperCorner = envelope.getUpperCorner();
-
-		if (!lowerCorner.isSetValue() || !upperCorner.isSetValue())
-			return true;
-
-		List<Double> lowerCornerValue = lowerCorner.getValue();
-		List<Double> upperCornerValue = upperCorner.getValue();
-
-		if (lowerCornerValue.size() < 2 || upperCornerValue.size() < 2)
-			return true;
-
-		Double minX = lowerCornerValue.get(0);
-		Double minY = lowerCornerValue.get(1);
-
-		Double maxX = upperCornerValue.get(0);
-		Double maxY = upperCornerValue.get(1);
-
-		double centroidX = minX + (maxX - minX) / 2;
-		double centroidY = minY + (maxY - minY) / 2;
-		if (centroidX >= bbx.getLowerCorner().getX() &&
-				centroidY > bbx.getLowerCorner().getY() &&
-				centroidX < bbx.getUpperCorner().getX() &&
-				centroidY <= bbx.getUpperCorner().getY())
-			return false;
-		else
-			return true;
-	}
-	
 	public void shutdown() {
 		if (isInterrupted.compareAndSet(false, true)) {
 			shouldRun = false;

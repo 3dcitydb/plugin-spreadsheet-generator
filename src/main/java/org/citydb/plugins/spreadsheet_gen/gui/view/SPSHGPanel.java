@@ -28,19 +28,17 @@
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
 import org.citydb.config.i18n.Language;
-import org.citydb.config.project.database.DatabaseConfigurationException;
 import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.database.version.DatabaseVersionException;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
-import org.citydb.event.global.DatabaseConnectionStateEvent;
 import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
-import org.citydb.gui.components.common.DatePicker;
+import org.citydb.gui.components.common.TitledPanel;
 import org.citydb.gui.components.feature.FeatureTypeTree;
+import org.citydb.gui.util.GuiUtil;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
@@ -60,121 +58,94 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
 import org.citygml4j.model.module.citygml.CityGMLVersion;
-import org.jdesktop.swingx.JXTextField;
-import org.jdesktop.swingx.prompt.PromptSupport;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.Set;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 @SuppressWarnings("serial")
 public class SPSHGPanel extends JPanel implements EventHandler {
-
-    protected static final int BORDER_THICKNESS = 5;
+    protected static final int BORDER_THICKNESS = 3;
     private static final int PREFERRED_WIDTH = 560;
     private static final int PREFERRED_HEIGHT = 780;
 
     private final Logger log = Logger.getInstance();
-    ;
+
     private final ViewController viewController;
     private final DatabaseController dbController;
     private final DatabaseConnectionPool dbPool;
 
     private final SPSHGPlugin plugin;
-
     private final ReentrantLock mainLock = new ReentrantLock();
-    private Box jPanelInput;
 
     // +columns panel
-    private JPanel csvColumnsPanel;
-    private JLabel templateLabel = new JLabel("");
-    private JPanel browsePanel;
-    private JTextField browseText = new JTextField("");
-    private JButton browseButton = new JButton("");
-    private JButton editTemplateButton = new JButton("");
-    private JButton manuallyTemplateButton = new JButton("");
+    private TitledPanel csvColumnsPanel;
+    private final JLabel templateLabel = new JLabel();
+    private final JTextField browseText = new JTextField();
+    private final JButton browseButton = new JButton();
+    private final JButton editTemplateButton = new JButton();
+    private final JButton manuallyTemplateButton = new JButton();
 
     //-------------
-    private JPanel contentSource;
-    private JLabel gfPrefLabel = new JLabel("");
-    private JTextArea generateDataFor = new JTextArea(2, 10);
-    private JLabel editGenerateData = new JLabel();
-    private JPopupMenu cityObjectPopup = new JPopupMenu();
+    private final JLabel gfPrefLabel = new JLabel();
+    private final JTextArea generateDataFor = new JTextArea(2, 10);
+    private final JLabel editGenerateData = new JLabel();
+    private final JPopupMenu cityObjectPopup = new JPopupMenu();
 
+    // feature type panel
     private FeatureTypeTree typeTree;
-
-    // +Versioning panel
-    private JPanel versioningPanel;
-    private JLabel workspaceLabel = new JLabel();
-    private JXTextField workspaceText;
-    private JLabel timestampLabel = new JLabel();
-    private DatePicker datePicker = new DatePicker();
+    private JPanel featureTreePanel;
+    private TitledPanel featureFilterPanel;
+    private JCheckBox useFeatureFilter;
 
     // +BBX Panel
-    private BoundingBoxPanel bbXPanel;
+    private BoundingBoxPanel bboxPanel;
+    private TitledPanel bboxFilterPanel;
+    private JCheckBox useBBoxFilter;
 
     //+Output Panel
-    private JPanel outputPanel;
-    private ButtonGroup outputButtonGroup = new ButtonGroup();
+    private TitledPanel outputPanel;
+    private final ButtonGroup outputButtonGroup = new ButtonGroup();
 
-    //++ CSV RadioButtun
-    private JRadioButton csvRadioButton = new JRadioButton("");
-    private JPanel csvPanel;
+    //++ CSV options
+    private final JRadioButton csvRadioButton = new JRadioButton();
+    private final JLabel browseOutputLabel = new JLabel();
+    private final JTextField browseOutputText = new JTextField();
+    private final JButton browseOutputButton = new JButton();
 
-    private JLabel browseOutputLabel = new JLabel("");
-    private JTextField browseOutputText = new JTextField("");
-    private JButton browseOutputButton = new JButton("");
+    // private JPanel advanceTemplate;
+    private final JLabel separatorLabel = new JLabel();
+    private final JTextField separatorText = new JTextField();
+    private JComboBox<String> separatorComboBox;
 
-    //	private JPanel advanceTemplate;
-    private JLabel separatorLabel = new JLabel("");
-    private JTextField separatorText = new JTextField("");
-    private JPopupMenu separatorListPopup = new JPopupMenu();
-    JLabel predefiendLabel = new JLabel("");
+    //++ xlsx options
+    private final JRadioButton xlsxRadioButton = new JRadioButton();
+    private final JTextField xlsxBrowseOutputText = new JTextField();
+    private final JButton xlsxBrowseOutputButton = new JButton();
 
-    //++ xlsx RadioButtun
-    private JRadioButton xlsxRadioButton = new JRadioButton("");
-    private JPanel xlsxPanel;
-
-    private JTextField xlsxBrowseOutputText = new JTextField("");
-    private JButton xlsxBrowseOutputButton = new JButton("");
-
-    //++ Online RadioButtun
-    private JButton exportButton = new JButton("");
-    private ConfigImpl config;
+    //++ export button
+    private final JButton exportButton = new JButton();
 
     // manual template generator
     private JPanel manualPanel;
     private JPanel rightHandMenu;
     private JScrollPane scrollPane;
     private JTable table;
-    private TableDataModel tableDataModel = new TableDataModel();
-    private JButton upButton = new JButton("");
-    private JButton downButton = new JButton("");
-    private JButton editButton = new JButton("");
+    private final TableDataModel tableDataModel = new TableDataModel();
+    private final JButton upButton = new JButton();
+    private final JButton downButton = new JButton();
+    private final JButton editButton = new JButton();
+    private final JButton addButton = new JButton();
+    private final JButton removeButton = new JButton();
+    private final JButton saveButton = new JButton();
+    private final JLabel saveMessage = new JLabel();
 
-    private JButton addButton = new JButton("");
-    private JButton removeButton = new JButton("");
-    private JButton saveButton = new JButton("");
-    private JLabel saveMessage = new JLabel("");
-
-    private String previousvisitBySaveTemplate = "";
-
-    final JFileChooser fileChooserTemplate = new JFileChooser();
-    final JFileChooser fileChooserCSVOut = new JFileChooser();
-    final JFileChooser fileChooserXLSXOut = new JFileChooser();
+    private String previousVisitBySaveTemplate = "";
 
     SPSHGPanel(ViewController viewController, SPSHGPlugin plugin) {
         this.viewController = viewController;
@@ -183,7 +154,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         dbPool = DatabaseConnectionPool.getInstance();
         ObjectRegistry.getInstance().getEventDispatcher().addEventHandler(EventType.UPLOAD_EVENT, this);
         ObjectRegistry.getInstance().getEventDispatcher().addEventHandler(org.citydb.event.global.EventType.DATABASE_CONNECTION_STATE, this);
-        config = plugin.getConfig();
 
         initGui();
         addListeners();
@@ -191,42 +161,39 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void initGui() {
-        jPanelInput = Box.createVerticalBox();
-
-        csvColumnsPanel = new JPanel(new BorderLayout());
+        csvColumnsPanel = new TitledPanel().withMargin(new Insets(0, 0, 10, 0));
         Box insideCSVColumnsPanel = Box.createVerticalBox();
 
-        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, BORDER_THICKNESS, BORDER_THICKNESS));
+        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         templatePanel.add(templateLabel);
 
-        browsePanel = new JPanel();
+        JPanel browsePanel = new JPanel();
         browsePanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        GridBagConstraints gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, 0, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         browsePanel.add(browseText, gbc);
         browseText.setColumns(10);
-        browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
+        browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
         JPanel buttonPanels = new JPanel();
         buttonPanels.setLayout(new GridBagLayout());
-        JLabel jl = new JLabel();
-        buttonPanels.add(jl, Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS));
-        gbc = Util.setConstraints(1, 0, 1.0, 1.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0);
+        gbc = Util.setConstraints(1, 0, 1.0, 1.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.anchor = GridBagConstraints.EAST;
         buttonPanels.add(manuallyTemplateButton, gbc);
 
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0);
         gbc.gridwidth = 3;
         browsePanel.add(buttonPanels, gbc);
-        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0));
 
         manualPanel = new JPanel();
         rightHandMenu = new JPanel();
-        rightHandMenu.setLayout(new GridLayout(0, 1));
+        rightHandMenu.setLayout(new GridLayout(0, 1, BORDER_THICKNESS, BORDER_THICKNESS));
 
         // make a table
         table = new JTable(tableDataModel);
+        table.setShowVerticalLines(true);
+        table.setShowHorizontalLines(true);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         table.setCellSelectionEnabled(false);
         table.setColumnSelectionAllowed(false);
@@ -242,62 +209,49 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         rightHandMenu.add(downButton);
 
         manualPanel.setLayout(new GridBagLayout());
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS*2, 0, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         manualPanel.add(scrollPane, gbc);
-        manualPanel.add(rightHandMenu, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        manualPanel.add(rightHandMenu, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
+        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         manualPanel.add(saveMessage, gbc);
-        manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
+        manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
         insideCSVColumnsPanel.add(templatePanel);
         insideCSVColumnsPanel.add(browsePanel);
         insideCSVColumnsPanel.add(manualPanel);
         manualPanel.setVisible(false);
-
-        csvColumnsPanel.add(insideCSVColumnsPanel, BorderLayout.CENTER);
+        csvColumnsPanel.build(insideCSVColumnsPanel);
 
         //-------------------------------------------------
-        contentSource = new JPanel(new BorderLayout());
-        contentSource.setBorder(BorderFactory.createTitledBorder(""));
-        Box countentSourceBox = Box.createVerticalBox();
+        Box contentSourceBox = Box.createVerticalBox();
 
-        JPanel generateDataPanel = new JPanel(new BorderLayout());
-        generateDataPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS, BORDER_THICKNESS + 1, BORDER_THICKNESS, BORDER_THICKNESS + 1));
         typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
-        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 4);
-        typeTree.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(0,0,BORDER_THICKNESS,0)));
+        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 1);
         DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer)typeTree.getCellRenderer();
         renderer.setLeafIcon(null);
         renderer.setOpenIcon(null);
         renderer.setClosedIcon(null);
-        generateDataPanel.add(typeTree);
+        featureTreePanel = new JPanel();
+        featureTreePanel.setLayout(new GridBagLayout());
+        {
+            featureTreePanel.add(typeTree, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        }
+        useFeatureFilter = new JCheckBox();
+        featureFilterPanel = new TitledPanel().withToggleButton(useFeatureFilter);
+        featureFilterPanel.build(featureTreePanel);
 
         gfPrefLabel.setAlignmentY(TOP_ALIGNMENT);
         generateDataFor.setAlignmentY(TOP_ALIGNMENT);
         editGenerateData.setAlignmentY(TOP_ALIGNMENT);
-        //------------------------------
-        versioningPanel = new JPanel();
-        versioningPanel.setLayout(new GridBagLayout());
-        versioningPanel.setBorder(BorderFactory.createTitledBorder(""));
 
-        workspaceText = new JXTextField();
-        workspaceText.setPromptForeground(Color.LIGHT_GRAY);
-        workspaceText.setFocusBehavior(PromptSupport.FocusBehavior.SHOW_PROMPT);
+        useBBoxFilter = new JCheckBox();
+        bboxFilterPanel = new TitledPanel().withToggleButton(useBBoxFilter);
+        bboxPanel = viewController.getComponentFactory().createBoundingBoxPanel();
+        bboxFilterPanel.build(bboxPanel);
 
-        versioningPanel.add(workspaceLabel, Util.setConstraints(0, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(workspaceText, Util.setConstraints(1, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(timestampLabel, Util.setConstraints(2, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 2, BORDER_THICKNESS, BORDER_THICKNESS));
-        versioningPanel.add(datePicker, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
-
-        bbXPanel = viewController.getComponentFactory().createBoundingBoxPanel();
-
-        outputPanel = new JPanel();
-        outputPanel.setBorder(BorderFactory.createTitledBorder(""));
-        outputPanel.setLayout(new BorderLayout());
+        outputPanel = new TitledPanel();
 
         // radio buttons
         outputButtonGroup.add(csvRadioButton);
@@ -306,117 +260,85 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         xlsxRadioButton.setIconTextGap(10);
         csvRadioButton.setSelected(true);
 
-        countentSourceBox.add(generateDataPanel);
-        countentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        countentSourceBox.add(versioningPanel);
-        countentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        countentSourceBox.add(bbXPanel);
-        contentSource.add(countentSourceBox, BorderLayout.CENTER);
-
+        contentSourceBox.add(featureFilterPanel);
+        contentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+        contentSourceBox.add(bboxFilterPanel);
 
         //--------------------------csv file
         JPanel csvRadioButtonPanel = new JPanel();
-        Box outpuPanelBox = Box.createVerticalBox();
+        Box outputPanelBox = Box.createVerticalBox();
         csvRadioButtonPanel.setLayout(new BorderLayout());
         csvRadioButtonPanel.add(csvRadioButton, BorderLayout.WEST);
 
-        separatorText.setColumns(10);
-        predefiendLabel.setIcon(createImageIcon("/org/citydb/plugins/spreadsheet_gen/images/edit.png", "Use predefiend list"));
+        separatorComboBox = new JComboBox<>();
+        separatorComboBox.setPreferredSize(new Dimension(100, separatorComboBox.getPreferredSize().height));
+        SeparatorPhrase.getInstance().load();
+        SeparatorPhrase.getInstance().getNicknames().forEach(name -> separatorComboBox.addItem(name));
 
-        csvPanel = new JPanel();
+        JPanel csvPanel = new JPanel();
         csvPanel.setLayout(new GridBagLayout());
 
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         csvPanel.add(browseOutputText, gbc);
         browseOutputText.setColumns(10);
-        csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
         Box separatorPhraseBox = Box.createHorizontalBox();
         separatorPhraseBox.add(separatorLabel);
-        separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS, 0)));
-        separatorPhraseBox.add(separatorText);
-        separatorPhraseBox.add(predefiendLabel);
-        csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS));
+        separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS*3, 0)));
+        separatorPhraseBox.add(separatorComboBox);
+        csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS));
 
         //--------------------------xlsx file
         JPanel xlsxRadioButtonPanel = new JPanel();
         xlsxRadioButtonPanel.setLayout(new BorderLayout());
         xlsxRadioButtonPanel.add(xlsxRadioButton, BorderLayout.WEST);
 
-        xlsxPanel = new JPanel();
+        JPanel xlsxPanel = new JPanel();
         xlsxPanel.setLayout(new GridBagLayout());
 
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS * 6, BORDER_THICKNESS, BORDER_THICKNESS);
+        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(xlsxRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
         gbc.gridwidth = 3;
         xlsxPanel.add(xlsxBrowseOutputText, gbc);
         xlsxBrowseOutputText.setColumns(10);
-        xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
+        xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
 
-        outpuPanelBox.add(csvRadioButtonPanel);
-        outpuPanelBox.add(csvPanel);
-        outpuPanelBox.add(xlsxRadioButtonPanel);
-        outpuPanelBox.add(xlsxPanel);
-        outputPanel.add(outpuPanelBox, BorderLayout.CENTER);
+        outputPanelBox.add(csvRadioButtonPanel);
+        outputPanelBox.add(csvPanel);
+        outputPanelBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+        outputPanelBox.add(xlsxRadioButtonPanel);
+        outputPanelBox.add(xlsxPanel);
+        outputPanel.build(outputPanelBox);
 
         JPanel exportButtonPanel = new JPanel();
         exportButtonPanel.add(exportButton);
 
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(csvColumnsPanel);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(contentSource);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        jPanelInput.add(outputPanel);
-        jPanelInput.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-
-        this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-
-        JPanel mainpanel = new JPanel(new BorderLayout());
-        mainpanel.add(jPanelInput, BorderLayout.NORTH);
-        mainpanel.add(exportButtonPanel, BorderLayout.SOUTH);
-
-        JScrollPane inputScrollPane = new JScrollPane(mainpanel);
-
-        this.add(inputScrollPane);
-        inputScrollPane.setBorder(null);
-
-        viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText,
-                workspaceText, datePicker.getEditor(), browseOutputText, separatorText);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                initialzeFileChoosers();
-            }
-        });
-    }
-
-    public void setEnabledWorkspace(boolean enable) {
-        ((TitledBorder) versioningPanel.getBorder()).setTitleColor(enable ?
-                UIManager.getColor("TitledBorder.titleColor") :
-                UIManager.getColor("Label.disabledForeground"));
-        versioningPanel.repaint();
-
-        workspaceLabel.setEnabled(enable);
-        workspaceText.setEnabled(enable);
-        timestampLabel.setEnabled(enable);
-        datePicker.setEnabled(enable);
-    }
-
-    private void createPopupMenu() {
-        JMenuItem menuItem;
-        separatorListPopup.removeAll();
-        SeparatorPhrase.getInstance().load();
-        Set<String> predefiendPhrase = SeparatorPhrase.getInstance().getNicknames();
-        for (String phrase : predefiendPhrase) {
-            menuItem = new JMenuItem(phrase);
-            menuItem.addActionListener(new PopupPhraseActionListener(separatorText, phrase));
-            separatorListPopup.add(menuItem);
+        JPanel jPanelInput = new JPanel();
+        jPanelInput.setLayout(new GridBagLayout());
+        {
+            jPanelInput.add(csvColumnsPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            jPanelInput.add(contentSourceBox, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            jPanelInput.add(outputPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
         }
+
+        JPanel view = new JPanel();
+        view.setLayout(new GridBagLayout());
+        view.add(jPanelInput, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, 0, 10, 0, 10));
+
+        JScrollPane scrollPane = new JScrollPane(view);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
+
+        setLayout(new GridBagLayout());
+        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 8, 0, 10, 0));
+        add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
+
+        viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText, browseOutputText, separatorText);
     }
 
     public void switchLocale() {
-        resetPreferedSize();
-        csvColumnsPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.csvcolumns.border")));
+        resetPreferredSize();
+        csvColumnsPanel.setTitle(Util.I18N.getString("spshg.csvcolumns.border"));
         templateLabel.setText(Util.I18N.getString("spshg.csvcolumns.usetemplate"));
 
         browseButton.setText(Util.I18N.getString("spshg.button.browse"));
@@ -431,17 +353,13 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         saveButton.setText(Util.I18N.getString("spshg.button.save"));
         saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
 
-        contentSource.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.border.contentsource")));
         gfPrefLabel.setText("<html>" + Util.I18N.getString("spshg.contentsource.generatedatafor.prefix") + "</html>");
 
-        versioningPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("common.border.versioning")));
-        workspaceLabel.setText(Util.I18N.getString("common.label.workspace"));
-        timestampLabel.setText(Util.I18N.getString("common.label.timestamp"));
-        workspaceText.setPrompt(Language.I18N.getString("common.label.workspace.prompt"));
+        featureFilterPanel.setTitle(Language.I18N.getString("filter.border.featureClass"));
 
-        bbXPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.bbxPanel.border")));
+        bboxFilterPanel.setTitle(Util.I18N.getString("spshg.bbxPanel.border"));
 
-        outputPanel.setBorder(BorderFactory.createTitledBorder(Util.I18N.getString("spshg.outputPanel.border")));
+        outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
         csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
         xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
         separatorLabel.setText(Util.I18N.getString("spshg.csvPanel.separator"));
@@ -452,33 +370,41 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         separatorText.setText(Util.I18N.getString("spshg.csvPanel.separator.comma"));
 
         exportButton.setText(Util.I18N.getString("spshg.button.export"));
-        //other GUI components
+
         if (tableDataModel != null) {
             tableDataModel.updateColumnsTitle();
             modifyTableColumnsSize();
         }
 
+        UIManager.addPropertyChangeListener(e -> {
+            if ("lookAndFeel".equals(e.getPropertyName())) {
+                SwingUtilities.invokeLater(this::updateComponentUI);
+            }
+        });
+
         alignGUI();
-        createPopupMenu();
+        updateComponentUI();
+    }
+
+    private void updateComponentUI() {
+        featureTreePanel.setBorder(UIManager.getBorder("ScrollPane.border"));
     }
 
     private void alignGUI() {
-        int righthandMargin = Math.max(rightHandMenu.getPreferredSize().width, browseButton.getPreferredSize().width);
-        rightHandMenu.setPreferredSize(new Dimension(righthandMargin, rightHandMenu.getPreferredSize().height));
-        browseButton.setPreferredSize(new Dimension(righthandMargin, browseButton.getPreferredSize().height));
-        saveButton.setPreferredSize(new Dimension(righthandMargin, saveButton.getPreferredSize().height));
-        browseOutputButton.setPreferredSize(new Dimension(righthandMargin, browseOutputButton.getPreferredSize().height));
-        xlsxBrowseOutputButton.setPreferredSize(new Dimension(righthandMargin, xlsxBrowseOutputButton.getPreferredSize().height));
+        int rightHandMargin = Math.max(rightHandMenu.getPreferredSize().width, browseButton.getPreferredSize().width);
+        rightHandMenu.setPreferredSize(new Dimension(rightHandMargin, rightHandMenu.getPreferredSize().height));
+        browseButton.setPreferredSize(new Dimension(rightHandMargin, browseButton.getPreferredSize().height));
+        saveButton.setPreferredSize(new Dimension(rightHandMargin, saveButton.getPreferredSize().height));
+        browseOutputButton.setPreferredSize(new Dimension(rightHandMargin, browseOutputButton.getPreferredSize().height));
+        xlsxBrowseOutputButton.setPreferredSize(new Dimension(rightHandMargin, xlsxBrowseOutputButton.getPreferredSize().height));
         scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
-
-
-        editTemplateButton.setPreferredSize(new Dimension(righthandMargin, editTemplateButton.getPreferredSize().height));
-        manuallyTemplateButton.setPreferredSize(new Dimension(righthandMargin, manuallyTemplateButton.getPreferredSize().height));
+        editTemplateButton.setPreferredSize(new Dimension(rightHandMargin, editTemplateButton.getPreferredSize().height));
+        manuallyTemplateButton.setPreferredSize(new Dimension(rightHandMargin, manuallyTemplateButton.getPreferredSize().height));
     }
 
     private void modifyTableColumnsSize() {
-        TableColumn column = null;
-        table.setRowHeight(15);
+        TableColumn column;
+        table.setRowHeight(20);
         table.setSurrendersFocusOnKeystroke(true);
         // title
         column = table.getColumnModel().getColumn(0);
@@ -490,18 +416,15 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         column.setMinWidth(140);
     }
 
-    private void resetPreferedSize() {
+    private void resetPreferredSize() {
         rightHandMenu.setPreferredSize(null);
         browseButton.setPreferredSize(null);
         saveButton.setPreferredSize(null);
         browseOutputButton.setPreferredSize(null);
         xlsxBrowseOutputButton.setPreferredSize(null);
         scrollPane.setPreferredSize(null);
-
-
         editTemplateButton.setPreferredSize(null);
         manuallyTemplateButton.setPreferredSize(null);
-
     }
 
     private void clearGui() {
@@ -512,20 +435,12 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private void addListeners() {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
-        exportButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Thread thread = new Thread() {
-                    public void run() {
-                        doExport();
-                    }
-                };
-                //thread.setContextClassLoader(SPSHGPanel.class.getClassLoader());
-                thread.start();
-            }
+        exportButton.addActionListener(e -> {
+            Thread thread = new Thread(() -> doExport());
+            thread.start();
         });
 
         editGenerateData.addMouseListener(new MouseListener() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 cityObjectPopup.show(e.getComponent(), e.getX(), e.getY());
@@ -544,153 +459,67 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             }
         });
 
-        browseButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (choseTemplateFile()) {
-                    config.getTemplate().setManualTemplate(false);
-                    setOutputEnabledValues();
-                }
-
-            }
-        });
-
-
-        browseOutputButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                outputFile();
-            }
-        });
-
-        xlsxBrowseOutputButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                xlsxOutputFile();
-            }
-        });
-
-        ActionListener outputListener = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        browseButton.addActionListener(e -> {
+            if (choseTemplateFile()) {
+                plugin.getConfig().getTemplate().setManualTemplate(false);
                 setOutputEnabledValues();
             }
-        };
-
-        csvRadioButton.addActionListener(outputListener);
-        xlsxRadioButton.addActionListener(outputListener);
-
-        editTemplateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (isFilePathValid(browseText.getText())) {
-                    config.getTemplate().setManualTemplate(true);
-                    loadExistingTemplate();
-                    setOutputEnabledValues();
-                } else if (choseTemplateFile()) {
-                    config.getTemplate().setManualTemplate(true);
-                    loadExistingTemplate();
-                    setOutputEnabledValues();
-                } else
-                    config.getTemplate().setManualTemplate(false);
-
-            }
         });
 
-        manuallyTemplateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                makeNewTemplate();
-            }
+        browseOutputButton.addActionListener(e -> outputFile());
+        xlsxBrowseOutputButton.addActionListener(e -> xlsxOutputFile());
+        csvRadioButton.addActionListener(e -> setOutputEnabledValues());
+        xlsxRadioButton.addActionListener(e -> setOutputEnabledValues());
+        useBBoxFilter.addActionListener(e -> setEnabledBBoxFilter());
+        useFeatureFilter.addActionListener(e -> setEnabledFeatureFilter());
+
+        editTemplateButton.addActionListener(e -> {
+            if (isFilePathValid(browseText.getText())) {
+                plugin.getConfig().getTemplate().setManualTemplate(true);
+                loadExistingTemplate();
+                setOutputEnabledValues();
+            } else if (choseTemplateFile()) {
+                plugin.getConfig().getTemplate().setManualTemplate(true);
+                loadExistingTemplate();
+                setOutputEnabledValues();
+            } else
+                plugin.getConfig().getTemplate().setManualTemplate(false);
         });
 
-        addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showAddNewColumnDialog(false);
-            }
-        });
-        removeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removeSelectedColumenFromManualTemolate();
-            }
+        manuallyTemplateButton.addActionListener(e -> makeNewTemplate());
+        addButton.addActionListener(e -> showAddNewColumnDialog(false));
+        removeButton.addActionListener(e -> removeSelectedColumnFromManualTemplate());
+
+        upButton.addActionListener(arg0 -> {
+            if (table.getSelectedRowCount() > 1) return;
+            int selectedRow = table.getSelectedRow();
+            tableDataModel.move(selectedRow, true);
+            selectedRow--;
+            if (selectedRow >= 0)
+                table.setRowSelectionInterval(selectedRow, selectedRow);
         });
 
-        upButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                if (table.getSelectedRowCount() > 1) return;
-                int selectedRow = table.getSelectedRow();
-                tableDataModel.move(selectedRow, true);
-                selectedRow--;
-                if (selectedRow >= 0)
-                    table.setRowSelectionInterval(selectedRow, selectedRow);
-
-            }
+        downButton.addActionListener(arg0 -> {
+            if (table.getSelectedRowCount() > 1) return;
+            int selectedRow = table.getSelectedRow();
+            tableDataModel.move(selectedRow, false);
+            selectedRow++;
+            if (selectedRow <= table.getRowCount() - 1)
+                table.setRowSelectionInterval(selectedRow, selectedRow);
         });
-        downButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                if (table.getSelectedRowCount() > 1) return;
-                int selectedRow = table.getSelectedRow();
-                tableDataModel.move(selectedRow, false);
-                selectedRow++;
-                if (selectedRow <= table.getRowCount() - 1)
-                    table.setRowSelectionInterval(selectedRow, selectedRow);
-            }
-        });
-        editButton.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                showAddNewColumnDialog(true);
-            }
-        });
+        editButton.addActionListener(arg0 -> showAddNewColumnDialog(true));
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getComponent().isEnabled() && e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
                     showAddNewColumnDialog(true);
-
             }
         });
-        table.getModel().addTableModelListener(new TableModelListener() {
+        table.getModel().addTableModelListener(e -> modifyButtonsVisibility());
+        table.getSelectionModel().addListSelectionListener(e -> modifyButtonsVisibility());
 
-            public void tableChanged(TableModelEvent e) {
-                modifyButtonsVisibility();
-            }
-        });
-
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                modifyButtonsVisibility();
-//			}
-            }
-        });
-
-        saveButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveManuallyGeneratedTemplate();
-
-            }
-        });
-
-        predefiendLabel.addMouseListener(new MouseListener() {
-            public void mouseReleased(MouseEvent e) {
-                separatorListPopup.show(e.getComponent(), e.getX(), e.getY());
-            }
-
-            public void mousePressed(MouseEvent e) {
-            }
-
-            public void mouseExited(MouseEvent e) {
-            }
-
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            public void mouseClicked(MouseEvent e) {
-            }
-        });
+        saveButton.addActionListener(e -> saveManuallyGeneratedTemplate());
     }
 
     public void panelIsVisible(boolean b) {
@@ -698,7 +527,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void makeNewTemplate() {
-        config.getTemplate().setManualTemplate(true);
+        plugin.getConfig().getTemplate().setManualTemplate(true);
         tableDataModel.reset();
         setOutputEnabledValues();
         browseText.setEnabled(false);
@@ -706,12 +535,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     public void modifyButtonsVisibility() {
         checkButtonsVisibilityInManuallTemplate();
+
         if (table.getSelectedRowCount() != 1) {
             editButton.setEnabled(false);
             upButton.setEnabled(false);
             downButton.setEnabled(false);
             return;
         }
+
         if (table.getSelectionModel().getMaxSelectionIndex() == tableDataModel.getRowCount() - 1 &&
                 tableDataModel.getRowCount() > 0) {
             downButton.setEnabled(false);
@@ -741,12 +572,12 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         lock.lock();
 
         try {
-
             saveSettings();
             viewController.clearConsole();
 
             // check all input values...
             // template
+            ConfigImpl config = plugin.getConfig();
             if (!config.getTemplate().isManualTemplate()) {
                 if (config.getTemplate().getPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -761,14 +592,14 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 }
             }
 
-            if (config.getFeatureTypeFilter().getTypeNames().size() == 0) {
+            if (config.isUseFeatureTypeFilter() && config.getFeatureTypeFilter().getTypeNames().size() == 0) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                         Util.I18N.getString("spshg.dialog.error.incompleteData.featureclass"));
                 return;
             }
 
             // bbox
-            if (!(config.getBoundingbox().getLowerCorner().isSetX() ||
+            if (config.isUseBoundingBoxFilter() && !(config.getBoundingbox().getLowerCorner().isSetX() ||
                     config.getBoundingbox().getLowerCorner().isSetY() ||
                     config.getBoundingbox().getUpperCorner().isSetX() ||
                     config.getBoundingbox().getUpperCorner().isSetY())) {
@@ -791,7 +622,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 }
                 // check if the file exist
                 try {
-                    String filename = "";
+                    String filename;
                     String path = config.getOutput().getCsvfile().getOutputPath().trim();
                     if (path.lastIndexOf(File.separator) == -1) {
                         filename = path;
@@ -807,11 +638,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                         }
                         path = path.substring(0, path.lastIndexOf(File.separator));
                     }
-                    File outputfile = new File(path + File.separator + filename + ".csv");
+                    File outputFile = new File(path + File.separator + filename + ".csv");
 
-                    if (outputfile.exists()) {
+                    if (outputFile.exists()) {
                         int option = JOptionPane.showConfirmDialog(viewController.getTopFrame(),
-                                String.format(Util.I18N.getString("spshg.dialog.error.csvfile.exist.message"), outputfile.getPath()),
+                                String.format(Util.I18N.getString("spshg.dialog.error.csvfile.exist.message"), outputFile.getPath()),
                                 Util.I18N.getString("spshg.dialog.error.csvfile.exist.title"),
                                 JOptionPane.YES_NO_OPTION);
                         if (option != JOptionPane.YES_OPTION)
@@ -822,7 +653,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                     errorMessage("Error",
                             "Error during creating the output CSV file.");
                 }
-            } else if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG) {
+            } else if (config.getOutput().getType().equals(Output.XLSX_FILE_CONFIG)) {
                 // xlsx file
                 if (config.getOutput().getXlsxfile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -832,7 +663,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
                 // check if the file exist
                 try {
-                    String filename = "";
+                    String filename;
                     String path = config.getOutput().getXlsxfile().getOutputPath().trim();
                     if (path.lastIndexOf(File.separator) == -1) {
                         filename = path;
@@ -885,11 +716,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                     null,
                     true);
             status.setSize(226, 140);
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    status.setLocationRelativeTo(viewController.getTopFrame());
-                    status.setVisible(true);
-                }
+            SwingUtilities.invokeLater(() -> {
+                status.setLocationRelativeTo(viewController.getTopFrame());
+                status.setVisible(true);
             });
 
             SeparatorPhrase.getInstance().renewTempPhrase();
@@ -916,11 +745,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 //
             }
 
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    status.dispose();
-                }
-            });
+            SwingUtilities.invokeLater(status::dispose);
 
             // cleanup
             exporter.cleanup();
@@ -930,7 +755,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             } else {
                 log.warn(Util.I18N.getString("spshg.message.export.abort"));
             }
-            //log.info(exporter.getExportLog());
             viewController.setStatusText(Util.I18N.getString("main.status.ready.label"));
         } finally {
             lock.unlock();
@@ -939,63 +763,44 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     //------------------ Manual Template
     // show dialog -add
-    private void showAddNewColumnDialog(boolean isedit) {
+    private void showAddNewColumnDialog(boolean isEdit) {
         final NewCSVColumnDialog csvColumnDialog;
-        if (!isedit)
+        if (!isEdit)
             csvColumnDialog = new NewCSVColumnDialog(viewController, this);
         else {
             if (table.getSelectedRow() == -1 || table.getSelectedRowCount() > 1) return;
-            CSVColumns csvcolumn = tableDataModel.getCSVColumn(table.getSelectedRow());
-            if (csvcolumn == null) return;
-            csvColumnDialog = new NewCSVColumnDialog(viewController, this, csvcolumn);
+            CSVColumns csvColumn = tableDataModel.getCSVColumn(table.getSelectedRow());
+            if (csvColumn == null) return;
+            csvColumnDialog = new NewCSVColumnDialog(viewController, this, csvColumn);
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                csvColumnDialog.setLocationRelativeTo(viewController.getTopFrame());
-                csvColumnDialog.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            csvColumnDialog.setLocationRelativeTo(viewController.getTopFrame());
+            csvColumnDialog.setVisible(true);
         });
     }
 
     // add new row
-    public void addNewColumnInManualCSV(CSVColumns csvc) {
-        tableDataModel.addNewRow(csvc);
-
+    public void addNewColumnInManualCSV(CSVColumns csvColumns) {
+        tableDataModel.addNewRow(csvColumns);
     }
 
     // edit an specific row
-    public void editColumnInManualCSV(CSVColumns csvc) {
-        tableDataModel.editRow(csvc);
-
+    public void editColumnInManualCSV(CSVColumns csvColumns) {
+        tableDataModel.editRow(csvColumns);
     }
 
     // remove a selected row
-    private void removeSelectedColumenFromManualTemolate() {
+    private void removeSelectedColumnFromManualTemplate() {
         tableDataModel.removeRow(table.getSelectedRows());
     }
 
-    private void initialzeFileChoosers() {
-        FileNameExtensionFilter filter1 = new FileNameExtensionFilter("Normal text file (*.txt)", "txt");
-        fileChooserTemplate.addChoosableFileFilter(filter1);
-        fileChooserTemplate.addChoosableFileFilter(fileChooserTemplate.getAcceptAllFileFilter());
-        fileChooserTemplate.setFileFilter(filter1);
-
-        FileNameExtensionFilter filter2 = new FileNameExtensionFilter("Comma-separated Values Files (*.csv)", "csv");
-        fileChooserCSVOut.addChoosableFileFilter(filter2);
-        fileChooserCSVOut.addChoosableFileFilter(fileChooserCSVOut.getAcceptAllFileFilter());
-        fileChooserCSVOut.setFileFilter(filter2);
-
-        FileNameExtensionFilter filter3 = new FileNameExtensionFilter("Microsoft Excel Files (*.xlsx)", "xlsx");
-        fileChooserXLSXOut.addChoosableFileFilter(filter3);
-        fileChooserXLSXOut.addChoosableFileFilter(fileChooserXLSXOut.getAcceptAllFileFilter());
-        fileChooserXLSXOut.setFileFilter(filter3);
-    }
-
     private void saveManuallyGeneratedTemplate() {
-
-        if (previousvisitBySaveTemplate != null && previousvisitBySaveTemplate.length() > 0) {
-            fileChooserTemplate.setCurrentDirectory((new File(previousvisitBySaveTemplate)));
+        JFileChooser fileChooserTemplate = createFileChooser(
+                new FileNameExtensionFilter("Normal text file (*.txt)", "txt")
+        );
+        if (previousVisitBySaveTemplate != null && previousVisitBySaveTemplate.length() > 0) {
+            fileChooserTemplate.setCurrentDirectory((new File(previousVisitBySaveTemplate)));
         }
         int result = fileChooserTemplate.showSaveDialog(getTopLevelAncestor());
         if (result == JFileChooser.CANCEL_OPTION) return;
@@ -1004,12 +809,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             if (exportString.lastIndexOf('.') != -1 &&
                     exportString.lastIndexOf('.') > exportString.lastIndexOf(File.separator)) {
                 exportString = exportString.substring(0, exportString.lastIndexOf('.'));
-
             }
 
             exportString = exportString + ".txt";
-            previousvisitBySaveTemplate = exportString;
-//			TemplateWriter templateWriter = new TemplateWriter(exportString, tableDataModel,separatorTextInManualForm.getText());
+            previousVisitBySaveTemplate = exportString;
             TemplateWriter templateWriter = new TemplateWriter(exportString, tableDataModel);
             Thread t = new Thread(templateWriter);
             t.start();
@@ -1019,16 +822,20 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private boolean choseTemplateFile() {
-        String previousvisit = config.getTemplate().getLastVisitPath();
-        if (previousvisit != null && previousvisit.length() > 0) {
-            fileChooserTemplate.setCurrentDirectory((new File(previousvisit)));
+        JFileChooser fileChooserTemplate = createFileChooser(
+                new FileNameExtensionFilter("Normal text file (*.txt)", "txt")
+        );
+
+        String previousVisit = plugin.getConfig().getTemplate().getLastVisitPath();
+        if (previousVisit != null && previousVisit.length() > 0) {
+            fileChooserTemplate.setCurrentDirectory((new File(previousVisit)));
         }
         int result = fileChooserTemplate.showOpenDialog(getTopLevelAncestor());
         if (result == JFileChooser.CANCEL_OPTION) return false;
         try {
             String exportString = fileChooserTemplate.getSelectedFile().toString();
             browseText.setText(exportString);
-            config.getTemplate().setLastVisitPath(fileChooserTemplate.getCurrentDirectory().getAbsolutePath());
+            plugin.getConfig().getTemplate().setLastVisitPath(fileChooserTemplate.getCurrentDirectory().getAbsolutePath());
         } catch (Exception e) {
             return false;
         }
@@ -1036,9 +843,13 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void outputFile() {
-        String previousvisit = config.getOutput().getCsvfile().getLastVisitPath();
-        if (previousvisit != null && previousvisit.length() > 0) {
-            fileChooserCSVOut.setCurrentDirectory((new File(previousvisit)).getParentFile());
+        JFileChooser fileChooserCSVOut = createFileChooser(
+                new FileNameExtensionFilter("Comma-separated Values Files (*.csv)", "csv")
+        );
+
+        String previousVisit = plugin.getConfig().getOutput().getCsvfile().getLastVisitPath();
+        if (previousVisit != null && previousVisit.length() > 0) {
+            fileChooserCSVOut.setCurrentDirectory((new File(previousVisit)).getParentFile());
         }
         int result = fileChooserCSVOut.showSaveDialog(getTopLevelAncestor());
         if (result == JFileChooser.CANCEL_OPTION) return;
@@ -1052,16 +863,20 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
             exportString = exportString + ".csv";
             browseOutputText.setText(exportString);
-            config.getOutput().getCsvfile().setLastVisitPath(fileChooserCSVOut.getCurrentDirectory().getAbsolutePath());
+            plugin.getConfig().getOutput().getCsvfile().setLastVisitPath(fileChooserCSVOut.getCurrentDirectory().getAbsolutePath());
         } catch (Exception e) {
             //
         }
     }
 
     private void xlsxOutputFile() {
-        String previousvisit = config.getOutput().getXlsxfile().getLastVisitPath();
-        if (previousvisit != null && previousvisit.length() > 0) {
-            fileChooserXLSXOut.setCurrentDirectory((new File(previousvisit)).getParentFile());
+        JFileChooser fileChooserXLSXOut = createFileChooser(
+                new FileNameExtensionFilter("Microsoft Excel Files (*.xlsx)", "xlsx")
+        );
+
+        String previousVisit = plugin.getConfig().getOutput().getXlsxfile().getLastVisitPath();
+        if (previousVisit != null && previousVisit.length() > 0) {
+            fileChooserXLSXOut.setCurrentDirectory((new File(previousVisit)).getParentFile());
         }
         int result = fileChooserXLSXOut.showSaveDialog(getTopLevelAncestor());
         if (result == JFileChooser.CANCEL_OPTION) return;
@@ -1075,17 +890,16 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
             exportString = exportString + ".xlsx";
             xlsxBrowseOutputText.setText(exportString);
-            config.getOutput().getXlsxfile().setLastVisitPath(fileChooserXLSXOut.getCurrentDirectory().getAbsolutePath());
+            plugin.getConfig().getOutput().getXlsxfile().setLastVisitPath(fileChooserXLSXOut.getCurrentDirectory().getAbsolutePath());
         } catch (Exception e) {
             //
         }
     }
 
     private void setOutputEnabledValues() {
-
         browseText.setEnabled(true);
-        manualPanel.setVisible(config.getTemplate().isManualTemplate());
-        if (config.getTemplate().isManualTemplate())
+        manualPanel.setVisible(plugin.getConfig().getTemplate().isManualTemplate());
+        if (plugin.getConfig().getTemplate().isManualTemplate())
             checkButtonsVisibilityInManuallTemplate();
 
         browseOutputButton.setEnabled(csvRadioButton.isSelected());
@@ -1093,18 +907,26 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseOutputLabel.setEnabled(csvRadioButton.isSelected());
         separatorLabel.setEnabled(csvRadioButton.isSelected());
         separatorText.setEnabled(csvRadioButton.isSelected());
-        predefiendLabel.setEnabled(csvRadioButton.isSelected());
+        separatorComboBox.setEnabled(csvRadioButton.isSelected());
 
         xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
         xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
     }
 
-    public ImageIcon createImageIcon(String path, String description) {
-        URL imgURL = getClass().getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL, description);
+    private void setEnabledBBoxFilter() {
+        bboxPanel.setEnabled(useBBoxFilter.isSelected());
+    }
+
+    private void setEnabledFeatureFilter() {
+        if (useFeatureFilter.isSelected()) {
+            typeTree.expandRow(0);
+        } else {
+            typeTree.collapseRow(0);
+            typeTree.setSelectionPath(null);
         }
-        return null;
+
+        typeTree.setPathsEnabled(useFeatureFilter.isSelected());
+        typeTree.setEnabled(useFeatureFilter.isSelected());
     }
 
     public Dimension getPreferredSize() {
@@ -1112,41 +934,37 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     public void loadSettings() {
-        config = plugin.getConfig();
+        ConfigImpl config = plugin.getConfig();
         if (config == null) return;
 
         FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
         typeTree.getCheckingModel().clearChecking();
         typeTree.setSelected(featureTypeFilter.getTypeNames());
+        useFeatureFilter.setSelected(config.isUseFeatureTypeFilter());
 
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
 
-        workspaceText.setText(config.getWorkspace().getName());
-        datePicker.setDate(config.getWorkspace().getTimestamp());
-
-        bbXPanel.setBoundingBox(config.getBoundingbox());
+        bboxPanel.setBoundingBox(config.getBoundingbox());
+        useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
 
         browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
-        separatorText.setText(config.getOutput().getCsvfile().getSeparator());
-
+        separatorComboBox.setSelectedItem(config.getOutput().getCsvfile().getSeparator());
         xlsxBrowseOutputText.setText(config.getOutput().getXlsxfile().getOutputPath());
 
         csvRadioButton.setSelected(true);
         if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
             xlsxRadioButton.setSelected(true);
 
+        setEnabledBBoxFilter();
+        setEnabledFeatureFilter();
         setOutputEnabledValues();
     }
 
-
     public void saveSettings() {
+        ConfigImpl config = plugin.getConfig();
         if (config == null) return;
 
-//		if (templateRadioButton.isSelected())
-//			config.getTemplate().setType(Template.TEMPLATE_FILE);
-//		else
-//			config.getTemplate().setType(Template.TEMPLATE_MANUAL);
         config.getTemplate().setPath(browseText.getText());
         config.getTemplate().setColumnsList(tableDataModel.getRows());
 
@@ -1154,12 +972,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
         featureTypeFilter.reset();
         featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
+        config.setUseFeatureTypeFilter(useFeatureFilter.isSelected());
 
-        config.getWorkspace().setName(workspaceText.getText());
-        config.getWorkspace().setTimestamp(datePicker.getDate());
-
-        config.setBoundingbox(bbXPanel.getBoundingBox());
-
+        config.setBoundingbox(bboxPanel.getBoundingBox());
+        config.setUseBoundingBoxFilter(useBBoxFilter.isSelected());
 
         if (csvRadioButton.isSelected())
             config.getOutput().setType(Output.CSV_FILE_CONFIG);
@@ -1167,8 +983,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
             config.getOutput().setType(Output.XLSX_FILE_CONFIG);
 
         config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
-        config.getOutput().getCsvfile().setSeparator(separatorText.getText());
-
+        config.getOutput().getCsvfile().setSeparator((String)separatorComboBox.getSelectedItem());
         config.getOutput().getXlsxfile().setOutputPath(xlsxBrowseOutputText.getText());
     }
 
@@ -1178,12 +993,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     @Override
     public void handleEvent(Event e) throws Exception {
-        if (e.getEventType() == org.citydb.event.global.EventType.DATABASE_CONNECTION_STATE) {
-            DatabaseConnectionStateEvent state = (DatabaseConnectionStateEvent) e;
-            setEnabledWorkspace(!state.isConnected() || (state.isConnected() && dbPool.getActiveDatabaseAdapter().hasVersioningSupport()));
-        }
+        //
     }
-
 
     public void loadExistingTemplate() {
         if (browseText.getText() == null || browseText.getText().trim().length() < 1)
@@ -1191,60 +1002,46 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         final File mTemplate = new File(browseText.getText().trim());
         if (mTemplate == null || !mTemplate.exists())
             return;
-        Thread t = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    FileInputStream fstream = new FileInputStream(mTemplate);
-                    BufferedReader br = new BufferedReader(new InputStreamReader(fstream, "UTF-8"));
-                    String strLine;
-                    // Clean the table. Without notification.
-                    tableDataModel.reset();
-                    // Read File Line By Line
-                    // Initial values
-                    StringBuffer comment = new StringBuffer();
-                    String header = "";
-                    String content = "";
-                    while ((strLine = br.readLine()) != null) {
-                        try {
-                            header = "";
-                            content = "";
-                            if (strLine.startsWith("//") || strLine.startsWith(";")) {
-//							if (comment.length()>0)
-//								comment.append(System.getProperty("line.separator"));
-                                if (strLine.startsWith("//"))
-                                    comment.append(strLine.substring(2));
-                                else // startsWith(";")
-                                    comment.append(strLine.substring(1));
-                                comment.append(System.getProperty("line.separator"));
-                                continue;
-                            } else if (strLine.indexOf(':') > 0) {
-                                header = strLine.substring(0, strLine.indexOf(':'));
-                                content = strLine.substring(strLine.indexOf(':') + 1,
-                                        strLine.length());
-                            } else {
-                                content = strLine;
-                                header = Translator.getInstance().getProperHeader(content);
-                            }
-                        } catch (Exception e) {
-                        }
-                        if (comment.length() > 0)
-                            comment.setLength(comment.lastIndexOf(System.getProperty("line.separator")));
-                        tableDataModel.addNewRow(new CSVColumns(header,
-                                content, comment.substring(0),
-                                Translator.getInstance().getFormatedDocument(content)));
-                        comment.setLength(0);
+        Thread t = new Thread(() -> {
+            try {
+                FileInputStream inputStream = new FileInputStream(mTemplate);
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                String strLine;
+                // Clean the table. Without notification.
+                tableDataModel.reset();
+                // Read File Line By Line
+                // Initial values
+                StringBuffer comment = new StringBuffer();
+                String header;
+                String content;
+                while ((strLine = br.readLine()) != null) {
+                    if (strLine.startsWith("//") || strLine.startsWith(";")) {
+                        if (strLine.startsWith("//"))
+                            comment.append(strLine.substring(2));
+                        else // startsWith(";")
+                            comment.append(strLine.substring(1));
+                        comment.append(System.getProperty("line.separator"));
+                        continue;
+                    } else if (strLine.indexOf(':') > 0) {
+                        header = strLine.substring(0, strLine.indexOf(':'));
+                        content = strLine.substring(strLine.indexOf(':') + 1);
+                    } else {
+                        content = strLine;
+                        header = Translator.getInstance().getProperHeader(content);
                     }
-                } catch (IOException ioe) {
+                    if (comment.length() > 0)
+                        comment.setLength(comment.lastIndexOf(System.getProperty("line.separator")));
+                    tableDataModel.addNewRow(new CSVColumns(header,
+                            content, comment.substring(0),
+                            Translator.getInstance().getFormatedDocument(content)));
+                    comment.setLength(0);
                 }
-                ;
-
+            } catch (IOException ioe) {
+                //
             }
         });
         t.start();
     }
-
 
     private boolean isFilePathValid(String path) {
         try {
@@ -1257,20 +1054,11 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         }
     }
 
-}
-
-class PopupPhraseActionListener implements ActionListener {
-    private JTextField target;
-    private String phrase;
-
-    PopupPhraseActionListener(JTextField target, String phrase) {
-        this.target = target;
-        this.phrase = phrase;
+    private JFileChooser createFileChooser(FileNameExtensionFilter filter) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.addChoosableFileFilter(filter);
+        fileChooser.setFileFilter(filter);
+        fileChooser.addChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
+        return fileChooser;
     }
-
-    @Override
-    public void actionPerformed(ActionEvent arg0) {
-        target.setText(phrase);
-    }
-
 }
