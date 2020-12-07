@@ -10,7 +10,9 @@ version '3.2.0-SNAPSHOT'
 
 apply from: 'properties.gradle'
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
 
 repositories {
     maven {
