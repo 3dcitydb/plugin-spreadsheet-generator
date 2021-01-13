@@ -37,6 +37,7 @@ import org.citydb.concurrent.PoolSizeAdaptationStrategy;
 import org.citydb.concurrent.SingleWorkerPool;
 import org.citydb.concurrent.WorkerPool;
 import org.citydb.config.project.database.Workspace;
+import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
@@ -74,6 +75,7 @@ public class SpreadsheetExporter implements EventHandler {
     private final DatabaseConnectionPool dbPool;
     private final ConfigImpl config;
     private final EventDispatcher eventDispatcher;
+    private final AbstractDatabaseAdapter databaseAdapter;
     private final Logger log = Logger.getInstance();
 
     private volatile boolean shouldRun = true;
@@ -88,6 +90,7 @@ public class SpreadsheetExporter implements EventHandler {
         config = pluginConfig;
         dbPool = DatabaseConnectionPool.getInstance();
         eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
+        databaseAdapter = dbPool.getActiveDatabaseAdapter();
     }
 
     public void cleanup() {
@@ -111,17 +114,11 @@ public class SpreadsheetExporter implements EventHandler {
             }
         }
 
-        // checking workspace...
-        Workspace workspace = config.getWorkspace();
-
-        if (shouldRun && dbPool.getActiveDatabaseAdapter().hasVersioningSupport() &&
-                !dbPool.getActiveDatabaseAdapter().getWorkspaceManager().equalsDefaultWorkspaceName(workspace.getName())) {
-            try {
-                log.info("Switching to database workspace " + workspace + ".");
-                dbPool.getActiveDatabaseAdapter().getWorkspaceManager().checkWorkspace(workspace);
-            } catch (SQLException e) {
-                log.error("Failed to switch to database workspace. Details: " + e.getMessage());
-                return false;
+        // log workspace
+        if (databaseAdapter.hasVersioningSupport() && databaseAdapter.getConnectionDetails().isSetWorkspace()) {
+            Workspace workspace = databaseAdapter.getConnectionDetails().getWorkspace();
+            if (!databaseAdapter.getWorkspaceManager().equalsDefaultWorkspaceName(workspace.getName())) {
+                log.info("Exporting from workspace " + databaseAdapter.getConnectionDetails().getWorkspace() + ".");
             }
         }
 

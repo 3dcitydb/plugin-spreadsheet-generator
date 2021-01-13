@@ -60,14 +60,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	public SPSHGWorker(DatabaseConnectionPool dbConnectionPool, WorkerPool<RowofCSVWork> ioWriterPool, ConfigImpl config, String template) throws SQLException {
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 		this.ioWriterPool = ioWriterPool;
-
 		connection = dbConnectionPool.getConnection();
-
-		// try and change workspace if needed
-		if (dbConnectionPool.getActiveDatabaseAdapter().hasVersioningSupport()) {
-			dbConnectionPool.getActiveDatabaseAdapter().getWorkspaceManager().gotoWorkspace(connection, config.getWorkspace());
-		}
-
 		seperatorCharacter = SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
 		shouldRun = true;
 		bth = new BalloonTemplateHandler(template, dbConnectionPool.getActiveDatabaseAdapter());

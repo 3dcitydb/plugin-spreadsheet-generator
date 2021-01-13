@@ -88,14 +88,6 @@ public class ConfigImpl extends PluginConfig {
 		this.template = template;
 	}
 
-	public Workspace getWorkspace() {
-		return workspace;
-	}
-
-	public void setWorkspace(Workspace workspace) {
-		this.workspace = workspace;
-	}
-
 	public BoundingBox getBoundingbox() {
 		return boundingbox;
 	}
