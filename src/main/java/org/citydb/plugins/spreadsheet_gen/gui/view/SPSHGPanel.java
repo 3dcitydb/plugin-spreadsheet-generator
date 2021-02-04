@@ -540,7 +540,7 @@ public class SPSHGPanel extends JPanel {
                     config.getBoundingbox().getUpperCorner().isSetX() ||
                     config.getBoundingbox().getUpperCorner().isSetY())) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
-                        Util.I18N.getString("spshg.dialog.error.incompleteData.bbx"));
+                        Util.I18N.getString("spshg.dialog.error.incompleteData.bbox"));
                 return;
             }
 
@@ -586,8 +586,7 @@ public class SPSHGPanel extends JPanel {
 
                     }
                 } catch (Exception e) {
-                    errorMessage("Error",
-                            "Error during creating the output CSV file.");
+                    errorMessage("Error", "Error during creating the output CSV file.");
                 }
             } else if (config.getOutput().getType().equals(Output.XLSX_FILE_CONFIG)) {
                 // xlsx file
@@ -627,21 +626,16 @@ public class SPSHGPanel extends JPanel {
 
                     }
                 } catch (Exception e) {
-                    errorMessage("Error",
-                            "Error during creating the output XLSX file.");
+                    errorMessage("Error", "Error during creating the output XLSX file.");
                 }
             }
 
-            if (!dbPool.isConnected()) {
-
-                dbController.connect(true);
-
-                if (!dbController.isConnected())
-                    return;
+            if (!dbController.connect()) {
+                return;
             }
 
             viewController.setStatusText(Util.I18N.getString("spshg.status.generation.start"));
-            log.info(Util.I18N.getString("spshg.message.export.init"));
+            log.info("Initializing table data export...");
 
             // initialize event dispatcher
             final EventDispatcher eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
@@ -649,9 +643,8 @@ public class SPSHGPanel extends JPanel {
                     Util.I18N.getString("spshg.dialog.status.title"),
                     Util.I18N.getString("spshg.dialog.status.state.start"),
                     Util.I18N.getString("spshg.dialog.status.message.start"),
-                    null,
                     true);
-            status.setSize(226, 140);
+
             SwingUtilities.invokeLater(() -> {
                 status.setLocationRelativeTo(viewController.getTopFrame());
                 status.setVisible(true);
@@ -665,7 +658,7 @@ public class SPSHGPanel extends JPanel {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             eventDispatcher.triggerEvent(new InterruptEvent(
-                                    Util.I18N.getString("spshg.message.export.cancel"),
+                                    "User abort of database export.",
                                     LogLevel.INFO,
                                     this));
                         }
@@ -673,24 +666,25 @@ public class SPSHGPanel extends JPanel {
                 }
             });
 
-            boolean success = exporter.doProcess();
-
+            boolean success = false;
             try {
+                success = exporter.doProcess();
                 eventDispatcher.flushEvents();
-            } catch (InterruptedException e1) {
+            } catch (InterruptedException e) {
                 //
+            } finally {
+                // cleanup
+                exporter.cleanup();
             }
 
             SwingUtilities.invokeLater(status::dispose);
 
-            // cleanup
-            exporter.cleanup();
-
             if (success) {
-                log.info(Util.I18N.getString("spshg.message.export.success"));
+                log.info("Database export successfully finished.");
             } else {
-                log.warn(Util.I18N.getString("spshg.message.export.abort"));
+                log.warn("Database export aborted.");
             }
+
             viewController.setStatusText(Util.I18N.getString("main.status.ready.label"));
         } finally {
             lock.unlock();
@@ -991,6 +985,15 @@ public class SPSHGPanel extends JPanel {
         fileChooser.addChoosableFileFilter(filter);
         fileChooser.setFileFilter(filter);
         fileChooser.addChoosableFileFilter(fileChooser.getAcceptAllFileFilter());
+
+        if (!browseText.getText().trim().isEmpty()) {
+            File file = new File(browseText.getText().trim());
+            if (!file.isDirectory())
+                file = file.getParentFile();
+
+            fileChooser.setCurrentDirectory(file);
+        }
+
         return fileChooser;
     }
 }

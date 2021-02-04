@@ -25,9 +25,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * copy from matching plugin writen by Claus.
- */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
 import org.citydb.event.Event;
@@ -42,39 +39,25 @@ import org.citydb.plugins.spreadsheet_gen.events.StatusDialogTitle;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
-
-@SuppressWarnings("serial")
 public class StatusDialog extends JDialog implements EventHandler {
 	final EventDispatcher eventDispatcher;
 	
 	private JLabel titleLabel;
 	private JLabel messageLabel;
 	private JProgressBar progressBar;
-	private JLabel detailsLabel;
-	private JPanel main;
-	private JPanel row;
 	private JButton button;
+
 	private volatile boolean acceptStatusUpdate = true;
 
 	public StatusDialog(JFrame frame, 
 			String windowTitle, 
 			String statusTitle,
 			String statusMessage,
-			String statusDetails, 
 			boolean setButton) {
 		super(frame, windowTitle, true);
 		
@@ -83,86 +66,49 @@ public class StatusDialog extends JDialog implements EventHandler {
 		eventDispatcher.addEventHandler(EventType.STATUS_DIALOG_TITLE, this);
 		eventDispatcher.addEventHandler(EventType.INTERRUPT, this);
 		
-		initGUI(windowTitle, statusTitle, statusMessage, statusDetails, setButton);
+		initGUI(statusTitle, statusMessage, setButton);
 	}
 
-	private void initGUI(String windowTitle, 
-			String statusTitle, 
+	private void initGUI(String statusTitle,
 			String statusMessage, 
-			String statusDetails, 
-			boolean setButton) {		
-		if (statusTitle == null)
-			statusTitle = "";
-		
-		if (statusMessage == null)
-			statusMessage = "";
-		
-		String[] details = null;
-		if (statusDetails != null)
-			details = statusDetails.split("<br\\s*/*>");
-		
+			boolean setButton) {
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		titleLabel = new JLabel(statusTitle);
-		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
-		messageLabel = new JLabel(statusMessage);
-		button = new JButton(Util.I18N.getString("common.button.cancel"));		
+
+		button = new JButton(Util.I18N.getString("common.button.cancel"));
+
 		progressBar = new JProgressBar(0, 100);
 
-		setLayout(new GridBagLayout()); {
-			main = new JPanel();
-			add(main, GuiUtil.setConstraints(0,0,1.0,0.0,GridBagConstraints.BOTH,5,5,5,5));
-			main.setLayout(new GridBagLayout());
-			{
-				main.add(titleLabel, GuiUtil.setConstraints(0,0,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,5,5));
-				main.add(messageLabel, GuiUtil.setConstraints(0,1,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,0,5));
-				main.add(progressBar, GuiUtil.setConstraints(0,2,1.0,0.0,GridBagConstraints.HORIZONTAL,0,5,5,5));
+		setLayout(new GridBagLayout());
+		JPanel main = new JPanel();
+		main.setLayout(new GridBagLayout());
+		{
+			titleLabel = new JLabel(statusTitle);
+			titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
+			messageLabel = new JLabel(statusMessage);
 
-				if (details != null) {
-					detailsLabel = new JLabel("Details");
-					main.add(detailsLabel, GuiUtil.setConstraints(0,3,1.0,0.0,GridBagConstraints.HORIZONTAL,5,5,0,5));
+			main.add(titleLabel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 5, 0));
+			main.add(messageLabel, GuiUtil.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 5, 0));
+			main.add(progressBar, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+			main.add(Box.createVerticalGlue(), GuiUtil.setConstraints(0, 3, 1, 1, GridBagConstraints.BOTH, 0, 0, 0, 0));
+		}
 
-					row = new JPanel();
-					row.setBackground(new Color(255, 255, 255));
-					row.setBorder(BorderFactory.createEtchedBorder());
-					main.add(row, GuiUtil.setConstraints(0,4,1.0,0.0,GridBagConstraints.BOTH,0,5,5,5));
-					row.setLayout(new GridBagLayout());
-					{				
-						for (int i = 0; i < details.length; ++i) {
-							JLabel detail = new JLabel(details[i]);
-							detail.setBackground(row.getBackground());
-							row.add(detail, GuiUtil.setConstraints(0,i,1.0,0.0,GridBagConstraints.HORIZONTAL,i == 0 ? 5 : 2,5,i == details.length - 1 ? 5 : 0,5));
-						}
-					}
-				}
-			}
+		add(main, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.BOTH, 10, 10, 10, 10));
+		if (setButton) {
+			add(button, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, 5, 10, 10, 10));
+		}
 
-			if (setButton)
-				add(button, GuiUtil.setConstraints(0,1,0.0,0.0,GridBagConstraints.NONE,5,5,5,5));
+		setMinimumSize(new Dimension(250, 100));
+		pack();
 
-			pack();
-			//progressBar.setIndeterminate(true);
-			progressBar.setValue(0);
-			
-			addWindowListener(new WindowListener() {
-				public void windowClosed(WindowEvent e) {
+		progressBar.setValue(0);
+
+		addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e) {
+				if (eventDispatcher != null) {
 					eventDispatcher.removeEventHandler(StatusDialog.this);
 				}
-				public void windowActivated(WindowEvent e) {}
-				public void windowClosing(WindowEvent e) {}
-				public void windowDeactivated(WindowEvent e) {}
-				public void windowDeiconified(WindowEvent e) {}
-				public void windowIconified(WindowEvent e) {}
-				public void windowOpened(WindowEvent e) {}
-			});
-		}
-	}
-
-	public JLabel getStatusTitleLabel() {
-		return titleLabel;
-	}
-
-	public JLabel getStatusMessageLabel() {
-		return messageLabel;
+			}
+		});
 	}
 	
 	public JButton getButton() {
@@ -178,16 +124,11 @@ public class StatusDialog extends JDialog implements EventHandler {
 		if (e.getEventType() == EventType.INTERRUPT) {
 			acceptStatusUpdate = false;
 			messageLabel.setText(Util.I18N.getString("common.dialog.msg.abort"));
-			//progressBar.setIndeterminate(true);
-			//TODO stop current work.
-		}
-		else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {
-			messageLabel.setText(((StatusDialogMessage)e).getMessage());
+		} else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {
+			messageLabel.setText(((StatusDialogMessage) e).getMessage());
 			progressBar.setValue(((int) SPSHGWorker.counter) * 100 / ((int) DBManager.numCityObjects));
-		}
-
-		else if (e.getEventType() == EventType.STATUS_DIALOG_TITLE && acceptStatusUpdate) {
-			titleLabel.setText(((StatusDialogTitle)e).getTitle());
+		} else if (e.getEventType() == EventType.STATUS_DIALOG_TITLE && acceptStatusUpdate) {
+			titleLabel.setText(((StatusDialogTitle) e).getTitle());
 		}
 	}
 	

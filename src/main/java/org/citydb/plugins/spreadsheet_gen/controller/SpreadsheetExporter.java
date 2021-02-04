@@ -109,7 +109,7 @@ public class SpreadsheetExporter implements EventHandler {
         if (!config.getTemplate().isManualTemplate()) {
             templatefile = new File(config.getTemplate().getPath());
             if (!templatefile.isFile()) {
-                log.error(Util.I18N.getString("spshg.message.export.template.notavailable"));
+                log.error("Failed to load template file.");
                 return false;
             }
         }
@@ -164,7 +164,7 @@ public class SpreadsheetExporter implements EventHandler {
             try {
                 dummyOutputfile.createNewFile();
             } catch (Exception e) {
-                log.error(Util.I18N.getString("spshg.message.export.file.error"));
+                log.error("Failed to create output file.", e);
                 return false;
             }
 
@@ -179,7 +179,7 @@ public class SpreadsheetExporter implements EventHandler {
                 tmplFile = Translator.getInstance().translateToBalloonTemplate(
                         config.getTemplate().getColumnsList());
         } catch (Exception e) {
-            log.error(Util.I18N.getString("spshg.message.export.file.error.reading"));
+            log.error("Failed to read template file.", e);
             return false;
         }
         workerPool = new WorkerPool<CityObjectWork>(
@@ -255,11 +255,9 @@ public class SpreadsheetExporter implements EventHandler {
 
     public void writeReport() {
         Map<Integer, AtomicInteger> countingStorage = CSVWriter.getReportStructure();
-//		StringBuffer mReport= new StringBuffer();
         StringBuffer line = new StringBuffer();
-//		mReport.append(Util.I18N.getString("spshg.message.summery.title"));
-        log.info(Util.I18N.getString("spshg.message.summery.title"));
-//		mReport.append(System.getProperty("line.separator"));
+        log.info("Exported city objects:");
+
         int sum = 0;
         for (Integer mClass : countingStorage.keySet()) {
             line.append(ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(mClass.intValue()).getPath());
@@ -267,12 +265,10 @@ public class SpreadsheetExporter implements EventHandler {
             line.append(countingStorage.get(mClass).intValue());
             log.info(line.toString());
             line.setLength(0);
-//			mReport.append(System.getProperty("line.separator"));
             sum += countingStorage.get(mClass).intValue();
         }
-//		mReport.append(String.format(Util.I18N.getString("spshg.message.summery.sumery"),sum));
-        log.info(String.format(Util.I18N.getString("spshg.message.summery.sumery"), sum));
 
+        log.info("Total exported CityGML features: " + sum);
     }
 
     public void convertToXSLX(String csvPath, String path, String filename) throws Exception {

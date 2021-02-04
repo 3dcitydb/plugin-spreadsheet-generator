@@ -74,9 +74,9 @@ public class TemplateWriter implements Runnable {
 			fos.write(sb.toString().getBytes("UTF-8"));
 			fos.flush();
 			fos.close();
-			log.info(Util.I18N.getString("spshg.message.save.template.success") + System.getProperty("line.separator") + path);
+			log.info("Template file successfully saved as " + path + ".");
 		} catch (Exception e) {
-			log.error(Util.I18N.getString("spshg.message.save.template.failed") + e.getMessage());
+			log.error("Failed to save template file.", e);
 		}
 	}
 
