@@ -41,7 +41,9 @@ import javax.xml.bind.annotation.XmlType;
 		"workspace",
 		"boundingbox",
 		"output",
-		"showUnsupportedADEWarning"
+		"showUnsupportedADEWarning",
+		"collapseBoundingBoxFilter",
+		"collapseFeatureTypeFilter"
 })
 public class ConfigImpl extends PluginConfig {
 	@XmlAttribute
@@ -55,6 +57,8 @@ public class ConfigImpl extends PluginConfig {
 	private BoundingBox boundingbox;
 	private Output output;
 	private boolean showUnsupportedADEWarning = true;
+	private boolean collapseBoundingBoxFilter = true;
+	private boolean collapseFeatureTypeFilter = true;
 
 	public ConfigImpl() {
 		template = new Template();
@@ -118,5 +122,21 @@ public class ConfigImpl extends PluginConfig {
 
 	public void setShowUnsupportedADEWarning(boolean showUnsupportedADEWarning) {
 		this.showUnsupportedADEWarning = showUnsupportedADEWarning;
+	}
+
+	public boolean isCollapseBoundingBoxFilter() {
+		return collapseBoundingBoxFilter;
+	}
+
+	public void setCollapseBoundingBoxFilter(boolean collapseBoundingBoxFilter) {
+		this.collapseBoundingBoxFilter = collapseBoundingBoxFilter;
+	}
+
+	public boolean isCollapseFeatureTypeFilter() {
+		return collapseFeatureTypeFilter;
+	}
+
+	public void setCollapseFeatureTypeFilter(boolean collapseFeatureTypeFilter) {
+		this.collapseFeatureTypeFilter = collapseFeatureTypeFilter;
 	}
 }

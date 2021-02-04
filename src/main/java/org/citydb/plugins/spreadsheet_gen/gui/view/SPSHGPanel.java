@@ -27,17 +27,17 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
-import org.citydb.event.EventHandler;
 import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
 import org.citydb.gui.components.common.TitledPanel;
 import org.citydb.gui.components.feature.FeatureTypeTree;
+import org.citydb.gui.factory.PopupMenuDecorator;
 import org.citydb.gui.util.GuiUtil;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
@@ -48,7 +48,6 @@ import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.plugins.spreadsheet_gen.controller.TemplateWriter;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
-import org.citydb.plugins.spreadsheet_gen.events.EventType;
 import org.citydb.plugins.spreadsheet_gen.events.InterruptEvent;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
@@ -63,19 +62,20 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReentrantLock;
 
-@SuppressWarnings("serial")
-public class SPSHGPanel extends JPanel implements EventHandler {
-    protected static final int BORDER_THICKNESS = 3;
-    private static final int PREFERRED_WIDTH = 560;
-    private static final int PREFERRED_HEIGHT = 780;
-
+public class SPSHGPanel extends JPanel {
     private final Logger log = Logger.getInstance();
-
     private final ViewController viewController;
     private final DatabaseController dbController;
     private final DatabaseConnectionPool dbPool;
@@ -91,12 +91,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     private final JButton editTemplateButton = new JButton();
     private final JButton manuallyTemplateButton = new JButton();
 
-    //-------------
-    private final JLabel gfPrefLabel = new JLabel();
-    private final JTextArea generateDataFor = new JTextArea(2, 10);
-    private final JLabel editGenerateData = new JLabel();
-    private final JPopupMenu cityObjectPopup = new JPopupMenu();
-
     // feature type panel
     private FeatureTypeTree typeTree;
     private JPanel featureTreePanel;
@@ -110,11 +104,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     //+Output Panel
     private TitledPanel outputPanel;
-    private final ButtonGroup outputButtonGroup = new ButtonGroup();
 
     //++ CSV options
     private final JRadioButton csvRadioButton = new JRadioButton();
-    private final JLabel browseOutputLabel = new JLabel();
     private final JTextField browseOutputText = new JTextField();
     private final JButton browseOutputButton = new JButton();
 
@@ -133,7 +125,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     // manual template generator
     private JPanel manualPanel;
-    private JPanel rightHandMenu;
+    private JPanel buttonsPanel;
     private JScrollPane scrollPane;
     private JTable table;
     private final TableDataModel tableDataModel = new TableDataModel();
@@ -152,8 +144,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         this.plugin = plugin;
         dbController = ObjectRegistry.getInstance().getDatabaseController();
         dbPool = DatabaseConnectionPool.getInstance();
-        ObjectRegistry.getInstance().getEventDispatcher().addEventHandler(EventType.UPLOAD_EVENT, this);
-        ObjectRegistry.getInstance().getEventDispatcher().addEventHandler(org.citydb.event.global.EventType.DATABASE_CONNECTION_STATE, this);
 
         initGui();
         addListeners();
@@ -161,179 +151,155 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void initGui() {
-        csvColumnsPanel = new TitledPanel().withMargin(new Insets(0, 0, 10, 0));
-        Box insideCSVColumnsPanel = Box.createVerticalBox();
-
-        JPanel templatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        templatePanel.add(templateLabel);
-
         JPanel browsePanel = new JPanel();
         browsePanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, 0, BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.gridwidth = 3;
-        browsePanel.add(browseText, gbc);
-        browseText.setColumns(10);
-        browsePanel.add(browseButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
-
-        JPanel buttonPanels = new JPanel();
-        buttonPanels.setLayout(new GridBagLayout());
-        gbc = Util.setConstraints(1, 0, 1.0, 1.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.anchor = GridBagConstraints.EAST;
-        buttonPanels.add(manuallyTemplateButton, gbc);
-
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.BOTH, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0);
-        gbc.gridwidth = 3;
-        browsePanel.add(buttonPanels, gbc);
-        browsePanel.add(editTemplateButton, Util.setConstraints(3, 1, 0, 0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, 0, 0));
+        {
+            browseText.setColumns(10);
+            browsePanel.add(templateLabel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+            browsePanel.add(browseText, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.HORIZONTAL, 3, 0, 0, 0));
+            browsePanel.add(browseButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 3, 10, 0, 0));
+            browsePanel.add(manuallyTemplateButton, GuiUtil.setConstraints(0, 2, 1, 1, GridBagConstraints.EAST, GridBagConstraints.NONE, 5, 0, 0, 0));
+            browsePanel.add(editTemplateButton, GuiUtil.setConstraints(1, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 10, 0, 0));
+        }
 
         manualPanel = new JPanel();
-        rightHandMenu = new JPanel();
-        rightHandMenu.setLayout(new GridLayout(0, 1, BORDER_THICKNESS, BORDER_THICKNESS));
-
-        // make a table
-        table = new JTable(tableDataModel);
-        table.setShowVerticalLines(true);
-        table.setShowHorizontalLines(true);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-        table.setCellSelectionEnabled(false);
-        table.setColumnSelectionAllowed(false);
-        table.setRowSelectionAllowed(true);
-        modifyTableColumnsSize();
-
-        scrollPane = new JScrollPane(table);
-
-        rightHandMenu.add(addButton);
-        rightHandMenu.add(removeButton);
-        rightHandMenu.add(editButton);
-        rightHandMenu.add(upButton);
-        rightHandMenu.add(downButton);
-
         manualPanel.setLayout(new GridBagLayout());
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS*2, 0, BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.gridwidth = 3;
-        manualPanel.add(scrollPane, gbc);
-        manualPanel.add(rightHandMenu, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
-        gbc = Util.setConstraints(0, 1, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.gridwidth = 3;
-        manualPanel.add(saveMessage, gbc);
-        manualPanel.add(saveButton, Util.setConstraints(3, 1, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
+        {
+            table = new JTable(tableDataModel);
+            table.setShowVerticalLines(true);
+            table.setShowHorizontalLines(true);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+            table.setCellSelectionEnabled(false);
+            table.setColumnSelectionAllowed(false);
+            table.setRowSelectionAllowed(true);
+            modifyTableColumnsSize();
 
-        insideCSVColumnsPanel.add(templatePanel);
-        insideCSVColumnsPanel.add(browsePanel);
-        insideCSVColumnsPanel.add(manualPanel);
+            scrollPane = new JScrollPane(table);
+
+            buttonsPanel = new JPanel();
+            buttonsPanel.setLayout(new GridBagLayout());
+            {
+                buttonsPanel.add(addButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                buttonsPanel.add(removeButton, GuiUtil.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                buttonsPanel.add(editButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                buttonsPanel.add(upButton, GuiUtil.setConstraints(0, 3, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                buttonsPanel.add(downButton, GuiUtil.setConstraints(0, 4, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+            }
+
+            manualPanel.add(scrollPane, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+            manualPanel.add(buttonsPanel, GuiUtil.setConstraints(1, 0, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, 0, 10, 0, 0));
+            manualPanel.add(saveMessage, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 10, 0, 0, 0));
+            manualPanel.add(saveButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 10, 10, 0, 0));
+        }
+
         manualPanel.setVisible(false);
-        csvColumnsPanel.build(insideCSVColumnsPanel);
 
-        //-------------------------------------------------
-        Box contentSourceBox = Box.createVerticalBox();
+        JPanel columnsPanel = new JPanel();
+        columnsPanel.setLayout(new GridBagLayout());
+        {
+            columnsPanel.add(browsePanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+            columnsPanel.add(manualPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 15, 0, 0, 0));
+
+            csvColumnsPanel = new TitledPanel().build(columnsPanel);
+        }
 
         typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
         typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 1);
-        DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer)typeTree.getCellRenderer();
+
+        // get rid of standard icons
+        DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer) typeTree.getCellRenderer();
         renderer.setLeafIcon(null);
         renderer.setOpenIcon(null);
         renderer.setClosedIcon(null);
+
         featureTreePanel = new JPanel();
         featureTreePanel.setLayout(new GridBagLayout());
         {
             featureTreePanel.add(typeTree, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
         }
-        useFeatureFilter = new JCheckBox();
-        featureFilterPanel = new TitledPanel().withToggleButton(useFeatureFilter);
-        featureFilterPanel.build(featureTreePanel);
 
-        gfPrefLabel.setAlignmentY(TOP_ALIGNMENT);
-        generateDataFor.setAlignmentY(TOP_ALIGNMENT);
-        editGenerateData.setAlignmentY(TOP_ALIGNMENT);
+        useFeatureFilter = new JCheckBox();
+        featureFilterPanel = new TitledPanel()
+                .withIcon(new FlatSVGIcon("org/citydb/gui/filter/featureType.svg"))
+                .withToggleButton(useFeatureFilter)
+                .withCollapseButton()
+                .build(featureTreePanel);
 
         useBBoxFilter = new JCheckBox();
-        bboxFilterPanel = new TitledPanel().withToggleButton(useBBoxFilter);
         bboxPanel = viewController.getComponentFactory().createBoundingBoxPanel();
-        bboxFilterPanel.build(bboxPanel);
+        bboxFilterPanel = new TitledPanel()
+                .withIcon(new FlatSVGIcon("org/citydb/gui/filter/bbox.svg"))
+                .withToggleButton(useBBoxFilter)
+                .withCollapseButton()
+                .build(bboxPanel);
 
         outputPanel = new TitledPanel();
 
         // radio buttons
+        ButtonGroup outputButtonGroup = new ButtonGroup();
         outputButtonGroup.add(csvRadioButton);
         outputButtonGroup.add(xlsxRadioButton);
-        csvRadioButton.setIconTextGap(10);
-        xlsxRadioButton.setIconTextGap(10);
         csvRadioButton.setSelected(true);
 
-        contentSourceBox.add(featureFilterPanel);
-        contentSourceBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        contentSourceBox.add(bboxFilterPanel);
-
-        //--------------------------csv file
-        JPanel csvRadioButtonPanel = new JPanel();
-        Box outputPanelBox = Box.createVerticalBox();
-        csvRadioButtonPanel.setLayout(new BorderLayout());
-        csvRadioButtonPanel.add(csvRadioButton, BorderLayout.WEST);
-
-        separatorComboBox = new JComboBox<>();
-        separatorComboBox.setPreferredSize(new Dimension(100, separatorComboBox.getPreferredSize().height));
-        SeparatorPhrase.getInstance().load();
-        SeparatorPhrase.getInstance().getNicknames().forEach(name -> separatorComboBox.addItem(name));
-
-        JPanel csvPanel = new JPanel();
-        csvPanel.setLayout(new GridBagLayout());
-
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.gridwidth = 3;
-        csvPanel.add(browseOutputText, gbc);
-        browseOutputText.setColumns(10);
-        csvPanel.add(browseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
-        Box separatorPhraseBox = Box.createHorizontalBox();
-        separatorPhraseBox.add(separatorLabel);
-        separatorPhraseBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS*3, 0)));
-        separatorPhraseBox.add(separatorComboBox);
-        csvPanel.add(separatorPhraseBox, Util.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 0, GuiUtil.getTextOffset(csvRadioButton), BORDER_THICKNESS, BORDER_THICKNESS));
-
-        //--------------------------xlsx file
-        JPanel xlsxRadioButtonPanel = new JPanel();
-        xlsxRadioButtonPanel.setLayout(new BorderLayout());
-        xlsxRadioButtonPanel.add(xlsxRadioButton, BorderLayout.WEST);
-
-        JPanel xlsxPanel = new JPanel();
-        xlsxPanel.setLayout(new GridBagLayout());
-
-        gbc = Util.setConstraints(0, 0, 1.0, 1.0, GridBagConstraints.HORIZONTAL, BORDER_THICKNESS, GuiUtil.getTextOffset(xlsxRadioButton), BORDER_THICKNESS, BORDER_THICKNESS);
-        gbc.gridwidth = 3;
-        xlsxPanel.add(xlsxBrowseOutputText, gbc);
-        xlsxBrowseOutputText.setColumns(10);
-        xlsxPanel.add(xlsxBrowseOutputButton, Util.setConstraints(3, 0, 0.0, 0.0, GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS, 0));
-
-        outputPanelBox.add(csvRadioButtonPanel);
-        outputPanelBox.add(csvPanel);
-        outputPanelBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-        outputPanelBox.add(xlsxRadioButtonPanel);
-        outputPanelBox.add(xlsxPanel);
-        outputPanel.build(outputPanelBox);
-
-        JPanel exportButtonPanel = new JPanel();
-        exportButtonPanel.add(exportButton);
-
-        JPanel jPanelInput = new JPanel();
-        jPanelInput.setLayout(new GridBagLayout());
+        JPanel outputContentPanel = new JPanel();
+        outputContentPanel.setLayout(new GridBagLayout());
         {
-            jPanelInput.add(csvColumnsPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-            jPanelInput.add(contentSourceBox, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-            jPanelInput.add(outputPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            JPanel csvOutputPanel = new JPanel();
+            csvOutputPanel.setLayout(new GridBagLayout());
+            {
+                separatorComboBox = new JComboBox<>();
+                SeparatorPhrase.getInstance().load();
+                SeparatorPhrase.getInstance().getNicknames().forEach(name -> separatorComboBox.addItem(name));
+
+                Box separatorPhraseBox = Box.createHorizontalBox();
+                separatorPhraseBox.add(separatorLabel);
+                separatorPhraseBox.add(Box.createRigidArea(new Dimension(10, 0)));
+                separatorPhraseBox.add(separatorComboBox);
+
+                int lmargin = GuiUtil.getTextOffset(csvRadioButton);
+                csvOutputPanel.add(csvRadioButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 5));
+                csvOutputPanel.add(browseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                csvOutputPanel.add(browseOutputButton, GuiUtil.setConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 10, 0, 0));
+                csvOutputPanel.add(separatorPhraseBox, GuiUtil.setConstraints(0, 1, 2, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, 5, lmargin, 0, 0));
+            }
+
+            JPanel xlsxOutputPanel = new JPanel();
+            xlsxOutputPanel.setLayout(new GridBagLayout());
+            {
+                xlsxOutputPanel.add(xlsxRadioButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 5));
+                xlsxOutputPanel.add(xlsxBrowseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                xlsxOutputPanel.add(xlsxBrowseOutputButton, GuiUtil.setConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 10, 0, 0));
+            }
+
+            outputContentPanel.add(csvOutputPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+            outputContentPanel.add(xlsxOutputPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+
+            outputPanel.build(outputContentPanel);
+        }
+
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
+        {
+            content.add(csvColumnsPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            content.add(outputPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            content.add(bboxFilterPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+            content.add(featureFilterPanel, GuiUtil.setConstraints(0, 3, 0, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
         }
 
         JPanel view = new JPanel();
         view.setLayout(new GridBagLayout());
-        view.add(jPanelInput, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, 0, 10, 0, 10));
+        view.add(content, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, 0, 10, 0, 10));
 
         JScrollPane scrollPane = new JScrollPane(view);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
 
         setLayout(new GridBagLayout());
-        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 8, 0, 10, 0));
+        add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 15, 0, 0, 0));
         add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
 
-        viewController.getComponentFactory().createPopupMenuDecorator().decorate(browseText, browseOutputText, separatorText);
+        PopupMenuDecorator.getInstance().decorate(browseText, browseOutputText, separatorText);
+        PopupMenuDecorator.getInstance().decorateAndGetTitledPanelGroup(bboxFilterPanel, featureFilterPanel);
     }
 
     public void switchLocale() {
@@ -353,10 +319,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         saveButton.setText(Util.I18N.getString("spshg.button.save"));
         saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
 
-        gfPrefLabel.setText("<html>" + Util.I18N.getString("spshg.contentsource.generatedatafor.prefix") + "</html>");
-
         featureFilterPanel.setTitle(Language.I18N.getString("filter.border.featureClass"));
-
         bboxFilterPanel.setTitle(Util.I18N.getString("spshg.bbxPanel.border"));
 
         outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
@@ -364,7 +327,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
         separatorLabel.setText(Util.I18N.getString("spshg.csvPanel.separator"));
 
-        browseOutputLabel.setText(Util.I18N.getString("spshg.csvPanel.browselabel"));
         browseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
         xlsxBrowseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
         separatorText.setText(Util.I18N.getString("spshg.csvPanel.separator.comma"));
@@ -391,12 +353,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void alignGUI() {
-        int rightHandMargin = Math.max(rightHandMenu.getPreferredSize().width, browseButton.getPreferredSize().width);
-        rightHandMenu.setPreferredSize(new Dimension(rightHandMargin, rightHandMenu.getPreferredSize().height));
+        int rightHandMargin = Math.max(buttonsPanel.getPreferredSize().width, browseButton.getPreferredSize().width);
+        buttonsPanel.setPreferredSize(new Dimension(rightHandMargin, buttonsPanel.getPreferredSize().height));
         browseButton.setPreferredSize(new Dimension(rightHandMargin, browseButton.getPreferredSize().height));
         saveButton.setPreferredSize(new Dimension(rightHandMargin, saveButton.getPreferredSize().height));
-        browseOutputButton.setPreferredSize(new Dimension(rightHandMargin, browseOutputButton.getPreferredSize().height));
-        xlsxBrowseOutputButton.setPreferredSize(new Dimension(rightHandMargin, xlsxBrowseOutputButton.getPreferredSize().height));
         scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
         editTemplateButton.setPreferredSize(new Dimension(rightHandMargin, editTemplateButton.getPreferredSize().height));
         manuallyTemplateButton.setPreferredSize(new Dimension(rightHandMargin, manuallyTemplateButton.getPreferredSize().height));
@@ -404,7 +364,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
     private void modifyTableColumnsSize() {
         TableColumn column;
-        table.setRowHeight(20);
         table.setSurrendersFocusOnKeystroke(true);
         // title
         column = table.getColumnModel().getColumn(0);
@@ -417,7 +376,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     private void resetPreferredSize() {
-        rightHandMenu.setPreferredSize(null);
+        buttonsPanel.setPreferredSize(null);
         browseButton.setPreferredSize(null);
         saveButton.setPreferredSize(null);
         browseOutputButton.setPreferredSize(null);
@@ -436,27 +395,8 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
         exportButton.addActionListener(e -> {
-            Thread thread = new Thread(() -> doExport());
+            Thread thread = new Thread(this::doExport);
             thread.start();
-        });
-
-        editGenerateData.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cityObjectPopup.show(e.getComponent(), e.getX(), e.getY());
-            }
-
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            public void mouseExited(MouseEvent e) {
-            }
-
-            public void mousePressed(MouseEvent e) {
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
         });
 
         browseButton.addActionListener(e -> {
@@ -522,10 +462,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         saveButton.addActionListener(e -> saveManuallyGeneratedTemplate());
     }
 
-    public void panelIsVisible(boolean b) {
-        // nothing to do!
-    }
-
     private void makeNewTemplate() {
         plugin.getConfig().getTemplate().setManualTemplate(true);
         tableDataModel.reset();
@@ -534,7 +470,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
     }
 
     public void modifyButtonsVisibility() {
-        checkButtonsVisibilityInManuallTemplate();
+        checkButtonsVisibilityInManualTemplate();
 
         if (table.getSelectedRowCount() != 1) {
             editButton.setEnabled(false);
@@ -553,7 +489,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         }
     }
 
-    public void checkButtonsVisibilityInManuallTemplate() {
+    public void checkButtonsVisibilityInManualTemplate() {
         if (tableDataModel.getRowCount() == 0 || table.getSelectedRowCount() == 0) {
             editButton.setEnabled(false);
             removeButton.setEnabled(false);
@@ -900,11 +836,10 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         browseText.setEnabled(true);
         manualPanel.setVisible(plugin.getConfig().getTemplate().isManualTemplate());
         if (plugin.getConfig().getTemplate().isManualTemplate())
-            checkButtonsVisibilityInManuallTemplate();
+            checkButtonsVisibilityInManualTemplate();
 
         browseOutputButton.setEnabled(csvRadioButton.isSelected());
         browseOutputText.setEnabled(csvRadioButton.isSelected());
-        browseOutputLabel.setEnabled(csvRadioButton.isSelected());
         separatorLabel.setEnabled(csvRadioButton.isSelected());
         separatorText.setEnabled(csvRadioButton.isSelected());
         separatorComboBox.setEnabled(csvRadioButton.isSelected());
@@ -927,10 +862,6 @@ public class SPSHGPanel extends JPanel implements EventHandler {
 
         typeTree.setPathsEnabled(useFeatureFilter.isSelected());
         typeTree.setEnabled(useFeatureFilter.isSelected());
-    }
-
-    public Dimension getPreferredSize() {
-        return new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT);
     }
 
     public void loadSettings() {
@@ -959,6 +890,9 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         setEnabledBBoxFilter();
         setEnabledFeatureFilter();
         setOutputEnabledValues();
+
+        bboxFilterPanel.setCollapsed(config.isCollapseBoundingBoxFilter());
+        featureFilterPanel.setCollapsed(config.isCollapseFeatureTypeFilter());
     }
 
     public void saveSettings() {
@@ -985,22 +919,20 @@ public class SPSHGPanel extends JPanel implements EventHandler {
         config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
         config.getOutput().getCsvfile().setSeparator((String)separatorComboBox.getSelectedItem());
         config.getOutput().getXlsxfile().setOutputPath(xlsxBrowseOutputText.getText());
+
+        config.setCollapseBoundingBoxFilter(bboxFilterPanel.isCollapsed());
+        config.setCollapseFeatureTypeFilter(featureFilterPanel.isCollapsed());
     }
 
     private void errorMessage(String title, String text) {
         JOptionPane.showMessageDialog(viewController.getTopFrame(), text, title, JOptionPane.ERROR_MESSAGE);
     }
 
-    @Override
-    public void handleEvent(Event e) throws Exception {
-        //
-    }
-
     public void loadExistingTemplate() {
         if (browseText.getText() == null || browseText.getText().trim().length() < 1)
             return;
         final File mTemplate = new File(browseText.getText().trim());
-        if (mTemplate == null || !mTemplate.exists())
+        if (!mTemplate.exists())
             return;
         Thread t = new Thread(() -> {
             try {
@@ -1011,7 +943,7 @@ public class SPSHGPanel extends JPanel implements EventHandler {
                 tableDataModel.reset();
                 // Read File Line By Line
                 // Initial values
-                StringBuffer comment = new StringBuffer();
+                StringBuilder comment = new StringBuilder();
                 String header;
                 String content;
                 while ((strLine = br.readLine()) != null) {

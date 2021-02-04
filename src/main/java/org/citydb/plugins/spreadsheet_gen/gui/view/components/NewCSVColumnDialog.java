@@ -27,6 +27,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
+import org.citydb.gui.util.GuiUtil;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
@@ -34,20 +35,7 @@ import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.BadLocationException;
@@ -58,15 +46,10 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -79,13 +62,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
-
-@SuppressWarnings("serial")
 public class NewCSVColumnDialog extends JDialog {
-
-	protected static final int BORDER_THICKNESS = 5;
-	protected static final int MAX_TEXTFIELD_HEIGHT = 20;
-	protected static final int MAX_LABEL_WIDTH = 60;
 	private static final int PREFERRED_WIDTH = 50;
 	private static final int PREFERRED_HEIGHT = 50;
 	public static final String EOL="[EOL]";
@@ -99,13 +76,11 @@ public class NewCSVColumnDialog extends JDialog {
 	private JTree tree;
 	private CSVColumns newCSVColumn;
 
-
 	private StyledDocument document;
 	private static Style labelStyle,defaultStyle,EOLStyle;
 	private int caretPositionDot;
 	private int caretPositionMark;
-	
-	private boolean isEditMode = false;
+	private boolean isEditMode;
 
 	private JPopupMenu popup;
 	private Set<String> aggregations;
@@ -115,12 +90,10 @@ public class NewCSVColumnDialog extends JDialog {
 	// Highlight
 	final Highlighter hilit;
 	final Highlighter.HighlightPainter painter;
-	private Color highlightColor= Color.lightGray;
+	private Color highlightColor = Color.lightGray;
 	
-	// 
 	private String oldTreeSelectedPaths=null;
 	public NewCSVColumnDialog(ViewController viewController, SPSHGPanel panel) {
-		
 		super(viewController.getTopFrame(), Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
 		hilit = new DefaultHighlighter();
 		painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor);
@@ -150,23 +123,18 @@ public class NewCSVColumnDialog extends JDialog {
 		_3dcitydbcontent = dummy.getSupportedTablesAndColumns();
 		
 		this.setSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
-		Box mainPanel = Box.createVerticalBox();
 
-		JLabel titleLabel = new JLabel(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.title"));
-		JPanel titlePanel = new JPanel(new BorderLayout());
-		titlePanel.add(titleLabel, BorderLayout.WEST);
-
-		titleText = new JTextField(newCSVColumn.title);
-
-		JPanel centralcontentPanel = new JPanel();
-		centralcontentPanel.setLayout(new GridBagLayout());
-
-		Box rigthHandBox = Box.createVerticalBox();
+		JPanel titlePanel = new JPanel();
+		titlePanel.setLayout(new GridBagLayout());
+		{
+			JLabel titleLabel = new JLabel(Util.I18N.getString("spshg.dialog.addnewcolumn.title"));
+			titleText = new JTextField(newCSVColumn.title);
+			titlePanel.add(titleLabel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.NONE, 0, 0, 0, 0));
+			titlePanel.add(titleText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 10, 0, 0));
+		}
 
 		// right box
-		JLabel contentLabel = new JLabel(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.content"));
+		JLabel contentLabel = new JLabel(Util.I18N.getString("spshg.dialog.addnewcolumn.content"));
 		JPanel contentLabelPanel = new JPanel(new BorderLayout());
 		contentLabelPanel.add(contentLabel, BorderLayout.WEST);
 
@@ -179,25 +147,26 @@ public class NewCSVColumnDialog extends JDialog {
 		
 		content.setSize(PREFERRED_WIDTH * 3 / 7, 300);
 		content.setPreferredSize(new Dimension(150, 250));
-		content.setBorder(BorderFactory.createLineBorder(Color.black));
 		content.setEditable(true);
 		caretPositionDot = caretPositionMark = 0;
 		content.setCaretPosition(caretPositionDot);
 		content.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		content.setForeground(Color.blue);
 		content.getCaret().setSelectionVisible(true);
 		content.setHighlighter(hilit);
 		
 		JScrollPane jspContent = new JScrollPane(content);
 
 		// right box
-		JLabel availableFiledsLabel = new JLabel(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.avilablefromdb"));
+		JLabel availableFiledsLabel = new JLabel(Util.I18N.getString("spshg.dialog.addnewcolumn.avilablefromdb"));
 		JPanel availableFiledPanel = new JPanel(new BorderLayout());
 		availableFiledPanel.add(availableFiledsLabel, BorderLayout.WEST);
 		tree = generateTree();
-		tree.getSelectionModel().setSelectionMode(
-				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+		DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+		renderer.setLeafIcon(null);
+		renderer.setOpenIcon(null);
+		renderer.setClosedIcon(null);
 		
 		JScrollPane treescrollPane = new JScrollPane(tree);
 
@@ -205,23 +174,17 @@ public class NewCSVColumnDialog extends JDialog {
 		treescrollPane.setPreferredSize(jspContent.getPreferredSize());
 		jspContent.setMinimumSize(treescrollPane.getPreferredSize());
 		treescrollPane.setMinimumSize(jspContent.getPreferredSize());
-		
-		
+
+		Box rigthHandBox = Box.createVerticalBox();
 		rigthHandBox.add(contentLabelPanel);
-		rigthHandBox
-				.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		rigthHandBox.add(Box.createRigidArea(new Dimension(0, 3)));
 		rigthHandBox.add(jspContent);
 
-
 		JPanel centralBox = new JPanel();
-		centralBox.setLayout(new GridLayout(0, 1));
-		addFieldButton = new JButton(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.addbutton"));
-		functionButton = new JButton(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.funcaddbutton"));
-		eolButton = new JButton(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.eolbutton"));
-		
+		centralBox.setLayout(new GridLayout(0, 1, 0, 5));
+		addFieldButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.addbutton"));
+		functionButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.funcaddbutton"));
+		eolButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.eolbutton"));
 		eolButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.eol"));
 		functionButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.funcaddbutton"));
 		addFieldButton.setToolTipText(Util.I18N.getString("spshg.dialog.addnewcolumn.tooltip.addbutton"));
@@ -231,31 +194,19 @@ public class NewCSVColumnDialog extends JDialog {
 		centralBox.add(eolButton);
 
 		Box leftHandBox = Box.createVerticalBox();
-
 		leftHandBox.add(availableFiledPanel);
-		leftHandBox.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
+		leftHandBox.add(Box.createRigidArea(new Dimension(0, 3)));
 		leftHandBox.add(treescrollPane);
-		// JPanel treePanel = new JPanel();
 
-		GridBagConstraints gbc = Util.setConstraints(0, 0, 0.0, 0.0,
-				GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS,
-				BORDER_THICKNESS, BORDER_THICKNESS);
-		gbc.gridwidth = 3;
-		centralcontentPanel.add(leftHandBox, gbc);
+		JPanel centralcontentPanel = new JPanel();
+		centralcontentPanel.setLayout(new GridBagLayout());
+		{
+			centralcontentPanel.add(leftHandBox, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.NONE, 0, 0, 0, 0));
+			centralcontentPanel.add(centralBox, GuiUtil.setConstraints(1, 0, 0, 0, GridBagConstraints.NONE, 0, 15, 0, 15));
+			centralcontentPanel.add(rigthHandBox, GuiUtil.setConstraints(2, 0, 0, 0, GridBagConstraints.NONE, 0, 0, 0, 0));
+		}
 
-		centralcontentPanel.add(centralBox, Util.setConstraints(3, 0, 0.0, 0.0,
-				GridBagConstraints.NONE, BORDER_THICKNESS, BORDER_THICKNESS,
-				BORDER_THICKNESS, BORDER_THICKNESS));
-
-		gbc = Util.setConstraints(4, 0, 0.0, 0.0, GridBagConstraints.NONE,
-				BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS,
-				BORDER_THICKNESS);
-		gbc.gridwidth = 3;
-		
-		centralcontentPanel.add(rigthHandBox, gbc);
-
-		JLabel commentLabel = new JLabel(
-				Util.I18N.getString("spshg.dialog.addnewcolumn.comment"));
+		JLabel commentLabel = new JLabel(Util.I18N.getString("spshg.dialog.addnewcolumn.comment"));
 		JPanel commentLabellPanel = new JPanel(new BorderLayout());
 		commentLabellPanel.add(commentLabel, BorderLayout.WEST);
 
@@ -268,48 +219,37 @@ public class NewCSVColumnDialog extends JDialog {
 		Box southPanelBox= Box.createHorizontalBox();
 		southPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		if (isEditMode)
-			insertButton = new JButton(
-					Util.I18N.getString("spshg.dialog.addnewcolumn.edit"));
+			insertButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.edit"));
 		else
-			insertButton = new JButton(
-					Util.I18N.getString("spshg.dialog.addnewcolumn.insert"));
+			insertButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.insert"));
 		cancelButton = new JButton(Util.I18N.getString("common.button.cancel"));
 		southPanelBox.add(insertButton);
-		southPanelBox.add(Box.createRigidArea(new Dimension(BORDER_THICKNESS,0 )));
+		southPanelBox.add(Box.createRigidArea(new Dimension(10, 0)));
 		southPanelBox.add(cancelButton);
 		southPanel.add(southPanelBox,BorderLayout.EAST);
 
-		// mainPanel.add(southPanel,
-		// Util.setConstraints(0,6,0.0,0.0,GridBagConstraints.NONE,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS,BORDER_THICKNESS));
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(titlePanel);
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(titleText);
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(centralcontentPanel);
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(commentLabellPanel);
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(commentscroll);
-		mainPanel.add(Box.createRigidArea(new Dimension(0, BORDER_THICKNESS)));
-		mainPanel.add(southPanel);
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new GridBagLayout());
+		{
+			mainPanel.add(titlePanel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 15, 10, 0, 10));
+			mainPanel.add(centralcontentPanel, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 10, 10, 0, 10));
+			mainPanel.add(commentLabellPanel, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, 10, 10, 0, 10));
+			mainPanel.add(commentscroll, GuiUtil.setConstraints(0, 3, 1, 0, GridBagConstraints.HORIZONTAL, 3, 10, 0, 10));
+			mainPanel.add(southPanel, GuiUtil.setConstraints(0, 4, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, 15, 10, 10, 10));
+		}
 
-		this.setLayout(new BorderLayout());
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(BORDER_THICKNESS,
-				BORDER_THICKNESS, BORDER_THICKNESS, BORDER_THICKNESS));
-		this.add(mainPanel, BorderLayout.NORTH);
+		setLayout(new GridBagLayout());
+		add(mainPanel, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.BOTH, 0, 0, 0, 0));
+
 		makeFunctionPopup();
 
-		viewController.getComponentFactory().createPopupMenuDecorator().decorate(titleText,
-				content,commentText);
+		viewController.getComponentFactory().createPopupMenuDecorator().decorate(titleText, content, commentText);
 		
 		addListeners();
         pack();
         // enforces the minimum size of both frame and component
         setMinimumSize(getMinimumSize());
         setPreferredSize(getPreferredSize());
-
-		
 	}
 
 	private void addListeners() {
@@ -594,7 +534,7 @@ public class NewCSVColumnDialog extends JDialog {
 	
 
 	private JTree generateTree() {
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("3D City DB");
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("3DCityDB");
 		createNodes(top);
 		return new JTree(top);
 	}
@@ -604,8 +544,7 @@ public class NewCSVColumnDialog extends JDialog {
 		DefaultMutableTreeNode node = null;
 		if (_3dcitydbcontent == null)
 			return;
-		TreeSet<String> tableNames = new TreeSet<String>(
-				_3dcitydbcontent.keySet());
+		TreeSet<String> tableNames = new TreeSet<String>(_3dcitydbcontent.keySet());
 
 		Set<String> columnNames;
 		for (String name : tableNames) {
@@ -635,7 +574,6 @@ public class NewCSVColumnDialog extends JDialog {
 			StyleConstants.setSpaceBelow(defaultStyle, 4);
 			StyleConstants.setFontFamily(defaultStyle, "Tahoma");
 			StyleConstants.setFontSize(defaultStyle, 12);
-			StyleConstants.setForeground(defaultStyle, Color.blue);
 		}
 		return defaultStyle;
 	}
@@ -646,7 +584,7 @@ public class NewCSVColumnDialog extends JDialog {
 		if (defaultStyle==null)
 			getDefaultStyle();
 		StyleContext context = new StyleContext();
-		labelStyle= context.addStyle("Label", defaultStyle);
+		labelStyle = context.addStyle("Label", defaultStyle);
 		StyleConstants.setForeground(labelStyle, Color.red);
 		StyleConstants.setBackground(labelStyle, Color.yellow);
 		return labelStyle;

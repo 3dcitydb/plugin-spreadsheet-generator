@@ -30,7 +30,5 @@ package org.citydb.plugins.spreadsheet_gen.events;
 public enum EventType {
 	INTERRUPT,
 	STATUS_DIALOG_MESSAGE,
-	STATUS_DIALOG_TITLE,
-	UPLOAD_EVENT,
-	SHARING_EVENT
+	STATUS_DIALOG_TITLE
 }

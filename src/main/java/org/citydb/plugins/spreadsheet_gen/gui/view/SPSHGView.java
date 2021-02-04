@@ -79,15 +79,12 @@ public class SPSHGView  extends View implements ViewListener {
 
 	@Override
 	public void viewActivated(ViewEvent e) {
-		if (component!=null  && e.getView() instanceof SPSHGView)
-			component.panelIsVisible(true);
+		// nothing to do
 	}
 
 	@Override
 	public void viewDeactivated(ViewEvent e) {
-		if (component!=null  && e.getView() instanceof SPSHGView)
-			component.panelIsVisible(false);
-		
+		// nothing to do
 	}
 
 }

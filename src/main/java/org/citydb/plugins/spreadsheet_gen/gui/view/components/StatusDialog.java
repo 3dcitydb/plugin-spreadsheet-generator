@@ -33,6 +33,7 @@ package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
+import org.citydb.gui.util.GuiUtil;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.events.EventType;
@@ -109,34 +110,34 @@ public class StatusDialog extends JDialog implements EventHandler {
 
 		setLayout(new GridBagLayout()); {
 			main = new JPanel();
-			add(main, Util.setConstraints(0,0,1.0,0.0,GridBagConstraints.BOTH,5,5,5,5));
+			add(main, GuiUtil.setConstraints(0,0,1.0,0.0,GridBagConstraints.BOTH,5,5,5,5));
 			main.setLayout(new GridBagLayout());
 			{
-				main.add(titleLabel, Util.setConstraints(0,0,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,5,5));
-				main.add(messageLabel, Util.setConstraints(0,1,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,0,5));
-				main.add(progressBar, Util.setConstraints(0,2,1.0,0.0,GridBagConstraints.HORIZONTAL,0,5,5,5));
+				main.add(titleLabel, GuiUtil.setConstraints(0,0,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,5,5));
+				main.add(messageLabel, GuiUtil.setConstraints(0,1,0.0,0.5,GridBagConstraints.HORIZONTAL,5,5,0,5));
+				main.add(progressBar, GuiUtil.setConstraints(0,2,1.0,0.0,GridBagConstraints.HORIZONTAL,0,5,5,5));
 
 				if (details != null) {
 					detailsLabel = new JLabel("Details");
-					main.add(detailsLabel, Util.setConstraints(0,3,1.0,0.0,GridBagConstraints.HORIZONTAL,5,5,0,5));
+					main.add(detailsLabel, GuiUtil.setConstraints(0,3,1.0,0.0,GridBagConstraints.HORIZONTAL,5,5,0,5));
 
 					row = new JPanel();
 					row.setBackground(new Color(255, 255, 255));
 					row.setBorder(BorderFactory.createEtchedBorder());
-					main.add(row, Util.setConstraints(0,4,1.0,0.0,GridBagConstraints.BOTH,0,5,5,5));
+					main.add(row, GuiUtil.setConstraints(0,4,1.0,0.0,GridBagConstraints.BOTH,0,5,5,5));
 					row.setLayout(new GridBagLayout());
 					{				
 						for (int i = 0; i < details.length; ++i) {
 							JLabel detail = new JLabel(details[i]);
 							detail.setBackground(row.getBackground());
-							row.add(detail, Util.setConstraints(0,i,1.0,0.0,GridBagConstraints.HORIZONTAL,i == 0 ? 5 : 2,5,i == details.length - 1 ? 5 : 0,5));
+							row.add(detail, GuiUtil.setConstraints(0,i,1.0,0.0,GridBagConstraints.HORIZONTAL,i == 0 ? 5 : 2,5,i == details.length - 1 ? 5 : 0,5));
 						}
 					}
 				}
 			}
 
 			if (setButton)
-				add(button, Util.setConstraints(0,1,0.0,0.0,GridBagConstraints.NONE,5,5,5,5));
+				add(button, GuiUtil.setConstraints(0,1,0.0,0.0,GridBagConstraints.NONE,5,5,5,5));
 
 			pack();
 			//progressBar.setIndeterminate(true);

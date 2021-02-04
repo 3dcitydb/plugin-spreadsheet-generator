@@ -40,44 +40,44 @@ public class TemplateWriter implements Runnable {
 	private TableDataModel tableDataModel;
 	private String separatorPhrase;
 	private final Logger log = Logger.getInstance();
-	
-	public TemplateWriter(String path, TableDataModel tableDataModel){
-		this.path=path;
-		this.tableDataModel=tableDataModel;
-		this.separatorPhrase=System.getProperty("line.separator");
+
+	public TemplateWriter(String path, TableDataModel tableDataModel) {
+		this.path = path;
+		this.tableDataModel = tableDataModel;
+		this.separatorPhrase = System.getProperty("line.separator");
 	}
 
 	@Override
 	public void run() {
-				File output= new File(path);
-				if (!output.exists() &&output.getParent()!=null)
-					output.getParentFile().mkdirs();
-				int count = tableDataModel.getRowCount();
-				CSVColumns column;
-				StringBuffer sb = new StringBuffer();
-				
-				for (int i=0;i<count;i++){
-					column= tableDataModel.getCSVColumn(i);
-					if (column.comment!=null && column.comment.trim().length()>0){
-						if (i>0)sb.append(separatorPhrase);
-						sb.append("// ");
-						sb.append(column.comment.replaceAll(separatorPhrase, separatorPhrase+"//"));
-						sb.append(separatorPhrase);
-					}else if (i>0) sb.append(separatorPhrase);
-					
-					sb.append(column.title);
-					sb.append(":");
-					sb.append(column.textcontent);		
-				}
-				try{
-					FileOutputStream fos = new FileOutputStream(output);
-					fos.write(sb.toString().getBytes("UTF-8"));
-					fos.flush();
-					fos.close();
-					log.info(Util.I18N.getString("spshg.message.save.template.success")+System.getProperty("line.separator")+path);
-				}catch(Exception e){
-					log.error(Util.I18N.getString("spshg.message.save.template.failed")+e.getMessage());
-				}
+		File output = new File(path);
+		if (!output.exists() && output.getParent() != null)
+			output.getParentFile().mkdirs();
+		int count = tableDataModel.getRowCount();
+		CSVColumns column;
+		StringBuffer sb = new StringBuffer();
+
+		for (int i = 0; i < count; i++) {
+			column = tableDataModel.getCSVColumn(i);
+			if (column.comment != null && column.comment.trim().length() > 0) {
+				if (i > 0) sb.append(separatorPhrase);
+				sb.append("// ");
+				sb.append(column.comment.replaceAll(separatorPhrase, separatorPhrase + "//"));
+				sb.append(separatorPhrase);
+			} else if (i > 0) sb.append(separatorPhrase);
+
+			sb.append(column.title);
+			sb.append(":");
+			sb.append(column.textcontent);
+		}
+		try {
+			FileOutputStream fos = new FileOutputStream(output);
+			fos.write(sb.toString().getBytes("UTF-8"));
+			fos.flush();
+			fos.close();
+			log.info(Util.I18N.getString("spshg.message.save.template.success") + System.getProperty("line.separator") + path);
+		} catch (Exception e) {
+			log.error(Util.I18N.getString("spshg.message.save.template.failed") + e.getMessage());
+		}
 	}
 
 }

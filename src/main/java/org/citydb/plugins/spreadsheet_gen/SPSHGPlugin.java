@@ -46,9 +46,6 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	private Locale currentLocale;
 	private SPSHGView view;
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		// test run
 		ImpExpLauncher launcher = new ImpExpLauncher()

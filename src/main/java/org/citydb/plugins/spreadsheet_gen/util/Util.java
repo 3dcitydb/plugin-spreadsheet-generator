@@ -27,14 +27,8 @@
  */
 package org.citydb.plugins.spreadsheet_gen.util;
 
-import org.citygml4j.model.citygml.CityGMLClass;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-
 
 public class Util {
 	public static ResourceBundle I18N;
@@ -44,110 +38,6 @@ public class Util {
 	public static final String STRING_COLUMN_KEY = "STRING_COLUMN_KEY";
 	public static Integer STRING_COLUMN_VALUE = 2;
 
-	public static GridBagConstraints setConstraints(int gridx, int gridy, double weightx, double weighty, int fill,
-			int insetTop, int insetLeft, int insetBottom, int insetRight) {
-		GridBagConstraints constraint = new GridBagConstraints();
-		constraint.gridx = gridx;
-		constraint.gridy = gridy;
-		constraint.weightx = weightx;
-		constraint.weighty = weighty;
-		constraint.fill = fill;
-		
-		constraint.insets = new Insets(insetTop, insetLeft, insetBottom, insetRight);
-		return constraint;
-	}
-	
-	public static GridBagConstraints setConstraints(int anchor, int gridx, int gridy, double weightx, double weighty, int fill,
-			int insetTop, int insetLeft, int insetBottom, int insetRight) {
-		GridBagConstraints constraint = new GridBagConstraints();
-		constraint.gridx = gridx;
-		constraint.gridy = gridy;
-		constraint.weightx = weightx;
-		constraint.weighty = weighty;
-		constraint.fill = fill;
-		constraint.anchor=anchor;
-		constraint.insets = new Insets(insetTop, insetLeft, insetBottom, insetRight);
-		return constraint;
-	}
-	
-	public static boolean checkWorkspaceTimestamp(String timestamp) {
-		boolean success = true;
-		if (timestamp.length() > 0) {		
-			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-			format.setLenient(false);
-			try {
-				format.parse(timestamp);				
-			} catch (java.text.ParseException e) {
-				success = false;
-			}
-		}
-		return success;
-	}
-
-	public static CityGMLClass classId2cityObject(int classId) {
-		CityGMLClass cityObjectType = CityGMLClass.UNDEFINED;
-		switch (classId) {
-		case 4:
-//		case 35:
-			cityObjectType = CityGMLClass.LAND_USE;
-			break;
-		case 21:
-			cityObjectType = CityGMLClass.CITY_FURNITURE;
-			break;
-		case 26:
-			cityObjectType = CityGMLClass.BUILDING;
-			break;
-		case 9:
-			cityObjectType = CityGMLClass.WATER_BODY;
-			break;
-		case 8:
-			cityObjectType = CityGMLClass.PLANT_COVER;
-			break;
-		case 7:
-			cityObjectType = CityGMLClass.SOLITARY_VEGETATION_OBJECT;
-			break;
-		case 42:
-			cityObjectType = CityGMLClass.TRANSPORTATION_COMPLEX;
-			break;
-		case 43:
-			cityObjectType = CityGMLClass.TRACK;
-			break;
-		case 44:
-			cityObjectType = CityGMLClass.RAILWAY;
-			break;
-		case 45:
-			cityObjectType = CityGMLClass.ROAD;
-			break;
-		case 46:
-			cityObjectType = CityGMLClass.SQUARE;
-			break;
-		case 5:
-			cityObjectType = CityGMLClass.GENERIC_CITY_OBJECT;
-			break;
-		case 23:
-			cityObjectType = CityGMLClass.CITY_OBJECT_GROUP;
-			break;
-		case 14:
-			cityObjectType = CityGMLClass.RELIEF_FEATURE;
-			break;
-		case 16:
-			cityObjectType = CityGMLClass.TIN_RELIEF;
-			break;
-		case 17:
-			cityObjectType = CityGMLClass.MASSPOINT_RELIEF;
-			break;
-		case 18:
-			cityObjectType = CityGMLClass.BREAKLINE_RELIEF;
-			break;
-		case 19:
-			cityObjectType = CityGMLClass.RASTER_RELIEF;
-			break;
-		}
-
-		return cityObjectType;
-	}
-	
-	@SuppressWarnings("serial")
 	public static final HashMap<String, Integer> _3DCITYDB_TABLES_AND_COLUMNS = new HashMap<String, Integer>() {{
 		
 		// other cases

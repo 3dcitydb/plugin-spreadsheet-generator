@@ -51,7 +51,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 @CommandLine.Command(
-		name = "spreadsheet-generate",
+		name = "export-table",
 		description = "Generate spreadsheet from the database.",
 		versionProvider = ImpExpCli.class
 )
