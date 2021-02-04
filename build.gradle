@@ -25,11 +25,11 @@ repositories {
 }
 
 dependencies {
-    compile 'org.citydb:impexp-client:4.3.0-b20210114.1701'
-    compile 'org.apache.poi:poi:3.17'
-    compile 'org.apache.poi:poi-ooxml:3.17'
-    compile 'org.apache.poi:poi-ooxml-schemas:3.17'
-    compile 'net.sourceforge.javacsv:javacsv:2.0'
+    implementation 'org.citydb:impexp-client:4.3.0-b20210114.1701'
+    implementation 'org.apache.poi:poi:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml:4.1.2'
+    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
+    implementation 'net.sourceforge.javacsv:javacsv:2.0'
 }
 
 jar {
