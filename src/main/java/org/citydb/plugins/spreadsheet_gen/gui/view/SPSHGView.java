@@ -34,8 +34,8 @@ import org.citydb.plugin.extension.view.ViewListener;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
-import javax.swing.Icon;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 
 public class SPSHGView  extends View implements ViewListener {
 	private final SPSHGPanel component;

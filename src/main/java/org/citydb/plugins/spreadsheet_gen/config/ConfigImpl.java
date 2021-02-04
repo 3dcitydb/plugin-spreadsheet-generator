@@ -28,7 +28,6 @@
 package org.citydb.plugins.spreadsheet_gen.config;
 
 import org.citydb.config.geometry.BoundingBox;
-import org.citydb.config.project.database.Workspace;
 import org.citydb.config.project.plugin.PluginConfig;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 
@@ -38,8 +37,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "SpreadsheetGeneratorConfigType", propOrder = {
 		"template",
 		"featureTypeFilter",
-		"workspace",
-		"boundingbox",
+		"boundingBox",
 		"output",
 		"showUnsupportedADEWarning",
 		"collapseBoundingBoxFilter",
@@ -47,14 +45,13 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ConfigImpl extends PluginConfig {
 	@XmlAttribute
-	private boolean useFeatureTypeFilter = true;
+	private boolean useFeatureTypeFilter;
 	@XmlAttribute
 	private boolean useBoundingBoxFilter;
 
 	private Template template;
 	private FeatureTypeFilter featureTypeFilter;
-	private Workspace workspace;
-	private BoundingBox boundingbox;
+	private BoundingBox boundingBox;
 	private Output output;
 	private boolean showUnsupportedADEWarning = true;
 	private boolean collapseBoundingBoxFilter = true;
@@ -63,8 +60,7 @@ public class ConfigImpl extends PluginConfig {
 	public ConfigImpl() {
 		template = new Template();
 		featureTypeFilter = new FeatureTypeFilter();
-		workspace = new Workspace();
-		boundingbox = new BoundingBox();
+		boundingBox = new BoundingBox();
 		output = new Output();
 	}
 
@@ -73,7 +69,9 @@ public class ConfigImpl extends PluginConfig {
 	}
 
 	public void setFeatureTypeFilter(FeatureTypeFilter featureTypeFilter) {
-		this.featureTypeFilter = featureTypeFilter;
+		if (featureTypeFilter != null) {
+			this.featureTypeFilter = featureTypeFilter;
+		}
 	}
 
 	public boolean isUseFeatureTypeFilter() {
@@ -89,15 +87,19 @@ public class ConfigImpl extends PluginConfig {
 	}
 
 	public void setTemplate(Template template) {
-		this.template = template;
+		if (template != null) {
+			this.template = template;
+		}
 	}
 
-	public BoundingBox getBoundingbox() {
-		return boundingbox;
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
 	}
 
-	public void setBoundingbox(BoundingBox boundingbox) {
-		this.boundingbox = boundingbox;
+	public void setBoundingBox(BoundingBox boundingBox) {
+		if (boundingBox != null) {
+			this.boundingBox = boundingBox;
+		}
 	}
 
 	public boolean isUseBoundingBoxFilter() {
@@ -113,7 +115,9 @@ public class ConfigImpl extends PluginConfig {
 	}
 
 	public void setOutput(Output output) {
-		this.output = output;
+		if (output != null) {
+			this.output = output;
+		}
 	}
 
 	public boolean isShowUnsupportedADEWarning() {

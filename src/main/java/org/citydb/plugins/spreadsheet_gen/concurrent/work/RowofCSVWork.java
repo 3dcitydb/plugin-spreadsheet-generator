@@ -28,31 +28,20 @@
 package org.citydb.plugins.spreadsheet_gen.concurrent.work;
 
 public class RowofCSVWork {
-	private String text;
-	private int classid;
-	public final static int UNKNOWN_CLASS_ID=-1;
-	public RowofCSVWork(String text, int classID){
-		this.text=text;
-		this.classid=classID;
+	public final static int UNKNOWN_CLASS_ID = -1;
+	private final String text;
+	private final int classid;
+
+	public RowofCSVWork(String text, int classID) {
+		this.text = text;
+		this.classid = classID;
 	}
-	
-	
 
 	public String getText() {
 		return text;
 	}
 
-	public void setText(String text) {
-		this.text = text;
-	}
-
-
-
 	public int getClassid() {
 		return classid;
-	}
-
-	public void setClassid(int classid) {
-		this.classid = classid;
 	}
 }

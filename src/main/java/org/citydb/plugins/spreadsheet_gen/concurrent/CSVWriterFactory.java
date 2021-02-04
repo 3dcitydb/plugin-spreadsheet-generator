@@ -25,10 +25,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.citydb.plugins.spreadsheet_gen.events;
+package org.citydb.plugins.spreadsheet_gen.concurrent;
 
-public enum EventType {
-	INTERRUPT,
-	STATUS_DIALOG_MESSAGE,
-	STATUS_DIALOG_TITLE
+import org.citydb.concurrent.Worker;
+import org.citydb.concurrent.WorkerFactory;
+import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
+
+import java.io.File;
+
+
+public class CSVWriterFactory implements WorkerFactory<RowofCSVWork> {
+	private final File output;
+	
+	public CSVWriterFactory(File output){
+		this.output = output;
+		
+	}
+
+	@Override
+	public Worker<RowofCSVWork> createWorker() {
+		return new CSVWriter(output);
+	}
 }

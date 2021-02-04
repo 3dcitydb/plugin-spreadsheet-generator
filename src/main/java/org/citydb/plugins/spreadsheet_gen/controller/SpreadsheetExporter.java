@@ -37,80 +37,92 @@ import org.citydb.concurrent.PoolSizeAdaptationStrategy;
 import org.citydb.concurrent.SingleWorkerPool;
 import org.citydb.concurrent.WorkerPool;
 import org.citydb.config.project.database.Workspace;
+import org.citydb.config.project.query.QueryConfig;
+import org.citydb.config.project.query.filter.selection.SelectionFilter;
+import org.citydb.config.project.query.filter.selection.spatial.BBOXOperator;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
+import org.citydb.database.schema.mapping.SchemaMapping;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
+import org.citydb.event.global.EventType;
+import org.citydb.event.global.InterruptEvent;
+import org.citydb.event.global.ObjectCounterEvent;
+import org.citydb.event.global.StatusDialogTitle;
 import org.citydb.log.Logger;
-import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriter;
+import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriterFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
-import org.citydb.plugins.spreadsheet_gen.concurrent.WriterFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
-import org.citydb.plugins.spreadsheet_gen.concurrent.work.UploadFileWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
-import org.citydb.plugins.spreadsheet_gen.events.EventType;
-import org.citydb.plugins.spreadsheet_gen.events.InterruptEvent;
-import org.citydb.plugins.spreadsheet_gen.events.StatusDialogTitle;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
+import org.citydb.query.Query;
+import org.citydb.query.builder.QueryBuildException;
+import org.citydb.query.builder.config.ConfigQueryBuilder;
 import org.citydb.registry.ObjectRegistry;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 public class SpreadsheetExporter implements EventHandler {
+    private final Logger log = Logger.getInstance();
     private final DatabaseConnectionPool dbPool;
+    private final AbstractDatabaseAdapter databaseAdapter;
     private final ConfigImpl config;
     private final EventDispatcher eventDispatcher;
-    private final AbstractDatabaseAdapter databaseAdapter;
-    private final Logger log = Logger.getInstance();
+    private final SchemaMapping schemaMapping;
+    private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
+    private final Map<Integer, Long> featureCounter;
 
     private volatile boolean shouldRun = true;
-    private AtomicBoolean isInterrupted = new AtomicBoolean(false);
+    private TableExportException exception;
 
     private WorkerPool<CityObjectWork> workerPool;
-    private SingleWorkerPool<RowofCSVWork> ioWriterPool;
-
     private DBManager dbm = null;
 
     public SpreadsheetExporter(ConfigImpl pluginConfig) {
         config = pluginConfig;
         dbPool = DatabaseConnectionPool.getInstance();
-        eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
         databaseAdapter = dbPool.getActiveDatabaseAdapter();
+        schemaMapping = ObjectRegistry.getInstance().getSchemaMapping();
+        eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
+
+        featureCounter = new HashMap<>();
     }
 
-    public void cleanup() {
-        eventDispatcher.removeEventHandler(this);
-    }
-
-    public boolean doProcess() {
+    public boolean doProcess() throws TableExportException {
         eventDispatcher.addEventHandler(EventType.INTERRUPT, this);
+        eventDispatcher.addEventHandler(EventType.OBJECT_COUNTER, this);
 
+        try {
+            return process();
+        } finally {
+            eventDispatcher.removeEventHandler(this);
+        }
+    }
+
+    private boolean process() throws TableExportException {
         // worker pool settings
         int minThreads = 2;
-        int maxThreads = 10;
+        int maxThreads = Math.max(minThreads, Runtime.getRuntime().availableProcessors());
 
         // checking template file
-        File templatefile = null;
+        File templatefile;
         if (!config.getTemplate().isManualTemplate()) {
             templatefile = new File(config.getTemplate().getPath());
             if (!templatefile.isFile()) {
-                log.error("Failed to load template file.");
-                return false;
+                throw new TableExportException("Failed to load template file " + templatefile + ".");
             }
         }
 
@@ -122,12 +134,31 @@ public class SpreadsheetExporter implements EventHandler {
             }
         }
 
-        // output file
-        String filename = "";
-        String path = "";
-        UploadFileWork ufw = null;
+        // build query from config settings
+        Query query;
+        try {
+            QueryConfig queryConfig = new QueryConfig();
+            queryConfig.setFeatureTypeFilter(config.getFeatureTypeFilter());
 
-        if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG)
+            if (config.isUseBoundingBoxFilter()) {
+                BBOXOperator bboxOperator = new BBOXOperator();
+                bboxOperator.setEnvelope(config.getBoundingBox());
+                SelectionFilter selectionFilter = new SelectionFilter();
+                selectionFilter.setPredicate(bboxOperator);
+                queryConfig.setSelectionFilter(selectionFilter);
+            }
+
+            ConfigQueryBuilder builder = new ConfigQueryBuilder(schemaMapping, databaseAdapter);
+            query = builder.buildQuery(queryConfig, ObjectRegistry.getInstance().getConfig().getNamespaceFilter());
+        } catch (QueryBuildException e) {
+            throw new TableExportException("Failed to build the export query expression.", e);
+        }
+
+        // output file
+        String filename;
+        String path;
+
+        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
             path = config.getOutput().getXlsxfile().getOutputPath().trim();
         else
             path = config.getOutput().getCsvfile().getOutputPath().trim();
@@ -137,8 +168,7 @@ public class SpreadsheetExporter implements EventHandler {
             path = ".";
         } else {
             if (path.lastIndexOf(".") == -1) {
-                filename = path
-                        .substring(path.lastIndexOf(File.separator) + 1);
+                filename = path.substring(path.lastIndexOf(File.separator) + 1);
             } else {
                 filename = path.substring(
                         path.lastIndexOf(File.separator) + 1,
@@ -153,122 +183,160 @@ public class SpreadsheetExporter implements EventHandler {
         }
         File outputfile = new File(csvFilePath);
 
-        File dummyOutputfile = null;
-        if (config.getOutput().getType() == Output.XLSX_FILE_CONFIG)
+        File dummyOutputfile;
+        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
             dummyOutputfile = new File(path + File.separator + filename + ".xlsx");
         else
             dummyOutputfile = new File(path + File.separator + filename + ".csv");
 
-
-        if (!dummyOutputfile.exists())
+        if (!dummyOutputfile.exists()) {
             try {
                 dummyOutputfile.createNewFile();
             } catch (Exception e) {
-                log.error("Failed to create output file.", e);
-                return false;
+                throw new TableExportException("Failed to create output file.", e);
             }
+        }
 
-        ioWriterPool = new SingleWorkerPool<RowofCSVWork>("spsh_writer_pool", new WriterFactory(outputfile), 100, true);
-        String tmplFile = "";
+        String templateFile;
         try {
-            if (!config.getTemplate().isManualTemplate())
-                // load from file
-                tmplFile = Translator.getInstance().translateToBalloonTemplate(
-                        new File(config.getTemplate().getPath()));
-            else// manually generated template
-                tmplFile = Translator.getInstance().translateToBalloonTemplate(
-                        config.getTemplate().getColumnsList());
+            if (!config.getTemplate().isManualTemplate()) {
+                templateFile = Translator.getInstance().translateToBalloonTemplate(new File(config.getTemplate().getPath()));
+            } else {
+                templateFile = Translator.getInstance().translateToBalloonTemplate(config.getTemplate().getColumnsList());
+            }
         } catch (Exception e) {
-            log.error("Failed to read template file.", e);
-            return false;
+            throw new TableExportException("Failed to read template file.", e);
         }
-        workerPool = new WorkerPool<CityObjectWork>(
-                "spsh_generator_pool",
-                minThreads,
-                maxThreads,
-                PoolSizeAdaptationStrategy.AGGRESSIVE,
-                new SPSHGWorkerFactory(dbPool, ioWriterPool, config, tmplFile), 300, false);
 
-        workerPool.setContextClassLoader(SpreadsheetExporter.class.getClassLoader());
-        // start pool workers
-        ioWriterPool.prestartCoreWorkers();
-        workerPool.prestartCoreWorkers();
-
-        String separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
-                SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
-                SeparatorPhrase.getInstance().getExcelSeparator();
-
-        ioWriterPool.addWork(new RowofCSVWork(SPSHGWorker.generateHeader(Translator
-                .getInstance().getColumnTitle(), separatorCharacter),
-                RowofCSVWork.UNKNOWN_CLASS_ID));
-
-        // reset the loging system in CSVWRITER
-        CSVWriter.resetLogStorage();
-        // get database splitter and start query
+        long start = System.currentTimeMillis();
+        SingleWorkerPool<RowofCSVWork> writerPool = null;
 
         try {
-            dbm = new DBManager(dbPool, config, workerPool);
-            SPSHGWorker.counter = 0;
-            eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.generating"), this));
+            writerPool = new SingleWorkerPool<>("spsh_writer_pool", new CSVWriterFactory(outputfile), 100, true);
 
-           if (shouldRun)
-                dbm.startQuery();
-        } catch (SQLException sqlE) {
-            log.error("SQL error: " + sqlE.getMessage());
-            return false;
-        }
+            workerPool = new WorkerPool<>(
+                    "spsh_generator_pool",
+                    minThreads,
+                    maxThreads,
+                    PoolSizeAdaptationStrategy.AGGRESSIVE,
+                    new SPSHGWorkerFactory(dbPool, writerPool, config, templateFile), 300, false);
 
-        try {
-            if (shouldRun)
-                workerPool.shutdownAndWait();
+            workerPool.setContextClassLoader(SpreadsheetExporter.class.getClassLoader());
 
-            ioWriterPool.shutdownAndWait();
-        } catch (InterruptedException e) {
-            log.error(Util.I18N.getString("common.error") + e.getMessage());
-            shouldRun = false;
-        }
+            // start pool workers
+            writerPool.prestartCoreWorkers();
+            workerPool.prestartCoreWorkers();
 
-        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)) {
+            String separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
+                    SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
+                    SeparatorPhrase.getInstance().getExcelSeparator();
+
+            writerPool.addWork(new RowofCSVWork(SPSHGWorker.generateHeader(
+                    Translator.getInstance().getColumnTitle(), separatorCharacter),
+                    RowofCSVWork.UNKNOWN_CLASS_ID));
+
             try {
-                convertToXSLX(csvFilePath, path, filename);
-            } catch (Exception e1) {
-                e1.printStackTrace();
+                log.info("Exporting to file: " + dummyOutputfile);
+
+                dbm = new DBManager(query, schemaMapping, dbPool, workerPool, eventDispatcher);
+                eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.generating"), this));
+
+                if (shouldRun) {
+                    dbm.startQuery();
+                }
+            } catch (QueryBuildException | SQLException e) {
+                throw new TableExportException("Failed to query the database.", e);
             }
+
+            try {
+                workerPool.shutdownAndWait();
+                writerPool.shutdownAndWait();
+            } catch (InterruptedException e) {
+                throw new TableExportException("Failed to write to output file.", e);
+            }
+
+            if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)) {
+                try {
+                    convertToXSLX(csvFilePath, path, filename);
+                } catch (Exception e) {
+                    throw new TableExportException("Failed to write to output file.", e);
+                }
+            }
+        } catch (TableExportException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new TableExportException("An unexpected error occurred.", e);
+        } finally {
+            if (workerPool != null && !workerPool.isTerminated()) {
+                workerPool.shutdownNow();
+            }
+
+            if (writerPool != null && !writerPool.isTerminated()) {
+                writerPool.shutdownNow();
+            }
+
+            try {
+                eventDispatcher.flushEvents();
+            } catch (InterruptedException e) {
+                //
+            }
+
+            // Summary
+            log.info("Exported city objects:");
+
+            featureCounter.keySet().stream()
+                    .sorted()
+                    .forEach(id -> log.info(schemaMapping.getFeatureType(id) + ": " + featureCounter.get(id)));
+
+            long sum = featureCounter.values().stream().mapToLong(Long::longValue).sum();
+            log.info("Total exported CityGML features: " + sum);
+
+            featureCounter.clear();
         }
 
-        // Summary
-        if (shouldRun)
-            writeReport();
+        if (shouldRun) {
+            log.info("Total export time: " + org.citydb.util.Util.formatElapsedTime(System.currentTimeMillis() - start) + ".");
+        } else if (exception != null) {
+            throw exception;
+        }
 
         return shouldRun;
     }
 
-    @Override
-    public void handleEvent(Event e) throws Exception {
-        if (isInterrupted.compareAndSet(false, true)) {
-            shouldRun = false;
-            if (dbm != null) dbm.shutdown();
-            if (workerPool != null) workerPool.shutdownNow();
-            log.log(((InterruptEvent) e).getLogLevelType(), ((InterruptEvent) e).getLogMessage());
+    private void setException(String message, Throwable cause) {
+        if (exception == null) {
+            exception = new TableExportException(message, cause);
         }
     }
 
-    public void writeReport() {
-        Map<Integer, AtomicInteger> countingStorage = CSVWriter.getReportStructure();
-        StringBuffer line = new StringBuffer();
-        log.info("Exported city objects:");
+    @Override
+    public void handleEvent(Event e) throws Exception {
+        if (e.getEventType() == EventType.OBJECT_COUNTER) {
+            Map<Integer, Long> counter = ((ObjectCounterEvent) e).getCounter();
+            for (Map.Entry<Integer, Long> entry : counter.entrySet()) {
+                Long tmp = featureCounter.get(entry.getKey());
+                featureCounter.put(entry.getKey(), tmp == null ? entry.getValue() : tmp + entry.getValue());
+            }
+        } else if (e.getEventType() == EventType.INTERRUPT) {
+            if (isInterrupted.compareAndSet(false, true)) {
+                shouldRun = false;
 
-        int sum = 0;
-        for (Integer mClass : countingStorage.keySet()) {
-            line.append(ObjectRegistry.getInstance().getSchemaMapping().getFeatureType(mClass.intValue()).getPath());
-            line.append(": ");
-            line.append(countingStorage.get(mClass).intValue());
-            log.info(line.toString());
-            line.setLength(0);
-            sum += countingStorage.get(mClass).intValue();
+                InterruptEvent event = (InterruptEvent) e;
+
+                log.log(event.getLogLevelType(), event.getLogMessage());
+                if (event.getCause() != null) {
+                    setException("Aborting export due to errors.", event.getCause());
+                }
+
+                if (dbm != null) {
+                    dbm.shutdown();
+                }
+
+                if (workerPool != null) {
+                    workerPool.drainWorkQueue();
+                }
+            }
         }
-
-        log.info("Total exported CityGML features: " + sum);
     }
 
     public void convertToXSLX(String csvPath, String path, String filename) throws Exception {
@@ -281,7 +349,7 @@ public class SpreadsheetExporter implements EventHandler {
 
         String xlsxFullpath = path + File.separator + filename + ".xlsx";
 
-        reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getExcelSeparator().charAt(0), Charset.forName("UTF-8"));
+        reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getExcelSeparator().charAt(0), StandardCharsets.UTF_8);
 
         // avoid error message of CsvReader in case of column lengths greater than 100,000 characters
         reader.setSafetySwitch(false);
@@ -296,46 +364,35 @@ public class SpreadsheetExporter implements EventHandler {
         rowIndex++;
         Map<String, String> templateMap = Translator.getInstance().getTemplateHashmap();
 
-        try {
-            while (reader.readRecord()) {
-                row = sheet.createRow(rowIndex);
-                String[] valueArray = reader.getValues();
-                if (valueArray != null && valueArray.length > 0) {
-                    for (int i = 0; i < valueArray.length; i++) {
-                        if (valueArray[i] != null && String.valueOf(valueArray[i].trim()).length() > 0) {
-                            String dbTableColumn = templateMap.get(spshColumnNames[i]);
-                            Cell cell = row.createCell(i);
-                            Integer dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
-                            if (dataType == Util.NUMBER_COLUMN_VALUE) {
-                                try {
-                                    cell.setCellValue(Double.valueOf(valueArray[i]));
-                                } catch (NumberFormatException nfe) {
-                                    cell.setCellValue(String.valueOf(valueArray[i]));
-                                }
-                            } else {
+        while (reader.readRecord()) {
+            row = sheet.createRow(rowIndex);
+            String[] valueArray = reader.getValues();
+            if (valueArray != null && valueArray.length > 0) {
+                for (int i = 0; i < valueArray.length; i++) {
+                    if (valueArray[i] != null && valueArray[i].trim().length() > 0) {
+                        String dbTableColumn = templateMap.get(spshColumnNames[i]);
+                        Cell cell = row.createCell(i);
+                        Integer dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
+                        if (dataType == Util.NUMBER_COLUMN_VALUE.intValue()) {
+                            try {
+                                cell.setCellValue(Double.parseDouble(valueArray[i]));
+                            } catch (NumberFormatException nfe) {
                                 cell.setCellValue(String.valueOf(valueArray[i]));
                             }
+                        } else {
+                            cell.setCellValue(String.valueOf(valueArray[i]));
                         }
                     }
-                    rowIndex++;
                 }
+                rowIndex++;
             }
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
+
         reader.close();
 
         // lets write the excel data to file now
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(new File(xlsxFullpath));
+        try (FileOutputStream fos = new FileOutputStream(xlsxFullpath)) {
             workbook.write(fos);
-            fos.close();
-        } catch (IOException ioe) {
-            log.error(ioe.getMessage());
-            shouldRun = false;
         }
-
     }
-
 }

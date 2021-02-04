@@ -33,7 +33,9 @@ import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.database.connection.DatabaseConnectionPool;
+import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
+import org.citydb.event.global.InterruptEvent;
 import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
 import org.citydb.gui.components.common.TitledPanel;
 import org.citydb.gui.components.feature.FeatureTypeTree;
@@ -46,9 +48,9 @@ import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
+import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
 import org.citydb.plugins.spreadsheet_gen.controller.TemplateWriter;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
-import org.citydb.plugins.spreadsheet_gen.events.InterruptEvent;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
@@ -535,10 +537,10 @@ public class SPSHGPanel extends JPanel {
             }
 
             // bbox
-            if (config.isUseBoundingBoxFilter() && !(config.getBoundingbox().getLowerCorner().isSetX() ||
-                    config.getBoundingbox().getLowerCorner().isSetY() ||
-                    config.getBoundingbox().getUpperCorner().isSetX() ||
-                    config.getBoundingbox().getUpperCorner().isSetY())) {
+            if (config.isUseBoundingBoxFilter() && !(config.getBoundingBox().getLowerCorner().isSetX() ||
+                    config.getBoundingBox().getLowerCorner().isSetY() ||
+                    config.getBoundingBox().getUpperCorner().isSetX() ||
+                    config.getBoundingBox().getUpperCorner().isSetY())) {
                 errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                         Util.I18N.getString("spshg.dialog.error.incompleteData.bbox"));
                 return;
@@ -556,77 +558,12 @@ public class SPSHGPanel extends JPanel {
                             Util.I18N.getString("spshg.dialog.error.incompleteData.seperatorChar"));
                     return;
                 }
-                // check if the file exist
-                try {
-                    String filename;
-                    String path = config.getOutput().getCsvfile().getOutputPath().trim();
-                    if (path.lastIndexOf(File.separator) == -1) {
-                        filename = path;
-                        path = ".";
-                    } else {
-                        if (path.lastIndexOf(".") == -1) {
-                            filename = path
-                                    .substring(path.lastIndexOf(File.separator) + 1);
-                        } else {
-                            filename = path.substring(
-                                    path.lastIndexOf(File.separator) + 1,
-                                    path.lastIndexOf("."));
-                        }
-                        path = path.substring(0, path.lastIndexOf(File.separator));
-                    }
-                    File outputFile = new File(path + File.separator + filename + ".csv");
-
-                    if (outputFile.exists()) {
-                        int option = JOptionPane.showConfirmDialog(viewController.getTopFrame(),
-                                String.format(Util.I18N.getString("spshg.dialog.error.csvfile.exist.message"), outputFile.getPath()),
-                                Util.I18N.getString("spshg.dialog.error.csvfile.exist.title"),
-                                JOptionPane.YES_NO_OPTION);
-                        if (option != JOptionPane.YES_OPTION)
-                            return;
-
-                    }
-                } catch (Exception e) {
-                    errorMessage("Error", "Error during creating the output CSV file.");
-                }
             } else if (config.getOutput().getType().equals(Output.XLSX_FILE_CONFIG)) {
                 // xlsx file
                 if (config.getOutput().getXlsxfile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                             Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
                     return;
-                }
-
-                // check if the file exist
-                try {
-                    String filename;
-                    String path = config.getOutput().getXlsxfile().getOutputPath().trim();
-                    if (path.lastIndexOf(File.separator) == -1) {
-                        filename = path;
-                        path = ".";
-                    } else {
-                        if (path.lastIndexOf(".") == -1) {
-                            filename = path
-                                    .substring(path.lastIndexOf(File.separator) + 1);
-                        } else {
-                            filename = path.substring(
-                                    path.lastIndexOf(File.separator) + 1,
-                                    path.lastIndexOf("."));
-                        }
-                        path = path.substring(0, path.lastIndexOf(File.separator));
-                    }
-                    File outputfile = new File(path + File.separator + filename + ".xlsx");
-
-                    if (outputfile.exists()) {
-                        int option = JOptionPane.showConfirmDialog(viewController.getTopFrame(),
-                                String.format(Util.I18N.getString("spshg.dialog.error.csvfile.exist.message"), outputfile.getPath()),
-                                Util.I18N.getString("spshg.dialog.error.csvfile.exist.title"),
-                                JOptionPane.YES_NO_OPTION);
-                        if (option != JOptionPane.YES_OPTION)
-                            return;
-
-                    }
-                } catch (Exception e) {
-                    errorMessage("Error", "Error during creating the output XLSX file.");
                 }
             }
 
@@ -651,7 +588,6 @@ public class SPSHGPanel extends JPanel {
             });
 
             SeparatorPhrase.getInstance().renewTempPhrase();
-            SpreadsheetExporter exporter = new SpreadsheetExporter(plugin.getConfig());
 
             status.getButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -659,7 +595,8 @@ public class SPSHGPanel extends JPanel {
                         public void run() {
                             eventDispatcher.triggerEvent(new InterruptEvent(
                                     "User abort of database export.",
-                                    LogLevel.INFO,
+                                    LogLevel.WARN,
+                                    Event.GLOBAL_CHANNEL,
                                     this));
                         }
                     });
@@ -668,21 +605,17 @@ public class SPSHGPanel extends JPanel {
 
             boolean success = false;
             try {
-                success = exporter.doProcess();
-                eventDispatcher.flushEvents();
-            } catch (InterruptedException e) {
-                //
-            } finally {
-                // cleanup
-                exporter.cleanup();
+                success = new SpreadsheetExporter(plugin.getConfig()).doProcess();
+            } catch (TableExportException e) {
+                log.error(e.getMessage(), e.getCause());
             }
 
             SwingUtilities.invokeLater(status::dispose);
 
             if (success) {
-                log.info("Database export successfully finished.");
+                log.info("Table data export successfully finished.");
             } else {
-                log.warn("Database export aborted.");
+                log.warn("Table data export aborted.");
             }
 
             viewController.setStatusText(Util.I18N.getString("main.status.ready.label"));
@@ -870,7 +803,7 @@ public class SPSHGPanel extends JPanel {
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
 
-        bboxPanel.setBoundingBox(config.getBoundingbox());
+        bboxPanel.setBoundingBox(config.getBoundingBox());
         useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
 
         browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
@@ -902,7 +835,7 @@ public class SPSHGPanel extends JPanel {
         featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
         config.setUseFeatureTypeFilter(useFeatureFilter.isSelected());
 
-        config.setBoundingbox(bboxPanel.getBoundingBox());
+        config.setBoundingBox(bboxPanel.getBoundingBox());
         config.setUseBoundingBoxFilter(useBBoxFilter.isSelected());
 
         if (csvRadioButton.isSelected())

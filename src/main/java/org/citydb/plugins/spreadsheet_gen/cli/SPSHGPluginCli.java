@@ -25,23 +25,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.citydb.plugins.spreadsheet_gen;
+package org.citydb.plugins.spreadsheet_gen.cli;
 
 import org.citydb.ImpExpLauncher;
 import org.citydb.cli.ImpExpCli;
 import org.citydb.config.Config;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.project.database.DatabaseConnection;
+import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.log.Logger;
 import org.citydb.plugin.CliCommand;
-import org.citydb.plugin.cli.CliOptionBuilder;
 import org.citydb.plugin.cli.DatabaseOption;
-import org.citydb.plugin.cli.TypeNamesOption;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.config.Template;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
+import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
 import org.citydb.registry.ObjectRegistry;
 import org.citydb.util.Util;
 import picocli.CommandLine;
@@ -52,7 +52,7 @@ import java.util.ResourceBundle;
 
 @CommandLine.Command(
 		name = "export-table",
-		description = "Generate spreadsheet from the database.",
+		description = "Exports attribute data in tabular form as CSV or XLSX file.",
 		versionProvider = ImpExpCli.class
 )
 public class SPSHGPluginCli extends CliCommand {
@@ -60,25 +60,20 @@ public class SPSHGPluginCli extends CliCommand {
 			description = "Name of the template file.")
 	private Path templateFile;
 
-	@CommandLine.ArgGroup (exclusive = false)
-	private TypeNamesOption typeNamesOption;
-
-	@CommandLine.Option(names = {"-b", "--bbox"}, paramLabel = "<minx,miny,maxx,maxy[,srid]>",
-			description = "Bounding box to use as spatial filter.")
-	private String bbox;
-
 	@CommandLine.Option(names = {"-o", "--output"}, required = true,
-			description = "Name of the output spreadsheet file with the extension .csv or .xlsx")
+			description = "Name of the output file with the extension .csv or .xlsx")
 	private Path outputFile;
 
 	@CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>", defaultValue = ",",
 			description = "Delimiter to use for splitting lines in CSV file (default: '${DEFAULT-VALUE}').")
 	private String delimiter;
 
+	@CommandLine.ArgGroup(exclusive = false, heading = "Query and filter options:%n")
+	private QueryOption queryOption;
+
 	@CommandLine.ArgGroup(exclusive = false, heading = "Database connection options:%n")
 	private DatabaseOption databaseOption;
 
-	private BoundingBox boundingBox;
 	private final Logger log = Logger.getInstance();
 
 	public static void main(String[] args) {
@@ -116,19 +111,24 @@ public class SPSHGPluginCli extends CliCommand {
 		templateConfig.setManualTemplate(false);
 		templateConfig.setPath(templateFile.toAbsolutePath().toString());
 
-		// set feature types
-		pluginConfig.setUseFeatureTypeFilter(typeNamesOption != null);
-		if (typeNamesOption != null) {
-			pluginConfig.setFeatureTypeFilter(typeNamesOption.toFeatureTypeFilter());
-		}
-
-		// set bounding box
-		pluginConfig.setUseBoundingBoxFilter(boundingBox != null);
-		if (boundingBox != null) {
-			if (boundingBox.getSrs() == null) {
-				boundingBox.setSrs(database.getActiveDatabaseAdapter().getConnectionMetaData().getReferenceSystem());
+		// set filter options
+		if (queryOption != null) {
+			// set feature types
+			FeatureTypeFilter featureTypeFilter = queryOption.getFeatureTypeFilter();
+			pluginConfig.setUseFeatureTypeFilter(featureTypeFilter != null);
+			if (featureTypeFilter != null) {
+				pluginConfig.setFeatureTypeFilter(featureTypeFilter);
 			}
-			pluginConfig.setBoundingbox(boundingBox);
+
+			// set bounding box
+			BoundingBox boundingBox = queryOption.getBoundingBox();
+			pluginConfig.setUseBoundingBoxFilter(boundingBox != null);
+			if (boundingBox != null) {
+				if (boundingBox.getSrs() == null) {
+					boundingBox.setSrs(database.getActiveDatabaseAdapter().getConnectionMetaData().getReferenceSystem());
+				}
+				pluginConfig.setBoundingBox(boundingBox);
+			}
 		}
 
 		// set xlsx/csv output
@@ -146,19 +146,18 @@ public class SPSHGPluginCli extends CliCommand {
 		org.citydb.plugins.spreadsheet_gen.util.Util.I18N = ResourceBundle.getBundle(
 				"org.citydb.plugins.spreadsheet_gen.i18n.language",
 				Locale.ENGLISH);
-		boolean success = new SpreadsheetExporter(pluginConfig).doProcess();
-		database.disconnect(true);
-		if (success) {
-			log.info("Spreadsheet export successfully finished.");
-			return 0;
-		} else {
-			log.warn("Spreadsheet export aborted.");
-			return 1;
-		}
-	}
 
-	@Override
-	public void preprocess(CommandLine commandLine) throws Exception {
-		boundingBox = CliOptionBuilder.boundingBox(bbox, commandLine);
+		try {
+			new SpreadsheetExporter(pluginConfig).doProcess();
+			log.info("Table data export successfully finished.");
+		} catch (TableExportException e) {
+			log.error(e.getMessage(), e.getCause());
+			log.warn("Table data export aborted.");
+			return 1;
+		} finally {
+			database.disconnect(true);
+		}
+
+		return 0;
 	}
 }

@@ -29,33 +29,37 @@ package org.citydb.plugins.spreadsheet_gen.concurrent;
 
 import org.citydb.concurrent.DefaultWorker;
 import org.citydb.concurrent.WorkerPool;
+import org.citydb.config.project.global.LogLevel;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
-import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.event.EventDispatcher;
+import org.citydb.event.global.CounterEvent;
+import org.citydb.event.global.CounterType;
+import org.citydb.event.global.InterruptEvent;
+import org.citydb.event.global.ObjectCounterEvent;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
-import org.citydb.plugins.spreadsheet_gen.database.DBManager;
-import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.registry.ObjectRegistry;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
 	private final EventDispatcher eventDispatcher;
 	private final BalloonTemplateHandler bth;
+	private Map<Integer, Long> featureCounter;
 	private final String schema;
 	private final String separatorCharacter;
 	private final int lod;
 
 	private Connection connection;
-	public static long counter = 0;
 	private boolean shouldRun = true;
 
 	public SPSHGWorker(Connection connection, AbstractDatabaseAdapter databaseAdapter, WorkerPool<RowofCSVWork> ioWriterPool, ConfigImpl config, String template) throws SQLException {
@@ -67,6 +71,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 				SeparatorPhrase.getInstance().getExcelSeparator();
 
 		bth = new BalloonTemplateHandler(template, databaseAdapter);
+		featureCounter = new HashMap<>();
 		schema = databaseAdapter.getSchemaManager().getDefaultSchema();
 		lod = 2;
 
@@ -74,11 +79,18 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	}
 
 	@Override
-	public void doWork(CityObjectWork cityobj) {
+	public void run() {
+		super.run();
+		eventDispatcher.triggerEvent(new ObjectCounterEvent(featureCounter, this));
+	}
+
+	@Override
+	public void doWork(CityObjectWork work) {
 		try {
-			if (!this.shouldRun)
+			if (!shouldRun)
 				return;
-			String data = bth.getBalloonContent(cityobj.getGmlid(), lod, connection, schema);
+
+			String data = bth.getBalloonContent(work.getGmlid(), lod, connection, schema);
 			String[] cells = data.split("\\Q" + SeparatorPhrase.getInstance().getTempPhrase() + "\\E");
 
 			StringBuilder sb = new StringBuilder();
@@ -95,11 +107,14 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 				sb.append(st);
 				sb.append("\"");
 			}
-			sb.append("\r\n");
-			ioWriterPool.addWork(new RowofCSVWork(sb.toString(), cityobj.getClassid()));
-			counter++;
-			eventDispatcher.triggerEvent(new StatusDialogMessage(" " + counter + " / " + DBManager.numCityObjects, this));
+			sb.append("\n");
+
+			ioWriterPool.addWork(new RowofCSVWork(sb.toString(), work.getClassid()));
+			featureCounter.merge(work.getClassid(), 1L, Long::sum);
+			eventDispatcher.triggerEvent(new CounterEvent(CounterType.TOPLEVEL_FEATURE, 1, this));
 		} catch (Exception e) {
+			eventDispatcher.triggerSyncEvent(new InterruptEvent("A fatal error occurred during export of " +
+					"feature with gml:id " + work.getGmlid() + ".", LogLevel.ERROR, e, eventChannel, this));
 		}
 	}
 
@@ -116,7 +131,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	}
 
 	public static String generateHeader(ArrayList<String> header, String separator) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		boolean firstround = true;
 		for (String st : header) {
 			if (!firstround) {
@@ -129,7 +144,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 			sb.append(st);
 			sb.append("\"");
 		}
-		sb.append("\r\n");
+		sb.append("\n");
 		return sb.toString();
 	}
 }

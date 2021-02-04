@@ -33,13 +33,9 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class CSVWriter extends DefaultWorker<RowofCSVWork> {
 	private FileOutputStream fos;
-	private static final Map<Integer, AtomicInteger> countingStorage = new HashMap<>();
 
 	public CSVWriter(File output) {
 		try {
@@ -54,14 +50,6 @@ public class CSVWriter extends DefaultWorker<RowofCSVWork> {
 		try {
 			if (fos != null) {
 				fos.write(row.getText().getBytes(StandardCharsets.UTF_8));
-				synchronized (countingStorage) {
-					if (row.getClassid() == RowofCSVWork.UNKNOWN_CLASS_ID)
-						return;
-					if (countingStorage.containsKey(row.getClassid()))
-						countingStorage.get(row.getClassid()).incrementAndGet();
-					else
-						countingStorage.put(row.getClassid(), new AtomicInteger(1));
-				}
 			}
 		} catch (Exception e) {
 			// event
@@ -71,18 +59,9 @@ public class CSVWriter extends DefaultWorker<RowofCSVWork> {
 	@Override
 	public void shutdown() {
 		try {
-			fos.flush();
 			fos.close();
 		} catch (Exception e) {
 			//
 		}
-	}
-
-	public static void resetLogStorage() {
-		countingStorage.clear();
-	}
-
-	public static Map<Integer, AtomicInteger> getReportStructure() {
-		return countingStorage;
 	}
 }

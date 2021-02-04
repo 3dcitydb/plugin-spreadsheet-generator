@@ -37,7 +37,7 @@ import javax.xml.bind.annotation.XmlType;
 public class CSVFile {
 	
 	private String outputPath="";
-	private String separator="[Comma]";
+	private String separator="Comma";
 	@XmlTransient
 	private String lastVisitPath="";
 	

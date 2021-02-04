@@ -30,12 +30,13 @@ package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
+import org.citydb.event.global.CounterEvent;
+import org.citydb.event.global.EventType;
+import org.citydb.event.global.ProgressBarEventType;
+import org.citydb.event.global.StatusDialogMessage;
+import org.citydb.event.global.StatusDialogProgressBar;
+import org.citydb.event.global.StatusDialogTitle;
 import org.citydb.gui.util.GuiUtil;
-import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
-import org.citydb.plugins.spreadsheet_gen.database.DBManager;
-import org.citydb.plugins.spreadsheet_gen.events.EventType;
-import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
-import org.citydb.plugins.spreadsheet_gen.events.StatusDialogTitle;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
 
@@ -53,9 +54,11 @@ public class StatusDialog extends JDialog implements EventHandler {
 	private JButton button;
 
 	private volatile boolean acceptStatusUpdate = true;
+	private long featureCounter;
+	private long hits;
 
-	public StatusDialog(JFrame frame, 
-			String windowTitle, 
+	public StatusDialog(JFrame frame,
+			String windowTitle,
 			String statusTitle,
 			String statusMessage,
 			boolean setButton) {
@@ -64,8 +67,10 @@ public class StatusDialog extends JDialog implements EventHandler {
 		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 		eventDispatcher.addEventHandler(EventType.STATUS_DIALOG_MESSAGE, this);
 		eventDispatcher.addEventHandler(EventType.STATUS_DIALOG_TITLE, this);
+		eventDispatcher.addEventHandler(EventType.COUNTER, this);
 		eventDispatcher.addEventHandler(EventType.INTERRUPT, this);
-		
+		eventDispatcher.addEventHandler(EventType.STATUS_DIALOG_PROGRESS_BAR, this);
+
 		initGUI(statusTitle, statusMessage, setButton);
 	}
 
@@ -100,8 +105,6 @@ public class StatusDialog extends JDialog implements EventHandler {
 		setMinimumSize(new Dimension(250, 100));
 		pack();
 
-		progressBar.setValue(0);
-
 		addWindowListener(new WindowAdapter() {
 			public void windowClosed(WindowEvent e) {
 				if (eventDispatcher != null) {
@@ -121,15 +124,34 @@ public class StatusDialog extends JDialog implements EventHandler {
 
 	@Override
 	public void handleEvent(Event e) throws Exception {
-		if (e.getEventType() == EventType.INTERRUPT) {
+		if (e.getEventType() == EventType.COUNTER) {
+			CounterEvent counterEvent = (CounterEvent) e;
+			featureCounter += counterEvent.getCounter();
+
+			String status = String.valueOf(featureCounter);
+			if (hits > 0) {
+				status += " / " + hits;
+				progressBar.setValue((int) featureCounter);
+			}
+
+			messageLabel.setText(status);
+		} else if (e.getEventType() == org.citydb.event.global.EventType.INTERRUPT) {
 			acceptStatusUpdate = false;
 			messageLabel.setText(Util.I18N.getString("common.dialog.msg.abort"));
 		} else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {
 			messageLabel.setText(((StatusDialogMessage) e).getMessage());
-			progressBar.setValue(((int) SPSHGWorker.counter) * 100 / ((int) DBManager.numCityObjects));
 		} else if (e.getEventType() == EventType.STATUS_DIALOG_TITLE && acceptStatusUpdate) {
 			titleLabel.setText(((StatusDialogTitle) e).getTitle());
+		} else if (e.getEventType() == EventType.STATUS_DIALOG_PROGRESS_BAR && acceptStatusUpdate) {
+			StatusDialogProgressBar progressBarEvent = (StatusDialogProgressBar) e;
+			if (progressBarEvent.getType() == ProgressBarEventType.INIT) {
+				SwingUtilities.invokeLater(() -> progressBar.setIndeterminate(progressBarEvent.isSetIntermediate()));
+				if (!progressBarEvent.isSetIntermediate()) {
+					progressBar.setMaximum(progressBarEvent.getValue());
+					progressBar.setValue(0);
+					hits = progressBarEvent.getValue();
+				}
+			}
 		}
 	}
-	
 }

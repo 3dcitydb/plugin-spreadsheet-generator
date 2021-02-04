@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  *
- * Copyright 2013 - 2020
+ * Copyright 2013 - 2019
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -25,23 +25,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * copy from matching plugin writen by Claus.
- */
-package org.citydb.plugins.spreadsheet_gen.events;
 
-import org.citydb.event.Event;
+package org.citydb.plugins.spreadsheet_gen.controller;
 
-public class StatusDialogMessage extends Event {
-	private String message;
-	
-	public StatusDialogMessage(String message, Object source) {
-		super(EventType.STATUS_DIALOG_MESSAGE, GLOBAL_CHANNEL, source);
-		this.message = message;
+import org.citydb.config.exception.ApplicationException;
+import org.citydb.config.exception.ErrorCode;
+
+public class TableExportException extends ApplicationException {
+
+	public TableExportException(ErrorCode errorCode) {
+		super(errorCode);
 	}
 
-	public String getMessage() {
-		return message;
+	public TableExportException(ErrorCode errorCode, String message) {
+		super(errorCode, message);
 	}
-	
+
+	public TableExportException(ErrorCode errorCode, String message, Throwable cause) {
+		super(errorCode, message, cause);
+	}
+
+	public TableExportException(ErrorCode errorCode, Throwable cause) {
+		super(errorCode, cause);
+	}
+
+	public TableExportException() {
+		super();
+	}
+
+	public TableExportException(String message) {
+		super(message);
+	}
+
+	public TableExportException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public TableExportException(Throwable cause) {
+		super(cause);
+	}
 }

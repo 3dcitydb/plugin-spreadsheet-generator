@@ -32,7 +32,6 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-
 public class SeparatorPhrase {
 	private LinkedHashMap<String,String> predefiendPhrase= new LinkedHashMap<String,String>();
 	private String tempPhrase=""; 
@@ -45,9 +44,9 @@ public class SeparatorPhrase {
 	public void load(){
 		predefiendPhrase.clear();
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.comma"),",");
-		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.tab"),"\t");
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.semicolon"),";");
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.space")," ");
+		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.tab"),"\t");
 	}
 	
 	public Set<String> getNicknames(){
@@ -55,10 +54,10 @@ public class SeparatorPhrase {
 	}
 	
 	public synchronized String decode(String encoded){
-		
 		for (String key:predefiendPhrase.keySet()){
 			encoded=encoded.replace(key, predefiendPhrase.get(key));
 		}
+
 		return encoded;
 	}
 	

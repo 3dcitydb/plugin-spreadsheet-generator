@@ -30,7 +30,6 @@ package org.citydb.plugins.spreadsheet_gen.controller;
 import org.citydb.log.Logger;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
-import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import java.io.File;
 import java.io.FileOutputStream;
