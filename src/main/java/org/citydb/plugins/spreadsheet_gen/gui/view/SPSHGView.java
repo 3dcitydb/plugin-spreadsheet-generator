@@ -46,7 +46,6 @@ public class SPSHGView  extends View implements ViewListener {
 	
 	@Override
 	public Icon getIcon() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -57,7 +56,7 @@ public class SPSHGView  extends View implements ViewListener {
 
 	@Override
 	public String getToolTip() {
-		return Util.I18N.getString("spshg.general.tooltip");
+		return null;
 	}
 
 	@Override
