@@ -31,36 +31,48 @@ package org.citydb.plugins.spreadsheet_gen.concurrent;
 import org.citydb.concurrent.Worker;
 import org.citydb.concurrent.WorkerFactory;
 import org.citydb.concurrent.WorkerPool;
+import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
+import org.citydb.log.Logger;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 
+import java.sql.Connection;
+
 public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
+	private final Logger log = Logger.getInstance();
+
 	private final DatabaseConnectionPool dbPool;
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
 	private final ConfigImpl config;
 	private String template;
+
 	public SPSHGWorkerFactory(DatabaseConnectionPool dbPool,
 			WorkerPool<RowofCSVWork> ioWriterPool,
 			ConfigImpl config, String template){
-		
 		this.dbPool=dbPool;
 		this.ioWriterPool=ioWriterPool;
 		this.config=config;
 		this.template=template;
 	}
+
 	@Override
 	public Worker<CityObjectWork> createWorker() {
 		SPSHGWorker worker =null;
 
 		try {
+			AbstractDatabaseAdapter databaseAdapter = DatabaseConnectionPool.getInstance().getActiveDatabaseAdapter();
+			Connection connection = DatabaseConnectionPool.getInstance().getConnection();
+			connection.setAutoCommit(false);
+
 			worker = new SPSHGWorker(
-					dbPool,
+					connection,
+					databaseAdapter,
 					ioWriterPool,
 					config,template);
 		} catch (Exception e) {
-			// could not instantiate DBWorker
+			log.error("Failed to create export worker.", e);
 		}
 
 		return worker;

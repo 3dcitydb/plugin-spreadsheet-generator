@@ -29,12 +29,14 @@ package org.citydb.plugins.spreadsheet_gen.concurrent;
 
 import org.citydb.concurrent.DefaultWorker;
 import org.citydb.concurrent.WorkerPool;
+import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.event.EventDispatcher;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.events.StatusDialogMessage;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
@@ -46,26 +48,29 @@ import java.util.ArrayList;
 
 public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	private final WorkerPool<RowofCSVWork> ioWriterPool;
-
-	private BalloonTemplateHandler bth;
-	private Connection connection;
-	private String seperatorCharacter;
-	private int lod;
-	public static long counter = 0;
-
 	private final EventDispatcher eventDispatcher;
-	private boolean shouldRun;
-	private String schema;
+	private final BalloonTemplateHandler bth;
+	private final String schema;
+	private final String separatorCharacter;
+	private final int lod;
 
-	public SPSHGWorker(DatabaseConnectionPool dbConnectionPool, WorkerPool<RowofCSVWork> ioWriterPool, ConfigImpl config, String template) throws SQLException {
-		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
+	private Connection connection;
+	public static long counter = 0;
+	private boolean shouldRun = true;
+
+	public SPSHGWorker(Connection connection, AbstractDatabaseAdapter databaseAdapter, WorkerPool<RowofCSVWork> ioWriterPool, ConfigImpl config, String template) throws SQLException {
+		this.connection = connection;
 		this.ioWriterPool = ioWriterPool;
-		connection = dbConnectionPool.getConnection();
-		seperatorCharacter = SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
-		shouldRun = true;
-		bth = new BalloonTemplateHandler(template, dbConnectionPool.getActiveDatabaseAdapter());
+
+		separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
+				SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
+				SeparatorPhrase.getInstance().getExcelSeparator();
+
+		bth = new BalloonTemplateHandler(template, databaseAdapter);
+		schema = databaseAdapter.getSchemaManager().getDefaultSchema();
 		lod = 2;
-		schema = dbConnectionPool.getActiveDatabaseAdapter().getSchemaManager().getDefaultSchema();
+
+		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
 	}
 
 	@Override
@@ -76,12 +81,12 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 			String data = bth.getBalloonContent(cityobj.getGmlid(), lod, connection, schema);
 			String[] cells = data.split("\\Q" + SeparatorPhrase.getInstance().getTempPhrase() + "\\E");
 
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			boolean firstround = true;
 
 			for (String st : cells) {
 				if (!firstround) {
-					sb.append(seperatorCharacter);
+					sb.append(separatorCharacter);
 					sb.append("\"");
 				} else {
 					sb.append('"');

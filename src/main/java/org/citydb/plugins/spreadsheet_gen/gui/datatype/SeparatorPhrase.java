@@ -41,6 +41,7 @@ public class SeparatorPhrase {
 	public static SeparatorPhrase getInstance(){
 		return INSTANCE;
 	}
+
 	public void load(){
 		predefiendPhrase.clear();
 		predefiendPhrase.put(Util.I18N.getString("spshg.csvPanel.separator.comma"),",");
@@ -71,7 +72,7 @@ public class SeparatorPhrase {
 		tempPhrase="_$"+System.currentTimeMillis()+"$_";
 	}
 	
-	public synchronized String  getIntoCloudDefaultSeperator(){
+	public synchronized String getExcelSeparator(){
 		return ",";
 	}
 	

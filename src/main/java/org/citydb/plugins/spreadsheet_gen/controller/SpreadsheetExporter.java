@@ -193,12 +193,14 @@ public class SpreadsheetExporter implements EventHandler {
         // start pool workers
         ioWriterPool.prestartCoreWorkers();
         workerPool.prestartCoreWorkers();
-        String seperatorCharacter;
-        seperatorCharacter = SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim());
-        ioWriterPool.addWork(new RowofCSVWork(SPSHGWorker.generateHeader(Translator
-                .getInstance().getColumnTitle(), seperatorCharacter),
-                RowofCSVWork.UNKNOWN_CLASS_ID));
 
+        String separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
+                SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
+                SeparatorPhrase.getInstance().getExcelSeparator();
+
+        ioWriterPool.addWork(new RowofCSVWork(SPSHGWorker.generateHeader(Translator
+                .getInstance().getColumnTitle(), separatorCharacter),
+                RowofCSVWork.UNKNOWN_CLASS_ID));
 
         // reset the loging system in CSVWRITER
         CSVWriter.resetLogStorage();
@@ -283,7 +285,7 @@ public class SpreadsheetExporter implements EventHandler {
 
         String xlsxFullpath = path + File.separator + filename + ".xlsx";
 
-        reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getIntoCloudDefaultSeperator().charAt(0), Charset.forName("UTF-8"));
+        reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getExcelSeparator().charAt(0), Charset.forName("UTF-8"));
 
         // avoid error message of CsvReader in case of column lengths greater than 100,000 characters
         reader.setSafetySwitch(false);
