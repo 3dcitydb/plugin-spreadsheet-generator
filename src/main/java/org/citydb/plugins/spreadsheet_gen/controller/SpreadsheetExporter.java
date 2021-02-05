@@ -175,17 +175,18 @@ public class SpreadsheetExporter implements EventHandler {
             path = path.substring(0, path.lastIndexOf(File.separator));
         }
 
+        File outputFile;
         String csvFilePath = path + File.separator + filename + ".csv";
         if (config.getOutput().getType() == OutputFileType.XLSX) {
-            csvFilePath = System.getProperty("java.io.tmpdir") + File.separator + filename + ".csv";
+            outputFile = new File(System.getProperty("java.io.tmpdir"), "3dcitydb-" + System.currentTimeMillis() + ".csv");
+            log.debug("Writing temporary CSV file for XLSX conversion to '" + outputFile.getAbsolutePath() + "'.");
+        } else {
+            outputFile = new File(csvFilePath);
         }
-        File outputfile = new File(csvFilePath);
 
-        File dummyOutputfile;
-        if (config.getOutput().getType() == OutputFileType.XLSX)
-            dummyOutputfile = new File(path + File.separator + filename + ".xlsx");
-        else
-            dummyOutputfile = new File(path + File.separator + filename + ".csv");
+        File dummyOutputfile = config.getOutput().getType() == OutputFileType.XLSX ?
+                new File(path, filename + ".xlsx") :
+                new File(path, filename + ".csv");
 
         if (!dummyOutputfile.exists()) {
             try {
@@ -215,7 +216,7 @@ public class SpreadsheetExporter implements EventHandler {
         try {
             writerPool = new SingleWorkerPool<>(
                     "spsh_writer_pool",
-                    new CSVWriterFactory(outputfile),
+                    new CSVWriterFactory(outputFile),
                     100,
                     true);
 
@@ -262,6 +263,8 @@ public class SpreadsheetExporter implements EventHandler {
 
             if (config.getOutput().getType() == OutputFileType.XLSX) {
                 try {
+                    log.debug("Converting temporary CSV file to XLSX.");
+                    eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.xlsx"), this));
                     convertToXSLX(csvFilePath, path, filename, translator);
                 } catch (Exception e) {
                     throw new TableExportException("Failed to write XLSX output file.", e);
