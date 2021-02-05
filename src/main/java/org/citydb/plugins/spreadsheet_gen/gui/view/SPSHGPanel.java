@@ -47,6 +47,7 @@ import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
+import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
 import org.citydb.plugins.spreadsheet_gen.controller.TemplateWriter;
@@ -546,7 +547,7 @@ public class SPSHGPanel extends JPanel {
                 return;
             }
 
-            if (config.getOutput().getType().equals(Output.CSV_FILE_CONFIG)) {
+            if (config.getOutput().getType() == OutputFileType.CSV) {
                 // csv file
                 if (config.getOutput().getCsvfile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -558,7 +559,7 @@ public class SPSHGPanel extends JPanel {
                             Util.I18N.getString("spshg.dialog.error.incompleteData.seperatorChar"));
                     return;
                 }
-            } else if (config.getOutput().getType().equals(Output.XLSX_FILE_CONFIG)) {
+            } else if (config.getOutput().getType() == OutputFileType.XLSX) {
                 // xlsx file
                 if (config.getOutput().getXlsxfile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -811,7 +812,7 @@ public class SPSHGPanel extends JPanel {
         xlsxBrowseOutputText.setText(config.getOutput().getXlsxfile().getOutputPath());
 
         csvRadioButton.setSelected(true);
-        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
+        if (config.getOutput().getType() == OutputFileType.XLSX)
             xlsxRadioButton.setSelected(true);
 
         setEnabledBBoxFilter();
@@ -839,9 +840,9 @@ public class SPSHGPanel extends JPanel {
         config.setUseBoundingBoxFilter(useBBoxFilter.isSelected());
 
         if (csvRadioButton.isSelected())
-            config.getOutput().setType(Output.CSV_FILE_CONFIG);
+            config.getOutput().setType(OutputFileType.CSV);
         else if (xlsxRadioButton.isSelected())
-            config.getOutput().setType(Output.XLSX_FILE_CONFIG);
+            config.getOutput().setType(OutputFileType.XLSX);
 
         config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
         config.getOutput().getCsvfile().setSeparator((String)separatorComboBox.getSelectedItem());

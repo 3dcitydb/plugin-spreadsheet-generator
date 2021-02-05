@@ -39,6 +39,7 @@ import org.citydb.plugin.CliCommand;
 import org.citydb.plugin.cli.DatabaseOption;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
+import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.config.Template;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
@@ -134,10 +135,10 @@ public class SPSHGPluginCli extends CliCommand {
 		// set xlsx/csv output
 		String outputFileName = outputFile.toAbsolutePath().toString();
 		if ("xlsx".equalsIgnoreCase(Util.getFileExtension(outputFileName))) {
-			pluginConfig.getOutput().setType(Output.XLSX_FILE_CONFIG);
+			pluginConfig.getOutput().setType(OutputFileType.XLSX);
 			pluginConfig.getOutput().getXlsxfile().setOutputPath(outputFileName);
 		} else {
-			pluginConfig.getOutput().setType(Output.CSV_FILE_CONFIG);
+			pluginConfig.getOutput().setType(OutputFileType.CSV);
 			pluginConfig.getOutput().getCsvfile().setOutputPath(outputFileName);
 			pluginConfig.getOutput().getCsvfile().setSeparator(delimiter);
 		}

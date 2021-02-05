@@ -41,6 +41,7 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
+import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.registry.ObjectRegistry;
 
@@ -66,7 +67,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 		this.connection = connection;
 		this.ioWriterPool = ioWriterPool;
 
-		separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
+		separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
 				SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
 				SeparatorPhrase.getInstance().getExcelSeparator();
 

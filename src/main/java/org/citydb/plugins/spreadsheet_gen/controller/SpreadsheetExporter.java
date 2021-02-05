@@ -58,6 +58,7 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.Output;
+import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
@@ -158,7 +159,7 @@ public class SpreadsheetExporter implements EventHandler {
         String filename;
         String path;
 
-        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
+        if (config.getOutput().getType() == OutputFileType.XLSX)
             path = config.getOutput().getXlsxfile().getOutputPath().trim();
         else
             path = config.getOutput().getCsvfile().getOutputPath().trim();
@@ -178,13 +179,13 @@ public class SpreadsheetExporter implements EventHandler {
         }
 
         String csvFilePath = path + File.separator + filename + ".csv";
-        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)) {
+        if (config.getOutput().getType() == OutputFileType.XLSX) {
             csvFilePath = System.getProperty("java.io.tmpdir") + File.separator + filename + ".csv";
         }
         File outputfile = new File(csvFilePath);
 
         File dummyOutputfile;
-        if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG))
+        if (config.getOutput().getType() == OutputFileType.XLSX)
             dummyOutputfile = new File(path + File.separator + filename + ".xlsx");
         else
             dummyOutputfile = new File(path + File.separator + filename + ".csv");
@@ -227,7 +228,7 @@ public class SpreadsheetExporter implements EventHandler {
             writerPool.prestartCoreWorkers();
             workerPool.prestartCoreWorkers();
 
-            String separatorCharacter = config.getOutput().getType().equalsIgnoreCase(Output.CSV_FILE_CONFIG) ?
+            String separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
                     SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
                     SeparatorPhrase.getInstance().getExcelSeparator();
 
@@ -255,7 +256,7 @@ public class SpreadsheetExporter implements EventHandler {
                 throw new TableExportException("Failed to write to output file.", e);
             }
 
-            if (config.getOutput().getType().equalsIgnoreCase(Output.XLSX_FILE_CONFIG)) {
+            if (config.getOutput().getType() == OutputFileType.XLSX) {
                 try {
                     convertToXSLX(csvFilePath, path, filename);
                 } catch (Exception e) {

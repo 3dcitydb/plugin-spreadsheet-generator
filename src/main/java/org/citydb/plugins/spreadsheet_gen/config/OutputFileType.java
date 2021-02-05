@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * http://www.3dcitydb.org/
  *
- * Copyright 2013 - 2020
+ * Copyright 2013 - 2019
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.gis.bgu.tum.de/
@@ -27,38 +27,20 @@
  */
 package org.citydb.plugins.spreadsheet_gen.config;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="OutputType", propOrder={
-		"csvfile",
-		"xlsxfile"
-})
+@XmlType(name = "OutputFileType")
+@XmlEnum
+public enum OutputFileType {
+    @XmlEnumValue("csv")
+    CSV,
+    @XmlEnumValue("xlsx")
+    XLSX;
 
-public class Output {
-	@XmlAttribute(required = true)
-	private OutputFileType type = OutputFileType.CSV;
-	private CSVFile csvfile;
-	private XLSXFile xlsxfile;
-
-	public Output() {
-		csvfile = new CSVFile();
-		xlsxfile = new XLSXFile();
-	}
-
-	public OutputFileType getType() {
-		return type;
-	}
-
-	public void setType(OutputFileType type) {
-		this.type = type;
-	}
-
-	public CSVFile getCsvfile() {
-		return csvfile;
-	}
-
-	public XLSXFile getXlsxfile() {
-		return xlsxfile;
-	}
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
 }
