@@ -11,7 +11,7 @@ version '3.2.0-SNAPSHOT'
 apply from: 'properties.gradle'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
@@ -25,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client:4.3.0-b20210114.1701'
+    implementation 'org.citydb:impexp-client:4.3.0-b20210205-1729'
     implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
