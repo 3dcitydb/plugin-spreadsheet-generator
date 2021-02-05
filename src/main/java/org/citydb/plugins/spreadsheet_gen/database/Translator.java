@@ -30,7 +30,6 @@ package org.citydb.plugins.spreadsheet_gen.database;
 import org.citydb.log.Logger;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
@@ -42,52 +41,48 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 public class Translator {
-	private StringBuffer wordparser=new StringBuffer();
-	private int offset;
-	private Set<String> keys;
-	private Set<String> aggregations;
-	private HashMap<String, Set<String>> _3dcitydbcontent;
-	private ArrayList<String> columnTitle;
-	private static Translator INSTANCE= new Translator();
-	private Map<String, String> templateMap;
 	private final Logger LOG = Logger.getInstance();
+	private final Set<String> aggregations;
+	private final Map<String, Set<String>> cityDbContent;
+	private final String balloonToken;
 
-	public Translator(){
+	private List<String> columnTitle;
+	private Map<String, String> templateMap;
+	private int offset;
+
+	public Translator() {
 		BalloonTemplateHandler dummy = new BalloonTemplateHandler("", null);
 		aggregations = dummy.getSupportedAggregationFunctions();
-		_3dcitydbcontent = dummy.getSupportedTablesAndColumns();
-		keys = _3dcitydbcontent.keySet();
-
+		cityDbContent = dummy.getSupportedTablesAndColumns();
+		balloonToken = "_$" + System.currentTimeMillis() + "$_";
 	}
 
-	public static Translator getInstance(){
-		return INSTANCE;
+	public String getBalloonToken() {
+		return balloonToken;
 	}
 
-	public Map<String, String> getTemplateHashmap() {
+	public Map<String, String> getTemplateMap() {
 		return templateMap;	
 	}
 
 	public String translateToBalloonTemplate(File csvTemplate) throws Exception {
-
-		templateMap = new HashMap<String, String>();
-
-		String cellSeparator= SeparatorPhrase.getInstance().getTempPhrase();
-		columnTitle = new ArrayList<String>();
+		templateMap = new HashMap<>();
+		columnTitle = new ArrayList<>();
 
 		FileInputStream fstream = new FileInputStream(csvTemplate);
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(fstream,"UTF-8"))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(fstream, StandardCharsets.UTF_8))) {
 			String strLine;
 
 			// Read File Line By Line
-			StringBuffer output = new StringBuffer();
+			StringBuilder output = new StringBuilder();
 			String tmpout, header;
 
 			// Initial values
@@ -98,9 +93,7 @@ public class Translator {
 				if (!(strLine.startsWith("//")||strLine.startsWith(";")) &&strLine.indexOf(':') > 0) {
 
 					header = strLine.substring(0, strLine.indexOf(':'));
-					tmpout = translateLine(
-							strLine.substring(strLine.indexOf(':')+1,
-									strLine.length()), false);
+					tmpout = translateLine(columnTitle, strLine.substring(strLine.indexOf(':')+1,strLine.length()), false);
 
 					String templateCSVcolumn = header;
 					String dbTableColumn = null;
@@ -113,12 +106,12 @@ public class Translator {
 					templateMap.put(templateCSVcolumn.trim(), dbTableColumn);
 
 				} else {
-					tmpout = translateLine(strLine, true);
+					tmpout = translateLine(columnTitle, strLine, true);
 					header = null;
 				}
 
-				if (tmpout != null && tmpout.length() > 0) {
-					output.append(cellSeparator);
+				if (tmpout.length() > 0) {
+					output.append(balloonToken);
 					output.append(tmpout);
 					if (header != null)
 						columnTitle.add(header.trim());
@@ -129,13 +122,11 @@ public class Translator {
 		}
 	}
 
-	public String translateToBalloonTemplate( ArrayList<CSVColumns> rows) throws IOException {
+	public String translateToBalloonTemplate(ArrayList<CSVColumns> rows) throws IOException {
+		templateMap = new HashMap<>();
+		columnTitle = new ArrayList<>();
 
-		templateMap = new HashMap<String, String>();
-
-		String cellSeparator= SeparatorPhrase.getInstance().getTempPhrase();
-		columnTitle = new ArrayList<String>();
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		String tmpout, header;
 		// Initial values
 		output.append("<3DCityDB>CITYOBJECT/GMLID</3DCityDB>");
@@ -144,7 +135,7 @@ public class Translator {
 
 		for (CSVColumns row:rows){
 			header= row.title.trim();
-			tmpout= translateLine(row.textcontent,false);
+			tmpout= translateLine(columnTitle, row.textcontent,false);
 
 			String templateCSVcolumn = header;
 			String dbTableColumn = null;
@@ -156,8 +147,8 @@ public class Translator {
 
 			templateMap.put(templateCSVcolumn.trim(), dbTableColumn);
 
-			if (tmpout != null && tmpout.length() > 0) {
-				output.append(cellSeparator);
+			if (tmpout.length() > 0) {
+				output.append(balloonToken);
 				output.append(tmpout);
 				columnTitle.add(header);
 			}
@@ -168,20 +159,35 @@ public class Translator {
 	}
 
 	public String getProperHeader(String content){
-		columnTitle = new ArrayList<String>();
-		translateLine(content,true);
+		List<String> columnTitle = new ArrayList<>();
+		translateLine(columnTitle, content, true);
 		return columnTitle.get(0);
 	}
 
-	public ArrayList<String> getColumnTitle(){
-		return columnTitle;
+	public String generateHeader(String separator) {
+		StringBuilder sb = new StringBuilder();
+		boolean firstround = true;
+		for (String st : columnTitle) {
+			if (!firstround) {
+				sb.append(separator);
+				sb.append("\"");
+			} else {
+				sb.append('"');
+				firstround = false;
+			}
+			sb.append(st);
+			sb.append("\"");
+		}
+		sb.append("\n");
+		return sb.toString();
 	}
 
 	public StyledDocument getFormatedDocument(String content){
 		StyleContext context = new StyleContext();
 		DefaultStyledDocument document = new DefaultStyledDocument(context);
 		try{
-			String tagedText= translateLine(content, false);
+			List<String> columnTitle = new ArrayList<>();
+			String tagedText= translateLine(columnTitle, content, false);
 			int pointer=0;
 			int tagIndex=0;
 			while(tagedText.indexOf(BalloonTemplateHandler.START_TAG,pointer)!=-1){
@@ -216,8 +222,8 @@ public class Translator {
 		return document;
 	}
 
-	private String translateLine(String line, boolean generateHeader){
-		StringBuffer sbout= new StringBuffer();
+	private String translateLine(List<String> columnTitle, String line, boolean generateHeader){
+		StringBuilder sbout= new StringBuilder();
 		offset=0;
 		String tmpout="";
 		boolean hadTable=false;
@@ -243,12 +249,12 @@ public class Translator {
 			if (tmpout.equals("//")||tmpout.equals(";"))
 				return sbout.toString();
 
-			if (!hadTable && ((fullTablename=_3dcitydbcontent.containsKey(tmpout))
+			if (!hadTable && ((fullTablename= cityDbContent.containsKey(tmpout))
 					|| (offset<chars.length && chars[offset]=='/'))){
 				if (!fullTablename){
 					extractedName=null;
 					tmpWord=tmpout.toUpperCase();
-					for (String tableName:keys){
+					for (String tableName:cityDbContent.keySet()){
 						if (tmpWord.contains(tableName)){
 							extractedName=tableName;
 							break;
@@ -293,11 +299,11 @@ public class Translator {
 				}
 			}
 			// checking for columns 
-			if (hadTable&& hadslash &&! hadColumn&& _3dcitydbcontent.containsKey(currentTable)){
+			if (hadTable&& hadslash &&! hadColumn&& cityDbContent.containsKey(currentTable)){
 
 				if (hadunknown){hadTable=false;hadslash=false;hadAggfunc=false;}
 				else{
-					if ((_3dcitydbcontent.get(currentTable)).contains(tmpout)){
+					if ((cityDbContent.get(currentTable)).contains(tmpout)){
 						hadunknown=false;
 						hadColumn=true;
 						isClearColumn=true;
@@ -306,7 +312,7 @@ public class Translator {
 						endposition= sbout.length();
 						continue;
 					}else {
-						Set<String> columns= _3dcitydbcontent.get(currentTable);
+						Set<String> columns= cityDbContent.get(currentTable);
 						tmpWord=tmpout.toUpperCase();
 						extractedName=null;
 						for (String tmpColumn:columns){
@@ -367,6 +373,7 @@ public class Translator {
 		return sbout.toString();
 	}
 	private String getWord(char[] chararray){
+		StringBuilder wordparser = new StringBuilder();
 		wordparser.setLength(0);
 
 		if (Character.isLetterOrDigit(chararray[offset]) ){
@@ -420,7 +427,7 @@ public class Translator {
 		// no condition
 		if (rawStatement.indexOf('[', index) == -1) { 
 			column = rawStatement.substring(index).trim();
-			if (column.indexOf(" ") != -1 ) {					
+			if (column.contains(" ")) {
 				String[] tempStr = column.split(" ");
 				column = tempStr[0];
 				unit = tempStr[1];							
@@ -449,7 +456,7 @@ public class Translator {
 		}
 
 		// specific case 2: Mixed columns, the output should have String-Format
-		if (rawStatement.indexOf(NewCSVColumnDialog.EOL) > -1 ) {
+		if (rawStatement.contains(NewCSVColumnDialog.EOL)) {
 			return Util.STRING_COLUMN_KEY;
 		}
 

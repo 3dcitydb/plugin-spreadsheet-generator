@@ -32,7 +32,6 @@ import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
-import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.global.InterruptEvent;
@@ -46,7 +45,6 @@ import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
-import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
@@ -79,12 +77,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SPSHGPanel extends JPanel {
     private final Logger log = Logger.getInstance();
+    private final ReentrantLock mainLock = new ReentrantLock();
     private final ViewController viewController;
     private final DatabaseController dbController;
-    private final DatabaseConnectionPool dbPool;
-
     private final SPSHGPlugin plugin;
-    private final ReentrantLock mainLock = new ReentrantLock();
 
     // +columns panel
     private TitledPanel csvColumnsPanel;
@@ -146,7 +142,6 @@ public class SPSHGPanel extends JPanel {
         this.viewController = viewController;
         this.plugin = plugin;
         dbController = ObjectRegistry.getInstance().getDatabaseController();
-        dbPool = DatabaseConnectionPool.getInstance();
 
         initGui();
         addListeners();
@@ -549,19 +544,19 @@ public class SPSHGPanel extends JPanel {
 
             if (config.getOutput().getType() == OutputFileType.CSV) {
                 // csv file
-                if (config.getOutput().getCsvfile().getOutputPath().trim().equals("")) {
+                if (config.getOutput().getCsvFile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                             Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
                     return;
                 }
-                if (config.getOutput().getCsvfile().getSeparator().trim().equals("")) {
+                if (config.getOutput().getCsvFile().getSeparator().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                             Util.I18N.getString("spshg.dialog.error.incompleteData.seperatorChar"));
                     return;
                 }
             } else if (config.getOutput().getType() == OutputFileType.XLSX) {
                 // xlsx file
-                if (config.getOutput().getXlsxfile().getOutputPath().trim().equals("")) {
+                if (config.getOutput().getXlsxFile().getOutputPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                             Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
                     return;
@@ -587,8 +582,6 @@ public class SPSHGPanel extends JPanel {
                 status.setLocationRelativeTo(viewController.getTopFrame());
                 status.setVisible(true);
             });
-
-            SeparatorPhrase.getInstance().renewTempPhrase();
 
             status.getButton().addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -711,7 +704,7 @@ public class SPSHGPanel extends JPanel {
                 new FileNameExtensionFilter("Comma-separated Values Files (*.csv)", "csv")
         );
 
-        String previousVisit = plugin.getConfig().getOutput().getCsvfile().getLastVisitPath();
+        String previousVisit = plugin.getConfig().getOutput().getCsvFile().getLastVisitPath();
         if (previousVisit != null && previousVisit.length() > 0) {
             fileChooserCSVOut.setCurrentDirectory((new File(previousVisit)).getParentFile());
         }
@@ -727,7 +720,7 @@ public class SPSHGPanel extends JPanel {
 
             exportString = exportString + ".csv";
             browseOutputText.setText(exportString);
-            plugin.getConfig().getOutput().getCsvfile().setLastVisitPath(fileChooserCSVOut.getCurrentDirectory().getAbsolutePath());
+            plugin.getConfig().getOutput().getCsvFile().setLastVisitPath(fileChooserCSVOut.getCurrentDirectory().getAbsolutePath());
         } catch (Exception e) {
             //
         }
@@ -738,7 +731,7 @@ public class SPSHGPanel extends JPanel {
                 new FileNameExtensionFilter("Microsoft Excel Files (*.xlsx)", "xlsx")
         );
 
-        String previousVisit = plugin.getConfig().getOutput().getXlsxfile().getLastVisitPath();
+        String previousVisit = plugin.getConfig().getOutput().getXlsxFile().getLastVisitPath();
         if (previousVisit != null && previousVisit.length() > 0) {
             fileChooserXLSXOut.setCurrentDirectory((new File(previousVisit)).getParentFile());
         }
@@ -754,7 +747,7 @@ public class SPSHGPanel extends JPanel {
 
             exportString = exportString + ".xlsx";
             xlsxBrowseOutputText.setText(exportString);
-            plugin.getConfig().getOutput().getXlsxfile().setLastVisitPath(fileChooserXLSXOut.getCurrentDirectory().getAbsolutePath());
+            plugin.getConfig().getOutput().getXlsxFile().setLastVisitPath(fileChooserXLSXOut.getCurrentDirectory().getAbsolutePath());
         } catch (Exception e) {
             //
         }
@@ -807,9 +800,9 @@ public class SPSHGPanel extends JPanel {
         bboxPanel.setBoundingBox(config.getBoundingBox());
         useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
 
-        browseOutputText.setText(config.getOutput().getCsvfile().getOutputPath());
-        separatorComboBox.setSelectedItem(config.getOutput().getCsvfile().getSeparator());
-        xlsxBrowseOutputText.setText(config.getOutput().getXlsxfile().getOutputPath());
+        browseOutputText.setText(config.getOutput().getCsvFile().getOutputPath());
+        separatorComboBox.setSelectedItem(config.getOutput().getCsvFile().getSeparator());
+        xlsxBrowseOutputText.setText(config.getOutput().getXlsxFile().getOutputPath());
 
         csvRadioButton.setSelected(true);
         if (config.getOutput().getType() == OutputFileType.XLSX)
@@ -844,9 +837,9 @@ public class SPSHGPanel extends JPanel {
         else if (xlsxRadioButton.isSelected())
             config.getOutput().setType(OutputFileType.XLSX);
 
-        config.getOutput().getCsvfile().setOutputPath(browseOutputText.getText());
-        config.getOutput().getCsvfile().setSeparator((String)separatorComboBox.getSelectedItem());
-        config.getOutput().getXlsxfile().setOutputPath(xlsxBrowseOutputText.getText());
+        config.getOutput().getCsvFile().setOutputPath(browseOutputText.getText());
+        config.getOutput().getCsvFile().setSeparator((String)separatorComboBox.getSelectedItem());
+        config.getOutput().getXlsxFile().setOutputPath(xlsxBrowseOutputText.getText());
 
         config.setCollapseBoundingBoxFilter(bboxFilterPanel.isCollapsed());
         config.setCollapseFeatureTypeFilter(featureFilterPanel.isCollapsed());
@@ -859,13 +852,15 @@ public class SPSHGPanel extends JPanel {
     public void loadExistingTemplate() {
         if (browseText.getText() == null || browseText.getText().trim().length() < 1)
             return;
+
         final File mTemplate = new File(browseText.getText().trim());
         if (!mTemplate.exists())
             return;
+
         Thread t = new Thread(() -> {
-            try {
-                FileInputStream inputStream = new FileInputStream(mTemplate);
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(mTemplate), StandardCharsets.UTF_8))) {
+                Translator translator = new Translator();
                 String strLine;
                 // Clean the table. Without notification.
                 tableDataModel.reset();
@@ -887,19 +882,20 @@ public class SPSHGPanel extends JPanel {
                         content = strLine.substring(strLine.indexOf(':') + 1);
                     } else {
                         content = strLine;
-                        header = Translator.getInstance().getProperHeader(content);
+                        header = translator.getProperHeader(content);
                     }
                     if (comment.length() > 0)
                         comment.setLength(comment.lastIndexOf(System.getProperty("line.separator")));
                     tableDataModel.addNewRow(new CSVColumns(header,
                             content, comment.substring(0),
-                            Translator.getInstance().getFormatedDocument(content)));
+                            translator.getFormatedDocument(content)));
                     comment.setLength(0);
                 }
             } catch (IOException ioe) {
                 //
             }
         });
+        t.setDaemon(true);
         t.start();
     }
 

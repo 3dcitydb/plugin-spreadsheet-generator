@@ -60,7 +60,8 @@ public class SeparatorPhrase {
 
 		return encoded;
 	}
-	
+
+	/*
 	public String getTempPhrase(){
 		if (tempPhrase.length()==0)
 			renewTempPhrase();
@@ -70,6 +71,8 @@ public class SeparatorPhrase {
 	public void renewTempPhrase(){
 		tempPhrase="_$"+System.currentTimeMillis()+"$_";
 	}
+
+	 */
 	
 	public synchronized String getExcelSeparator(){
 		return ",";

@@ -31,19 +31,19 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name="OutputType", propOrder={
-		"csvfile",
-		"xlsxfile"
+		"csvFile",
+		"xlsxFile"
 })
 
 public class Output {
 	@XmlAttribute(required = true)
 	private OutputFileType type = OutputFileType.CSV;
-	private CSVFile csvfile;
-	private XLSXFile xlsxfile;
+	private CSVFile csvFile;
+	private XLSXFile xlsxFile;
 
 	public Output() {
-		csvfile = new CSVFile();
-		xlsxfile = new XLSXFile();
+		csvFile = new CSVFile();
+		xlsxFile = new XLSXFile();
 	}
 
 	public OutputFileType getType() {
@@ -54,11 +54,11 @@ public class Output {
 		this.type = type;
 	}
 
-	public CSVFile getCsvfile() {
-		return csvfile;
+	public CSVFile getCsvFile() {
+		return csvFile;
 	}
 
-	public XLSXFile getXlsxfile() {
-		return xlsxfile;
+	public XLSXFile getXlsxFile() {
+		return xlsxFile;
 	}
 }

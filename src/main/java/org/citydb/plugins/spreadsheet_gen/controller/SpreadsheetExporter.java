@@ -52,12 +52,10 @@ import org.citydb.event.global.ObjectCounterEvent;
 import org.citydb.event.global.StatusDialogTitle;
 import org.citydb.log.Logger;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriterFactory;
-import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorker;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
-import org.citydb.plugins.spreadsheet_gen.config.Output;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
@@ -160,9 +158,9 @@ public class SpreadsheetExporter implements EventHandler {
         String path;
 
         if (config.getOutput().getType() == OutputFileType.XLSX)
-            path = config.getOutput().getXlsxfile().getOutputPath().trim();
+            path = config.getOutput().getXlsxFile().getOutputPath().trim();
         else
-            path = config.getOutput().getCsvfile().getOutputPath().trim();
+            path = config.getOutput().getCsvFile().getOutputPath().trim();
 
         if (path.lastIndexOf(File.separator) == -1) {
             filename = path;
@@ -198,12 +196,15 @@ public class SpreadsheetExporter implements EventHandler {
             }
         }
 
-        String templateFile;
+        // create translator
+        Translator translator = new Translator();
+
+        String template;
         try {
             if (!config.getTemplate().isManualTemplate()) {
-                templateFile = Translator.getInstance().translateToBalloonTemplate(new File(config.getTemplate().getPath()));
+                template = translator.translateToBalloonTemplate(new File(config.getTemplate().getPath()));
             } else {
-                templateFile = Translator.getInstance().translateToBalloonTemplate(config.getTemplate().getColumnsList());
+                template = translator.translateToBalloonTemplate(config.getTemplate().getColumnsList());
             }
         } catch (Exception e) {
             throw new TableExportException("Failed to read template file.", e);
@@ -213,14 +214,20 @@ public class SpreadsheetExporter implements EventHandler {
         SingleWorkerPool<RowofCSVWork> writerPool = null;
 
         try {
-            writerPool = new SingleWorkerPool<>("spsh_writer_pool", new CSVWriterFactory(outputfile), 100, true);
+            writerPool = new SingleWorkerPool<>(
+                    "spsh_writer_pool",
+                    new CSVWriterFactory(outputfile),
+                    100,
+                    true);
 
             workerPool = new WorkerPool<>(
                     "spsh_generator_pool",
                     minThreads,
                     maxThreads,
                     PoolSizeAdaptationStrategy.AGGRESSIVE,
-                    new SPSHGWorkerFactory(dbPool, writerPool, config, templateFile), 300, false);
+                    new SPSHGWorkerFactory(writerPool, translator, template, config),
+                    300,
+                    false);
 
             workerPool.setContextClassLoader(SpreadsheetExporter.class.getClassLoader());
 
@@ -229,12 +236,10 @@ public class SpreadsheetExporter implements EventHandler {
             workerPool.prestartCoreWorkers();
 
             String separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
-                    SeparatorPhrase.getInstance().decode(config.getOutput().getCsvfile().getSeparator().trim()) :
+                    SeparatorPhrase.getInstance().decode(config.getOutput().getCsvFile().getSeparator().trim()) :
                     SeparatorPhrase.getInstance().getExcelSeparator();
 
-            writerPool.addWork(new RowofCSVWork(SPSHGWorker.generateHeader(
-                    Translator.getInstance().getColumnTitle(), separatorCharacter),
-                    RowofCSVWork.UNKNOWN_CLASS_ID));
+            writerPool.addWork(new RowofCSVWork(translator.generateHeader(separatorCharacter), RowofCSVWork.UNKNOWN_CLASS_ID));
 
             try {
                 log.info("Exporting to file: " + dummyOutputfile);
@@ -258,7 +263,7 @@ public class SpreadsheetExporter implements EventHandler {
 
             if (config.getOutput().getType() == OutputFileType.XLSX) {
                 try {
-                    convertToXSLX(csvFilePath, path, filename);
+                    convertToXSLX(csvFilePath, path, filename, translator);
                 } catch (Exception e) {
                     throw new TableExportException("Failed to write to output file.", e);
                 }
@@ -340,7 +345,7 @@ public class SpreadsheetExporter implements EventHandler {
         }
     }
 
-    public void convertToXSLX(String csvPath, String path, String filename) throws Exception {
+    public void convertToXSLX(String csvPath, String path, String filename, Translator translator) throws Exception {
         // convert csv to excel
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Countries");
@@ -363,7 +368,7 @@ public class SpreadsheetExporter implements EventHandler {
             cell.setCellValue(spshColumnNames[i]);
         }
         rowIndex++;
-        Map<String, String> templateMap = Translator.getInstance().getTemplateHashmap();
+        Map<String, String> templateMap = translator.getTemplateMap();
 
         while (reader.readRecord()) {
             row = sheet.createRow(rowIndex);
@@ -373,7 +378,7 @@ public class SpreadsheetExporter implements EventHandler {
                     if (valueArray[i] != null && valueArray[i].trim().length() > 0) {
                         String dbTableColumn = templateMap.get(spshColumnNames[i]);
                         Cell cell = row.createCell(i);
-                        Integer dataType = Util._3DCITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
+                        Integer dataType = Util.CITYDB_TABLES_AND_COLUMNS.get(dbTableColumn);
                         if (dataType == Util.NUMBER_COLUMN_VALUE.intValue()) {
                             try {
                                 cell.setCellValue(Double.parseDouble(valueArray[i]));

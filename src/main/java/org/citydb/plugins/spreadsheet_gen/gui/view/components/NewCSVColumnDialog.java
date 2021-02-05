@@ -362,12 +362,12 @@ public class NewCSVColumnDialog extends JDialog {
 		insertButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Translator translator = new Translator();
 				String title = titleText.getText();
 				String cont = content.getText();
 
 				if (title != null && title.trim().length() == 0){
-					title= Translator.getInstance().getProperHeader(cont);
-					
+					title= translator.getProperHeader(cont);
 				}
 					
 				if (title != null && title.trim().length() > 0
@@ -384,7 +384,7 @@ public class NewCSVColumnDialog extends JDialog {
 							.getString("spshg.dialog.addnewcolumn.error.title"));
 					return;
 				}
-				if (cont!=null && cont.trim().length()==0) {
+				if (cont==null || cont.trim().length()==0) {
 					errorMessage(
 							"Error",
 							Util.I18N

@@ -32,14 +32,12 @@ import java.util.ResourceBundle;
 
 public class Util {
 	public static ResourceBundle I18N;
-	
 	public static final String NUMBER_COLUMN_KEY = "NUMBER_COLUMN_KEY";
-	public static Integer NUMBER_COLUMN_VALUE = 1;
 	public static final String STRING_COLUMN_KEY = "STRING_COLUMN_KEY";
-	public static Integer STRING_COLUMN_VALUE = 2;
+	public static final Integer NUMBER_COLUMN_VALUE = 1;
+	public static final Integer STRING_COLUMN_VALUE = 2;
 
-	public static final HashMap<String, Integer> _3DCITYDB_TABLES_AND_COLUMNS = new HashMap<String, Integer>() {{
-		
+	public static final HashMap<String, Integer> CITYDB_TABLES_AND_COLUMNS = new HashMap<String, Integer>() {{
 		// other cases
 		put(STRING_COLUMN_KEY, STRING_COLUMN_VALUE);
 		put(NUMBER_COLUMN_KEY, NUMBER_COLUMN_VALUE);

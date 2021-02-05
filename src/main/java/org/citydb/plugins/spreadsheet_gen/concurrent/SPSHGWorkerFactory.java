@@ -37,24 +37,26 @@ import org.citydb.log.Logger;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.database.Translator;
 
 import java.sql.Connection;
 
 public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
 	private final Logger log = Logger.getInstance();
-
-	private final DatabaseConnectionPool dbPool;
-	private final WorkerPool<RowofCSVWork> ioWriterPool;
+	private final WorkerPool<RowofCSVWork> writerPool;
+	private final Translator translator;
+	private final String template;
 	private final ConfigImpl config;
-	private String template;
 
-	public SPSHGWorkerFactory(DatabaseConnectionPool dbPool,
-			WorkerPool<RowofCSVWork> ioWriterPool,
-			ConfigImpl config, String template){
-		this.dbPool=dbPool;
-		this.ioWriterPool=ioWriterPool;
-		this.config=config;
-		this.template=template;
+	public SPSHGWorkerFactory(
+			WorkerPool<RowofCSVWork> writerPool,
+			Translator translator,
+			String template,
+			ConfigImpl config) {
+		this.writerPool = writerPool;
+		this.translator = translator;
+		this.template = template;
+		this.config = config;
 	}
 
 	@Override
@@ -69,8 +71,10 @@ public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
 			worker = new SPSHGWorker(
 					connection,
 					databaseAdapter,
-					ioWriterPool,
-					config,template);
+					writerPool,
+					translator,
+					template,
+					config);
 		} catch (Exception e) {
 			log.error("Failed to create export worker.", e);
 		}
