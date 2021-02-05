@@ -59,7 +59,6 @@ import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.query.Query;
 import org.citydb.query.builder.QueryBuildException;
@@ -236,8 +235,8 @@ public class SpreadsheetExporter implements EventHandler {
             workerPool.prestartCoreWorkers();
 
             String separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
-                    SeparatorPhrase.getInstance().decode(config.getOutput().getCsvFile().getSeparator().trim()) :
-                    SeparatorPhrase.getInstance().getExcelSeparator();
+                    config.getOutput().getCsvFile().getDelimiter() :
+                    ",";
 
             writerPool.addWork(new RowofCSVWork(translator.generateHeader(separatorCharacter), RowofCSVWork.UNKNOWN_CLASS_ID));
 
@@ -265,7 +264,7 @@ public class SpreadsheetExporter implements EventHandler {
                 try {
                     convertToXSLX(csvFilePath, path, filename, translator);
                 } catch (Exception e) {
-                    throw new TableExportException("Failed to write to output file.", e);
+                    throw new TableExportException("Failed to write XLSX output file.", e);
                 }
             }
         } catch (TableExportException e) {
@@ -355,7 +354,7 @@ public class SpreadsheetExporter implements EventHandler {
 
         String xlsxFullpath = path + File.separator + filename + ".xlsx";
 
-        reader = new CsvReader(csvPath, SeparatorPhrase.getInstance().getExcelSeparator().charAt(0), StandardCharsets.UTF_8);
+        reader = new CsvReader(csvPath, ',', StandardCharsets.UTF_8);
 
         // avoid error message of CsvReader in case of column lengths greater than 100,000 characters
         reader.setSafetySwitch(false);

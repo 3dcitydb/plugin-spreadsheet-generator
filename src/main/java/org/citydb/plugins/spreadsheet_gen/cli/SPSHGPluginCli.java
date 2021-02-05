@@ -56,16 +56,16 @@ import java.util.ResourceBundle;
 		versionProvider = ImpExpCli.class
 )
 public class SPSHGPluginCli extends CliCommand {
-	@CommandLine.Option(names = {"--template"}, required = true,
+	@CommandLine.Option(names = {"-l", "--template"}, required = true, paramLabel = "<file>",
 			description = "Name of the template file.")
 	private Path templateFile;
 
-	@CommandLine.Option(names = {"-o", "--output"}, required = true,
+	@CommandLine.Option(names = {"-o", "--output"}, required = true, paramLabel = "<file>",
 			description = "Name of the output file with the extension .csv or .xlsx")
 	private Path outputFile;
 
-	@CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>", defaultValue = ",",
-			description = "Delimiter to use for splitting lines in CSV file (default: '${DEFAULT-VALUE}').")
+	@CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>",
+			description = "Column delimiter to use for CSV file (default: ',').")
 	private String delimiter;
 
 	@CommandLine.ArgGroup(exclusive = false, heading = "Query and filter options:%n")
@@ -139,7 +139,10 @@ public class SPSHGPluginCli extends CliCommand {
 		} else {
 			pluginConfig.getOutput().setType(OutputFileType.CSV);
 			pluginConfig.getOutput().getCsvFile().setOutputPath(outputFileName);
-			pluginConfig.getOutput().getCsvFile().setSeparator(delimiter);
+
+			if (delimiter != null) {
+				pluginConfig.getOutput().getCsvFile().setDelimiter(delimiter);
+			}
 		}
 
 		// run spreadsheet export

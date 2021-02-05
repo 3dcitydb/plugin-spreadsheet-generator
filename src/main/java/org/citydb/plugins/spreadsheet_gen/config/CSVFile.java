@@ -32,35 +32,35 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name="OutputCSVFileType", propOrder={
 		"outputPath",
-		"separator"
+		"delimiter"
 })
 public class CSVFile {
-	
-	private String outputPath="";
-	private String separator="Comma";
+	private String outputPath;
+	private String delimiter;
 	@XmlTransient
-	private String lastVisitPath="";
-	
-	
+	private String lastVisitPath;
+
 	public String getOutputPath() {
-		return outputPath;
+		return outputPath != null ? outputPath : "";
 	}
+
 	public void setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
 	}
+
 	public String getLastVisitPath() {
-		return lastVisitPath;
+		return lastVisitPath != null ? lastVisitPath : "";
 	}
+
 	public void setLastVisitPath(String lastVisit) {
 		this.lastVisitPath = lastVisit;
 	}
-	public CSVFile(){
-		
+
+	public String getDelimiter() {
+		return delimiter != null ? delimiter : ",";
 	}
-	public String getSeparator() {
-		return separator;
-	}
-	public void setSeparator(String separator) {
-		this.separator = separator;
+
+	public void setDelimiter(String delimiter) {
+		this.delimiter = delimiter;
 	}
 }

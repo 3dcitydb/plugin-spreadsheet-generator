@@ -42,7 +42,6 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
 import org.citydb.registry.ObjectRegistry;
 
 import java.sql.Connection;
@@ -75,8 +74,8 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 		this.translator = translator;
 
 		separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
-				SeparatorPhrase.getInstance().decode(config.getOutput().getCsvFile().getSeparator().trim()) :
-				SeparatorPhrase.getInstance().getExcelSeparator();
+				config.getOutput().getCsvFile().getDelimiter() :
+				",";
 
 		bth = new BalloonTemplateHandler(template, databaseAdapter);
 		featureCounter = new HashMap<>();

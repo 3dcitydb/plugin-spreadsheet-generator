@@ -51,7 +51,7 @@ import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
 import org.citydb.plugins.spreadsheet_gen.controller.TemplateWriter;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
-import org.citydb.plugins.spreadsheet_gen.gui.datatype.SeparatorPhrase;
+import org.citydb.plugins.spreadsheet_gen.gui.datatype.Delimiter;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
@@ -73,6 +73,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SPSHGPanel extends JPanel {
@@ -110,9 +111,9 @@ public class SPSHGPanel extends JPanel {
     private final JButton browseOutputButton = new JButton();
 
     // private JPanel advanceTemplate;
-    private final JLabel separatorLabel = new JLabel();
+    private final JLabel delimiterLabel = new JLabel();
     private final JTextField separatorText = new JTextField();
-    private JComboBox<String> separatorComboBox;
+    private final JComboBox<Delimiter> delimiterComboBox = new JComboBox<>();
 
     //++ xlsx options
     private final JRadioButton xlsxRadioButton = new JRadioButton();
@@ -245,14 +246,12 @@ public class SPSHGPanel extends JPanel {
             JPanel csvOutputPanel = new JPanel();
             csvOutputPanel.setLayout(new GridBagLayout());
             {
-                separatorComboBox = new JComboBox<>();
-                SeparatorPhrase.getInstance().load();
-                SeparatorPhrase.getInstance().getNicknames().forEach(name -> separatorComboBox.addItem(name));
+                Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
 
                 Box separatorPhraseBox = Box.createHorizontalBox();
-                separatorPhraseBox.add(separatorLabel);
+                separatorPhraseBox.add(delimiterLabel);
                 separatorPhraseBox.add(Box.createRigidArea(new Dimension(10, 0)));
-                separatorPhraseBox.add(separatorComboBox);
+                separatorPhraseBox.add(delimiterComboBox);
 
                 int lmargin = GuiUtil.getTextOffset(csvRadioButton);
                 csvOutputPanel.add(csvRadioButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 5));
@@ -323,11 +322,11 @@ public class SPSHGPanel extends JPanel {
         outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
         csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
         xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
-        separatorLabel.setText(Util.I18N.getString("spshg.csvPanel.separator"));
+        delimiterLabel.setText(Util.I18N.getString("spshg.csvPanel.delimiter"));
 
         browseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
         xlsxBrowseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
-        separatorText.setText(Util.I18N.getString("spshg.csvPanel.separator.comma"));
+        separatorText.setText(Util.I18N.getString("spshg.csvPanel.delimiter.comma"));
 
         exportButton.setText(Util.I18N.getString("spshg.button.export"));
 
@@ -335,6 +334,11 @@ public class SPSHGPanel extends JPanel {
             tableDataModel.updateColumnsTitle();
             modifyTableColumnsSize();
         }
+
+        int selected = delimiterComboBox.getSelectedIndex();
+        delimiterComboBox.removeAllItems();
+        Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
+        delimiterComboBox.setSelectedIndex(selected);
 
         UIManager.addPropertyChangeListener(e -> {
             if ("lookAndFeel".equals(e.getPropertyName())) {
@@ -549,11 +553,6 @@ public class SPSHGPanel extends JPanel {
                             Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
                     return;
                 }
-                if (config.getOutput().getCsvFile().getSeparator().trim().equals("")) {
-                    errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
-                            Util.I18N.getString("spshg.dialog.error.incompleteData.seperatorChar"));
-                    return;
-                }
             } else if (config.getOutput().getType() == OutputFileType.XLSX) {
                 // xlsx file
                 if (config.getOutput().getXlsxFile().getOutputPath().trim().equals("")) {
@@ -761,9 +760,9 @@ public class SPSHGPanel extends JPanel {
 
         browseOutputButton.setEnabled(csvRadioButton.isSelected());
         browseOutputText.setEnabled(csvRadioButton.isSelected());
-        separatorLabel.setEnabled(csvRadioButton.isSelected());
+        delimiterLabel.setEnabled(csvRadioButton.isSelected());
         separatorText.setEnabled(csvRadioButton.isSelected());
-        separatorComboBox.setEnabled(csvRadioButton.isSelected());
+        delimiterComboBox.setEnabled(csvRadioButton.isSelected());
 
         xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
         xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
@@ -801,7 +800,7 @@ public class SPSHGPanel extends JPanel {
         useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
 
         browseOutputText.setText(config.getOutput().getCsvFile().getOutputPath());
-        separatorComboBox.setSelectedItem(config.getOutput().getCsvFile().getSeparator());
+        delimiterComboBox.setSelectedItem(Delimiter.fromValue(config.getOutput().getCsvFile().getDelimiter()));
         xlsxBrowseOutputText.setText(config.getOutput().getXlsxFile().getOutputPath());
 
         csvRadioButton.setSelected(true);
@@ -838,7 +837,7 @@ public class SPSHGPanel extends JPanel {
             config.getOutput().setType(OutputFileType.XLSX);
 
         config.getOutput().getCsvFile().setOutputPath(browseOutputText.getText());
-        config.getOutput().getCsvFile().setSeparator((String)separatorComboBox.getSelectedItem());
+        config.getOutput().getCsvFile().setDelimiter(((Delimiter) delimiterComboBox.getSelectedItem()).getDelimiter());
         config.getOutput().getXlsxFile().setOutputPath(xlsxBrowseOutputText.getText());
 
         config.setCollapseBoundingBoxFilter(bboxFilterPanel.isCollapsed());
