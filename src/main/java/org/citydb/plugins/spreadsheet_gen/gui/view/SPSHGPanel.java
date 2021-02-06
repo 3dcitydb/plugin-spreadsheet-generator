@@ -361,7 +361,6 @@ public class SPSHGPanel extends JPanel {
         saveButton.setPreferredSize(new Dimension(rightHandMargin, saveButton.getPreferredSize().height));
         scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
         editTemplateButton.setPreferredSize(new Dimension(rightHandMargin, editTemplateButton.getPreferredSize().height));
-        manuallyTemplateButton.setPreferredSize(new Dimension(rightHandMargin, manuallyTemplateButton.getPreferredSize().height));
     }
 
     private void modifyTableColumnsSize() {
