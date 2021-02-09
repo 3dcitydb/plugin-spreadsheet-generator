@@ -610,7 +610,7 @@ public class SPSHGPanel extends JPanel {
                 log.warn("Table data export aborted.");
             }
 
-            viewController.setStatusText(Util.I18N.getString("main.status.ready.label"));
+            viewController.setStatusText(Language.I18N.getString("main.status.ready.label"));
         } finally {
             lock.unlock();
         }

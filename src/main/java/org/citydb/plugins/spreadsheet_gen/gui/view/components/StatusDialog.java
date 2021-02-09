@@ -27,6 +27,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
+import org.citydb.config.i18n.Language;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.EventHandler;
@@ -79,7 +80,7 @@ public class StatusDialog extends JDialog implements EventHandler {
 			boolean setButton) {
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
-		button = new JButton(Util.I18N.getString("common.button.cancel"));
+		button = new JButton(Language.I18N.getString("common.button.cancel"));
 
 		progressBar = new JProgressBar(0, 100);
 
@@ -137,7 +138,7 @@ public class StatusDialog extends JDialog implements EventHandler {
 			messageLabel.setText(status);
 		} else if (e.getEventType() == org.citydb.event.global.EventType.INTERRUPT) {
 			acceptStatusUpdate = false;
-			messageLabel.setText(Util.I18N.getString("common.dialog.msg.abort"));
+			messageLabel.setText(Language.I18N.getString("common.dialog.msg.abort"));
 		} else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {
 			messageLabel.setText(((StatusDialogMessage) e).getMessage());
 		} else if (e.getEventType() == EventType.STATUS_DIALOG_TITLE && acceptStatusUpdate) {

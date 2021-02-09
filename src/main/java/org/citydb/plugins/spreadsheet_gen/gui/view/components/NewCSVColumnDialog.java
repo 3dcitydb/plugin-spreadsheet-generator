@@ -27,6 +27,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
+import org.citydb.config.i18n.Language;
 import org.citydb.gui.util.GuiUtil;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugin.extension.view.ViewController;
@@ -222,7 +223,7 @@ public class NewCSVColumnDialog extends JDialog {
 			insertButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.edit"));
 		else
 			insertButton = new JButton(Util.I18N.getString("spshg.dialog.addnewcolumn.insert"));
-		cancelButton = new JButton(Util.I18N.getString("common.button.cancel"));
+		cancelButton = new JButton(Language.I18N.getString("common.button.cancel"));
 		southPanelBox.add(insertButton);
 		southPanelBox.add(Box.createRigidArea(new Dimension(10, 0)));
 		southPanelBox.add(cancelButton);
