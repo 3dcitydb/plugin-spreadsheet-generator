@@ -27,22 +27,20 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
-import com.formdev.flatlaf.extras.FlatSVGIcon;
+import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
-import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.global.InterruptEvent;
-import org.citydb.gui.components.checkboxtree.DefaultCheckboxTreeCellRenderer;
 import org.citydb.gui.components.common.TitledPanel;
-import org.citydb.gui.components.feature.FeatureTypeTree;
 import org.citydb.gui.factory.PopupMenuDecorator;
+import org.citydb.gui.modules.common.filter.BoundingBoxFilterView;
+import org.citydb.gui.modules.common.filter.FeatureTypeFilterView;
 import org.citydb.gui.util.GuiUtil;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
-import org.citydb.plugin.extension.view.components.BoundingBoxPanel;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
@@ -57,7 +55,6 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
-import org.citygml4j.model.module.citygml.CityGMLVersion;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -92,20 +89,19 @@ public class SPSHGPanel extends JPanel {
     private final JButton manuallyTemplateButton = new JButton();
 
     // feature type panel
-    private FeatureTypeTree typeTree;
-    private JPanel featureTreePanel;
-    private TitledPanel featureFilterPanel;
     private JCheckBox useFeatureFilter;
+    private TitledPanel featureFilterPanel;
+    private FeatureTypeFilterView featureTypeFilter;
 
-    // +BBX Panel
-    private BoundingBoxPanel bboxPanel;
-    private TitledPanel bboxFilterPanel;
+    // BBOX Panel
     private JCheckBox useBBoxFilter;
+    private TitledPanel bboxFilterPanel;
+    private BoundingBoxFilterView bboxFilter;
 
-    //+Output Panel
+    // Output Panel
     private TitledPanel outputPanel;
 
-    //++ CSV options
+    // CSV options
     private final JRadioButton csvRadioButton = new JRadioButton();
     private final JTextField browseOutputText = new JTextField();
     private final JButton browseOutputButton = new JButton();
@@ -115,12 +111,12 @@ public class SPSHGPanel extends JPanel {
     private final JTextField separatorText = new JTextField();
     private final JComboBox<Delimiter> delimiterComboBox = new JComboBox<>();
 
-    //++ xlsx options
+    // xlsx options
     private final JRadioButton xlsxRadioButton = new JRadioButton();
     private final JTextField xlsxBrowseOutputText = new JTextField();
     private final JButton xlsxBrowseOutputButton = new JButton();
 
-    //++ export button
+    // export button
     private final JButton exportButton = new JButton();
 
     // manual template generator
@@ -202,35 +198,21 @@ public class SPSHGPanel extends JPanel {
             csvColumnsPanel = new TitledPanel().build(columnsPanel);
         }
 
-        typeTree = new FeatureTypeTree(CityGMLVersion.v2_0_0, true);
-        typeTree.setRowHeight((int)(new JCheckBox().getPreferredSize().getHeight()) - 1);
-
-        // get rid of standard icons
-        DefaultCheckboxTreeCellRenderer renderer = (DefaultCheckboxTreeCellRenderer) typeTree.getCellRenderer();
-        renderer.setLeafIcon(null);
-        renderer.setOpenIcon(null);
-        renderer.setClosedIcon(null);
-
-        featureTreePanel = new JPanel();
-        featureTreePanel.setLayout(new GridBagLayout());
-        {
-            featureTreePanel.add(typeTree, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-        }
-
         useFeatureFilter = new JCheckBox();
+        featureTypeFilter = new FeatureTypeFilterView();
         featureFilterPanel = new TitledPanel()
-                .withIcon(new FlatSVGIcon("org/citydb/gui/filter/featureType.svg"))
+                .withIcon(featureTypeFilter.getIcon())
                 .withToggleButton(useFeatureFilter)
                 .withCollapseButton()
-                .build(featureTreePanel);
+                .build(featureTypeFilter.getViewComponent());
 
         useBBoxFilter = new JCheckBox();
-        bboxPanel = viewController.getComponentFactory().createBoundingBoxPanel();
+        bboxFilter = new BoundingBoxFilterView(viewController);
         bboxFilterPanel = new TitledPanel()
-                .withIcon(new FlatSVGIcon("org/citydb/gui/filter/bbox.svg"))
+                .withIcon(bboxFilter.getIcon())
                 .withToggleButton(useBBoxFilter)
                 .withCollapseButton()
-                .build(bboxPanel);
+                .build(bboxFilter.getViewComponent());
 
         outputPanel = new TitledPanel();
 
@@ -316,8 +298,8 @@ public class SPSHGPanel extends JPanel {
         saveButton.setText(Util.I18N.getString("spshg.button.save"));
         saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
 
-        featureFilterPanel.setTitle(Language.I18N.getString("filter.border.featureClass"));
-        bboxFilterPanel.setTitle(Util.I18N.getString("spshg.bbxPanel.border"));
+        bboxFilterPanel.setTitle(bboxFilter.getLocalizedTitle());
+        featureFilterPanel.setTitle(featureTypeFilter.getLocalizedTitle());
 
         outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
         csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
@@ -340,18 +322,8 @@ public class SPSHGPanel extends JPanel {
         Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
         delimiterComboBox.setSelectedIndex(selected);
 
-        UIManager.addPropertyChangeListener(e -> {
-            if ("lookAndFeel".equals(e.getPropertyName())) {
-                SwingUtilities.invokeLater(this::updateComponentUI);
-            }
-        });
-
+        featureTypeFilter.doTranslation();
         alignGUI();
-        updateComponentUI();
-    }
-
-    private void updateComponentUI() {
-        featureTreePanel.setBorder(UIManager.getBorder("ScrollPane.border"));
     }
 
     private void alignGUI() {
@@ -536,13 +508,18 @@ public class SPSHGPanel extends JPanel {
             }
 
             // bbox
-            if (config.isUseBoundingBoxFilter() && !(config.getBoundingBox().getLowerCorner().isSetX() ||
-                    config.getBoundingBox().getLowerCorner().isSetY() ||
-                    config.getBoundingBox().getUpperCorner().isSetX() ||
-                    config.getBoundingBox().getUpperCorner().isSetY())) {
-                errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
-                        Util.I18N.getString("spshg.dialog.error.incompleteData.bbox"));
-                return;
+            if (config.isUseBboxFilter()) {
+                BoundingBox bbox = config.getBoundingBox();
+                Double xMin = bbox.getLowerCorner().getX();
+                Double yMin = bbox.getLowerCorner().getY();
+                Double xMax = bbox.getUpperCorner().getX();
+                Double yMax = bbox.getUpperCorner().getY();
+
+                if (xMin == null || yMin == null || xMax == null || yMax == null) {
+                    errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
+                            Util.I18N.getString("spshg.dialog.error.incompleteData.bbox"));
+                    return;
+                }
             }
 
             if (config.getOutput().getType() == OutputFileType.CSV) {
@@ -768,35 +745,25 @@ public class SPSHGPanel extends JPanel {
     }
 
     private void setEnabledBBoxFilter() {
-        bboxPanel.setEnabled(useBBoxFilter.isSelected());
+        bboxFilter.setEnabled(useBBoxFilter.isSelected());
     }
 
     private void setEnabledFeatureFilter() {
-        if (useFeatureFilter.isSelected()) {
-            typeTree.expandRow(0);
-        } else {
-            typeTree.collapseRow(0);
-            typeTree.setSelectionPath(null);
-        }
-
-        typeTree.setPathsEnabled(useFeatureFilter.isSelected());
-        typeTree.setEnabled(useFeatureFilter.isSelected());
+        featureTypeFilter.setEnabled(useFeatureFilter.isSelected());
     }
 
     public void loadSettings() {
         ConfigImpl config = plugin.getConfig();
         if (config == null) return;
 
-        FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
-        typeTree.getCheckingModel().clearChecking();
-        typeTree.setSelected(featureTypeFilter.getTypeNames());
-        useFeatureFilter.setSelected(config.isUseFeatureTypeFilter());
 
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
 
-        bboxPanel.setBoundingBox(config.getBoundingBox());
-        useBBoxFilter.setSelected(config.isUseBoundingBoxFilter());
+        useBBoxFilter.setSelected(config.isUseBboxFilter());
+        useFeatureFilter.setSelected(config.isUseFeatureTypeFilter());
+        bboxFilter.loadSettings(config.getBoundingBox());
+        featureTypeFilter.loadSettings(config.getFeatureTypeFilter());
 
         browseOutputText.setText(config.getOutput().getCsvFile().getOutputPath());
         delimiterComboBox.setSelectedItem(Delimiter.fromValue(config.getOutput().getCsvFile().getDelimiter()));
@@ -821,14 +788,10 @@ public class SPSHGPanel extends JPanel {
         config.getTemplate().setPath(browseText.getText());
         config.getTemplate().setColumnsList(tableDataModel.getRows());
 
-        // feature type filter
-        FeatureTypeFilter featureTypeFilter = config.getFeatureTypeFilter();
-        featureTypeFilter.reset();
-        featureTypeFilter.setTypeNames(typeTree.getSelectedTypeNames());
+        config.setUseBboxFilter(useBBoxFilter.isSelected());
         config.setUseFeatureTypeFilter(useFeatureFilter.isSelected());
-
-        config.setBoundingBox(bboxPanel.getBoundingBox());
-        config.setUseBoundingBoxFilter(useBBoxFilter.isSelected());
+        config.setBoundingBox(bboxFilter.toSettings());
+        config.setFeatureTypeFilter(featureTypeFilter.toSettings());
 
         if (csvRadioButton.isSelected())
             config.getOutput().setType(OutputFileType.CSV);

@@ -138,7 +138,7 @@ public class SpreadsheetExporter implements EventHandler {
             QueryConfig queryConfig = new QueryConfig();
             queryConfig.setFeatureTypeFilter(config.getFeatureTypeFilter());
 
-            if (config.isUseBoundingBoxFilter()) {
+            if (config.isUseBboxFilter() && config.isSetBoundingBox()) {
                 BBOXOperator bboxOperator = new BBOXOperator();
                 bboxOperator.setEnvelope(config.getBoundingBox());
                 SelectionFilter selectionFilter = new SelectionFilter();

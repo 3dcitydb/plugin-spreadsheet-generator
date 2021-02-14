@@ -32,6 +32,7 @@ import org.citydb.config.project.plugin.PluginConfig;
 import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "SpreadsheetGeneratorConfigType", propOrder = {
@@ -47,31 +48,23 @@ public class ConfigImpl extends PluginConfig {
 	@XmlAttribute
 	private boolean useFeatureTypeFilter;
 	@XmlAttribute
-	private boolean useBoundingBoxFilter;
+	private boolean useBboxFilter;
 
-	private Template template;
+	@XmlElement(name = "typeNames")
 	private FeatureTypeFilter featureTypeFilter;
+	@XmlElement(name = "bbox")
 	private BoundingBox boundingBox;
+	private Template template;
 	private Output output;
 	private boolean showUnsupportedADEWarning = true;
 	private boolean collapseBoundingBoxFilter = true;
 	private boolean collapseFeatureTypeFilter = true;
 
 	public ConfigImpl() {
-		template = new Template();
 		featureTypeFilter = new FeatureTypeFilter();
 		boundingBox = new BoundingBox();
+		template = new Template();
 		output = new Output();
-	}
-
-	public FeatureTypeFilter getFeatureTypeFilter() {
-		return featureTypeFilter;
-	}
-
-	public void setFeatureTypeFilter(FeatureTypeFilter featureTypeFilter) {
-		if (featureTypeFilter != null) {
-			this.featureTypeFilter = featureTypeFilter;
-		}
 	}
 
 	public boolean isUseFeatureTypeFilter() {
@@ -82,6 +75,38 @@ public class ConfigImpl extends PluginConfig {
 		this.useFeatureTypeFilter = useFeatureTypeFilter;
 	}
 
+	public boolean isUseBboxFilter() {
+		return useBboxFilter;
+	}
+
+	public void setUseBboxFilter(boolean useBboxFilter) {
+		this.useBboxFilter = useBboxFilter;
+	}
+
+	public FeatureTypeFilter getFeatureTypeFilter() {
+		return featureTypeFilter;
+	}
+
+	public boolean isSetFeatureTypeFilter() {
+		return featureTypeFilter != null;
+	}
+
+	public void setFeatureTypeFilter(FeatureTypeFilter featureTypeFilter) {
+		this.featureTypeFilter = featureTypeFilter;
+	}
+
+	public BoundingBox getBoundingBox() {
+		return boundingBox;
+	}
+
+	public boolean isSetBoundingBox() {
+		return boundingBox != null;
+	}
+
+	public void setBoundingBox(BoundingBox boundingBox) {
+		this.boundingBox = boundingBox;
+	}
+
 	public Template getTemplate() {
 		return template;
 	}
@@ -90,24 +115,6 @@ public class ConfigImpl extends PluginConfig {
 		if (template != null) {
 			this.template = template;
 		}
-	}
-
-	public BoundingBox getBoundingBox() {
-		return boundingBox;
-	}
-
-	public void setBoundingBox(BoundingBox boundingBox) {
-		if (boundingBox != null) {
-			this.boundingBox = boundingBox;
-		}
-	}
-
-	public boolean isUseBoundingBoxFilter() {
-		return useBoundingBoxFilter;
-	}
-
-	public void setUseBoundingBoxFilter(boolean useBoundingBoxFilter) {
-		this.useBoundingBoxFilter = useBoundingBoxFilter;
 	}
 
 	public Output getOutput() {

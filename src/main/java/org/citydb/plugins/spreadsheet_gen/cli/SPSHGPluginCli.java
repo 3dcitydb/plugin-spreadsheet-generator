@@ -122,11 +122,8 @@ public class SPSHGPluginCli extends CliCommand {
 
 			// set bounding box
 			BoundingBox boundingBox = queryOption.getBoundingBox();
-			pluginConfig.setUseBoundingBoxFilter(boundingBox != null);
+			pluginConfig.setUseBboxFilter(boundingBox != null);
 			if (boundingBox != null) {
-				if (boundingBox.getSrs() == null) {
-					boundingBox.setSrs(database.getActiveDatabaseAdapter().getConnectionMetaData().getReferenceSystem());
-				}
 				pluginConfig.setBoundingBox(boundingBox);
 			}
 		}
