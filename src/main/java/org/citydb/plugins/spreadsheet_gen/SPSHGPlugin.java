@@ -34,15 +34,16 @@ import org.citydb.plugin.extension.config.PluginConfigEvent;
 import org.citydb.plugin.extension.view.View;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugin.extension.view.ViewExtension;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
+import org.citydb.plugins.spreadsheet_gen.config.GuiConfig;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGView;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<ConfigImpl> {
-	private ConfigImpl config;
+public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<ExportConfig> {
+	private ExportConfig config;
 	private Locale currentLocale;
 	private SPSHGView view;
 
@@ -56,19 +57,28 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	}
 
 	@Override
+	public void initViewExtension(ViewController viewController, Locale locale) {
+		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
+		view = new SPSHGView(viewController, this);
+		loadSettings();
+	}
+
+	@Override
 	public View getView() {
 		return view;
 	}
 	
 	@Override
 	public void shutdown() {
-		saveSettings();
+		setSettings();
 	}
 
 	@Override
 	public void switchLocale(Locale locale) {
-		if (locale.equals(currentLocale))
+		if (locale.equals(currentLocale)) {
 			return;
+		}
+
 		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
 		currentLocale = locale;
 		
@@ -76,33 +86,39 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 	}
 
 	@Override
-	public void configLoaded(ConfigImpl config2) {
+	public void configLoaded(ExportConfig config) {
 		boolean reload = this.config != null;		
-		setConfig(config2);
+		setConfig(config);
 		
-		if (reload)
-			loadSettings();	
+		if (reload) {
+			loadSettings();
+		}
 	}
 
 	@Override
-	public ConfigImpl getConfig() {
+	public ExportConfig getConfig() {
 		return config;
 	}
 	
-	public void setConfig(ConfigImpl config) {
+	public void setConfig(ExportConfig config) {
 		this.config = config;
 	}
 	
 	@Override
 	public void handleEvent(PluginConfigEvent event) {
 		switch (event) {
-		case RESET_DEFAULT_CONFIG:
-			this.config = new ConfigImpl();
-			loadSettings();
-			break;
-		case PRE_SAVE_CONFIG:
-			saveSettings();
-			break;
+			case RESET_DEFAULT_CONFIG:
+				this.config = new ExportConfig();
+				loadSettings();
+				break;
+			case PRE_SAVE_CONFIG:
+				setSettings();
+				break;
+			case RESET_GUI_VIEW:
+				setSettings();
+				config.setGuiConfig(new GuiConfig());
+				loadSettings();
+				break;
 		}
 	}
 	
@@ -110,14 +126,7 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Confi
 		view.loadSettings();	
 	}
 	
-	public void saveSettings() {
-		view.saveSettings();
-	}
-
-	@Override
-	public void initViewExtension(ViewController viewController, Locale locale) {
-		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
-		view = new SPSHGView(viewController, this);
-		loadSettings();
+	public void setSettings() {
+		view.setSettings();
 	}
 }

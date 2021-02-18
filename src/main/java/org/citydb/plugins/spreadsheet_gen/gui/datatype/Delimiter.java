@@ -30,25 +30,20 @@ package org.citydb.plugins.spreadsheet_gen.gui.datatype;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 public enum Delimiter {
-    COMMA(",", "spshg.csvPanel.delimiter.comma"),
-    SEMICOLON(";", "spshg.csvPanel.delimiter.semicolon"),
-    SPACE(" ", "spshg.csvPanel.delimiter.space"),
-    TAB("\t", "spshg.csvPanel.delimiter.tab");
+    COMMA(","),
+    SEMICOLON(";"),
+    COLON(":"),
+    SPACE(" "),
+    TAB("\t");
 
-    private String delimiter;
-    private String i18n;
+    private final String delimiter;
 
-    Delimiter(String delimiter, String i18n) {
+    Delimiter(String delimiter) {
         this.delimiter = delimiter;
-        this.i18n = i18n;
     }
 
     public String getDelimiter() {
         return delimiter;
-    }
-
-    public String getName() {
-        return Util.I18N.getString(i18n);
     }
 
     public static Delimiter fromValue(String delimiter) {
@@ -63,6 +58,19 @@ public enum Delimiter {
 
     @Override
     public String toString() {
-        return getName();
+        switch (this) {
+            case COMMA:
+                return Util.I18N.getString("spshg.csvPanel.delimiter.comma");
+            case SEMICOLON:
+                return Util.I18N.getString("spshg.csvPanel.delimiter.semicolon");
+            case COLON:
+                return Util.I18N.getString("spshg.csvPanel.delimiter.colon");
+            case SPACE:
+                return Util.I18N.getString("spshg.csvPanel.delimiter.space");
+            case TAB:
+                return Util.I18N.getString("spshg.csvPanel.delimiter.tab");
+            default:
+                return "";
+        }
     }
 }

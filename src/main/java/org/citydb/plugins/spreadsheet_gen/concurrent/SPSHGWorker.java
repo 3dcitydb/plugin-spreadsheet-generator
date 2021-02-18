@@ -39,7 +39,7 @@ import org.citydb.event.global.ObjectCounterEvent;
 import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.registry.ObjectRegistry;
@@ -68,7 +68,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 			WorkerPool<RowofCSVWork> writerPool,
 			Translator translator,
 			String template,
-			ConfigImpl config) {
+			ExportConfig config) {
 		this.connection = connection;
 		this.writerPool = writerPool;
 		this.translator = translator;

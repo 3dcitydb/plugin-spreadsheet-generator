@@ -68,8 +68,8 @@ public class SPSHGView  extends View implements ViewListener {
 		component.switchLocale();
 	}
 	
-	public void saveSettings(){
-		component.saveSettings();
+	public void setSettings(){
+		component.setSettings();
 	}
 	
 	public void loadSettings(){

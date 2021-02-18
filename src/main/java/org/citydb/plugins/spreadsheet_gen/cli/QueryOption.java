@@ -1,28 +1,61 @@
 package org.citydb.plugins.spreadsheet_gen.cli;
 
-import org.citydb.config.geometry.BoundingBox;
-import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
+import org.citydb.cli.options.vis.BoundingBoxOption;
+import org.citydb.config.project.query.filter.selection.id.ResourceIdOperator;
+import org.citydb.config.project.query.filter.selection.sql.SelectOperator;
+import org.citydb.config.project.query.simple.SimpleAttributeFilter;
 import org.citydb.plugin.cli.CliOption;
-import org.citydb.plugin.cli.CliOptionBuilder;
+import org.citydb.plugin.cli.ResourceIdOption;
+import org.citydb.plugin.cli.SQLSelectOption;
 import org.citydb.plugin.cli.TypeNamesOption;
+import org.citydb.plugins.spreadsheet_gen.config.SimpleQuery;
 import picocli.CommandLine;
 
 public class QueryOption implements CliOption {
     @CommandLine.ArgGroup (exclusive = false)
     private TypeNamesOption typeNamesOption;
 
-    @CommandLine.Option(names = {"-b", "--bbox"}, paramLabel = "<minx,miny,maxx,maxy[,srid]>",
-            description = "Bounding box to use as spatial filter.")
-    private String bbox;
+    @CommandLine.ArgGroup
+    private ResourceIdOption resourceIdOption;
 
-    private BoundingBox boundingBox;
+    @CommandLine.ArgGroup
+    private BoundingBoxOption boundingBoxOption;
 
-    public BoundingBox getBoundingBox() {
-        return boundingBox;
-    }
+    @CommandLine.ArgGroup
+    private SQLSelectOption sqlSelectOption;
 
-    public FeatureTypeFilter getFeatureTypeFilter() {
-        return typeNamesOption != null ? typeNamesOption.toFeatureTypeFilter() : null;
+    public SimpleQuery toQuery() {
+        SimpleQuery query = new SimpleQuery();
+
+        if (typeNamesOption != null) {
+            query.setUseTypeNames(true);
+            query.setFeatureTypeFilter(typeNamesOption.toFeatureTypeFilter());
+        }
+
+        if (resourceIdOption != null) {
+            ResourceIdOperator idOperator = resourceIdOption.toResourceIdOperator();
+            if (idOperator != null) {
+                query.setUseAttributeFilter(true);
+                SimpleAttributeFilter attributeFilter = new SimpleAttributeFilter();
+                attributeFilter.setResourceIdFilter(idOperator);
+                query.setAttributeFilter(attributeFilter);
+            }
+        }
+
+        if (boundingBoxOption != null) {
+            query.setUseBboxFilter(true);
+            query.setBboxFilter(boundingBoxOption.toBoundingBox());
+        }
+
+        if (sqlSelectOption != null) {
+            SelectOperator selectOperator = sqlSelectOption.toSelectOperator();
+            if (selectOperator != null) {
+                query.setUseSQLFilter(true);
+                query.setSQLFilter(selectOperator);
+            }
+        }
+
+        return query;
     }
 
     @Override
@@ -31,8 +64,8 @@ public class QueryOption implements CliOption {
             typeNamesOption.preprocess(commandLine);
         }
 
-        if (bbox != null) {
-            boundingBox = CliOptionBuilder.boundingBox(bbox, commandLine);
+        if (boundingBoxOption != null) {
+            boundingBoxOption.preprocess(commandLine);
         }
     }
 }

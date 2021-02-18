@@ -30,20 +30,28 @@ package org.citydb.plugins.spreadsheet_gen.gui.view;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
+import org.citydb.config.project.query.simple.SimpleAttributeFilter;
+import org.citydb.config.project.query.simple.SimpleFeatureVersionFilter;
+import org.citydb.config.project.query.simple.SimpleFeatureVersionFilterMode;
 import org.citydb.database.DatabaseController;
 import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.global.InterruptEvent;
 import org.citydb.gui.components.common.TitledPanel;
 import org.citydb.gui.factory.PopupMenuDecorator;
+import org.citydb.gui.modules.common.filter.AttributeFilterView;
 import org.citydb.gui.modules.common.filter.BoundingBoxFilterView;
 import org.citydb.gui.modules.common.filter.FeatureTypeFilterView;
+import org.citydb.gui.modules.common.filter.FeatureVersionFilterView;
+import org.citydb.gui.modules.common.filter.SQLFilterView;
 import org.citydb.gui.util.GuiUtil;
 import org.citydb.log.Logger;
 import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
+import org.citydb.plugins.spreadsheet_gen.config.GuiConfig;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
+import org.citydb.plugins.spreadsheet_gen.config.SimpleQuery;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
 import org.citydb.plugins.spreadsheet_gen.controller.TableExportException;
 import org.citydb.plugins.spreadsheet_gen.controller.TemplateWriter;
@@ -59,6 +67,7 @@ import org.citydb.registry.ObjectRegistry;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
+import javax.xml.datatype.DatatypeConstants;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -80,7 +89,6 @@ public class SPSHGPanel extends JPanel {
     private final DatabaseController dbController;
     private final SPSHGPlugin plugin;
 
-    // +columns panel
     private TitledPanel csvColumnsPanel;
     private final JLabel templateLabel = new JLabel();
     private final JTextField browseText = new JTextField();
@@ -88,38 +96,36 @@ public class SPSHGPanel extends JPanel {
     private final JButton editTemplateButton = new JButton();
     private final JButton manuallyTemplateButton = new JButton();
 
-    // feature type panel
-    private JCheckBox useFeatureFilter;
-    private TitledPanel featureFilterPanel;
-    private FeatureTypeFilterView featureTypeFilter;
-
-    // BBOX Panel
+    private JCheckBox useFeatureVersionFilter;
+    private JCheckBox useAttributeFilter;
+    private JCheckBox useSQLFilter;
     private JCheckBox useBBoxFilter;
+    private JCheckBox useFeatureFilter;
+
+    private TitledPanel featureVersionPanel;
+    private TitledPanel attributeFilterPanel;
+    private TitledPanel sqlFilterPanel;
+    private TitledPanel featureFilterPanel;
     private TitledPanel bboxFilterPanel;
+
+    private FeatureVersionFilterView featureVersionFilter;
+    private AttributeFilterView attributeFilter;
+    private SQLFilterView sqlFilter;
+    private FeatureTypeFilterView featureTypeFilter;
     private BoundingBoxFilterView bboxFilter;
 
-    // Output Panel
     private TitledPanel outputPanel;
-
-    // CSV options
     private final JRadioButton csvRadioButton = new JRadioButton();
     private final JTextField browseOutputText = new JTextField();
     private final JButton browseOutputButton = new JButton();
-
-    // private JPanel advanceTemplate;
     private final JLabel delimiterLabel = new JLabel();
     private final JTextField separatorText = new JTextField();
     private final JComboBox<Delimiter> delimiterComboBox = new JComboBox<>();
-
-    // xlsx options
     private final JRadioButton xlsxRadioButton = new JRadioButton();
     private final JTextField xlsxBrowseOutputText = new JTextField();
     private final JButton xlsxBrowseOutputButton = new JButton();
 
-    // export button
     private final JButton exportButton = new JButton();
-
-    // manual template generator
     private JPanel manualPanel;
     private JPanel buttonsPanel;
     private JScrollPane scrollPane;
@@ -141,129 +147,160 @@ public class SPSHGPanel extends JPanel {
         dbController = ObjectRegistry.getInstance().getDatabaseController();
 
         initGui();
-        addListeners();
         clearGui();
     }
 
     private void initGui() {
-        JPanel browsePanel = new JPanel();
-        browsePanel.setLayout(new GridBagLayout());
-        {
-            browseText.setColumns(10);
-            browsePanel.add(templateLabel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
-            browsePanel.add(browseText, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.HORIZONTAL, 3, 0, 0, 0));
-            browsePanel.add(browseButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 3, 10, 0, 0));
-            browsePanel.add(manuallyTemplateButton, GuiUtil.setConstraints(0, 2, 1, 1, GridBagConstraints.EAST, GridBagConstraints.NONE, 5, 0, 0, 0));
-            browsePanel.add(editTemplateButton, GuiUtil.setConstraints(1, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 10, 0, 0));
-        }
-
-        manualPanel = new JPanel();
-        manualPanel.setLayout(new GridBagLayout());
-        {
-            table = new JTable(tableDataModel);
-            table.setShowVerticalLines(true);
-            table.setShowHorizontalLines(true);
-            table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-            table.setCellSelectionEnabled(false);
-            table.setColumnSelectionAllowed(false);
-            table.setRowSelectionAllowed(true);
-            modifyTableColumnsSize();
-
-            scrollPane = new JScrollPane(table);
-
-            buttonsPanel = new JPanel();
-            buttonsPanel.setLayout(new GridBagLayout());
-            {
-                buttonsPanel.add(addButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
-                buttonsPanel.add(removeButton, GuiUtil.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
-                buttonsPanel.add(editButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
-                buttonsPanel.add(upButton, GuiUtil.setConstraints(0, 3, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
-                buttonsPanel.add(downButton, GuiUtil.setConstraints(0, 4, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
-            }
-
-            manualPanel.add(scrollPane, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
-            manualPanel.add(buttonsPanel, GuiUtil.setConstraints(1, 0, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, 0, 10, 0, 0));
-            manualPanel.add(saveMessage, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 10, 0, 0, 0));
-            manualPanel.add(saveButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 10, 10, 0, 0));
-        }
-
-        manualPanel.setVisible(false);
-
-        JPanel columnsPanel = new JPanel();
-        columnsPanel.setLayout(new GridBagLayout());
-        {
-            columnsPanel.add(browsePanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
-            columnsPanel.add(manualPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 15, 0, 0, 0));
-
-            csvColumnsPanel = new TitledPanel().build(columnsPanel);
-        }
-
+        useFeatureVersionFilter = new JCheckBox();
+        useAttributeFilter = new JCheckBox();
+        useSQLFilter = new JCheckBox();
         useFeatureFilter = new JCheckBox();
-        featureTypeFilter = new FeatureTypeFilterView();
-        featureFilterPanel = new TitledPanel()
-                .withIcon(featureTypeFilter.getIcon())
-                .withToggleButton(useFeatureFilter)
-                .withCollapseButton()
-                .build(featureTypeFilter.getViewComponent());
-
         useBBoxFilter = new JCheckBox();
-        bboxFilter = new BoundingBoxFilterView(viewController);
-        bboxFilterPanel = new TitledPanel()
-                .withIcon(bboxFilter.getIcon())
-                .withToggleButton(useBBoxFilter)
-                .withCollapseButton()
-                .build(bboxFilter.getViewComponent());
 
-        outputPanel = new TitledPanel();
-
-        // radio buttons
-        ButtonGroup outputButtonGroup = new ButtonGroup();
-        outputButtonGroup.add(csvRadioButton);
-        outputButtonGroup.add(xlsxRadioButton);
-        csvRadioButton.setSelected(true);
-
-        JPanel outputContentPanel = new JPanel();
-        outputContentPanel.setLayout(new GridBagLayout());
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
         {
+            JPanel outputContentPanel = new JPanel();
+            outputContentPanel.setLayout(new GridBagLayout());
+
+            // radio buttons
+            ButtonGroup outputButtonGroup = new ButtonGroup();
+            outputButtonGroup.add(csvRadioButton);
+            outputButtonGroup.add(xlsxRadioButton);
+            csvRadioButton.setSelected(true);
+
             JPanel csvOutputPanel = new JPanel();
             csvOutputPanel.setLayout(new GridBagLayout());
             {
                 Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
-
-                Box separatorPhraseBox = Box.createHorizontalBox();
-                separatorPhraseBox.add(delimiterLabel);
-                separatorPhraseBox.add(Box.createRigidArea(new Dimension(10, 0)));
-                separatorPhraseBox.add(delimiterComboBox);
-
                 int lmargin = GuiUtil.getTextOffset(csvRadioButton);
+
                 csvOutputPanel.add(csvRadioButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 5));
-                csvOutputPanel.add(browseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                csvOutputPanel.add(browseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 5, 0, 0));
                 csvOutputPanel.add(browseOutputButton, GuiUtil.setConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 10, 0, 0));
-                csvOutputPanel.add(separatorPhraseBox, GuiUtil.setConstraints(0, 1, 2, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, 5, lmargin, 0, 0));
+                csvOutputPanel.add(delimiterLabel, GuiUtil.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 5, lmargin, 0, 5));
+                csvOutputPanel.add(delimiterComboBox, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, 5, 5, 0, 0));
             }
 
             JPanel xlsxOutputPanel = new JPanel();
             xlsxOutputPanel.setLayout(new GridBagLayout());
             {
                 xlsxOutputPanel.add(xlsxRadioButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 5));
-                xlsxOutputPanel.add(xlsxBrowseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                xlsxOutputPanel.add(xlsxBrowseOutputText, GuiUtil.setConstraints(1, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 5, 0, 0));
                 xlsxOutputPanel.add(xlsxBrowseOutputButton, GuiUtil.setConstraints(2, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 10, 0, 0));
             }
 
             outputContentPanel.add(csvOutputPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
             outputContentPanel.add(xlsxOutputPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
 
-            outputPanel.build(outputContentPanel);
+            outputPanel = new TitledPanel().build(outputContentPanel);
+        }
+        {
+            JPanel columnsPanel = new JPanel();
+            columnsPanel.setLayout(new GridBagLayout());
+
+            JPanel browsePanel = new JPanel();
+            browsePanel.setLayout(new GridBagLayout());
+            {
+                browseText.setColumns(10);
+                browsePanel.add(templateLabel, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                browsePanel.add(browseText, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.HORIZONTAL, 3, 0, 0, 0));
+                browsePanel.add(browseButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 3, 10, 0, 0));
+                browsePanel.add(manuallyTemplateButton, GuiUtil.setConstraints(0, 2, 1, 1, GridBagConstraints.EAST, GridBagConstraints.NONE, 5, 0, 0, 0));
+                browsePanel.add(editTemplateButton, GuiUtil.setConstraints(1, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 10, 0, 0));
+            }
+
+            manualPanel = new JPanel();
+            manualPanel.setVisible(false);
+            manualPanel.setLayout(new GridBagLayout());
+            {
+                table = new JTable(tableDataModel);
+                table.setShowVerticalLines(true);
+                table.setShowHorizontalLines(true);
+                table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+                table.setCellSelectionEnabled(false);
+                table.setColumnSelectionAllowed(false);
+                table.setRowSelectionAllowed(true);
+                modifyTableColumnsSize();
+
+                scrollPane = new JScrollPane(table);
+
+                buttonsPanel = new JPanel();
+                buttonsPanel.setLayout(new GridBagLayout());
+                {
+                    buttonsPanel.add(addButton, GuiUtil.setConstraints(0, 0, 0, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                    buttonsPanel.add(removeButton, GuiUtil.setConstraints(0, 1, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                    buttonsPanel.add(editButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                    buttonsPanel.add(upButton, GuiUtil.setConstraints(0, 3, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                    buttonsPanel.add(downButton, GuiUtil.setConstraints(0, 4, 0, 0, GridBagConstraints.HORIZONTAL, 5, 0, 0, 0));
+                }
+
+                manualPanel.add(scrollPane, GuiUtil.setConstraints(0, 0, 1, 1, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+                manualPanel.add(buttonsPanel, GuiUtil.setConstraints(1, 0, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, 0, 10, 0, 0));
+                manualPanel.add(saveMessage, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 10, 0, 0, 0));
+                manualPanel.add(saveButton, GuiUtil.setConstraints(1, 1, 0, 0, GridBagConstraints.HORIZONTAL, 10, 10, 0, 0));
+            }
+
+            columnsPanel.add(browsePanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.HORIZONTAL, 0, 0, 0, 0));
+            columnsPanel.add(manualPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.HORIZONTAL, 15, 0, 0, 0));
+
+            csvColumnsPanel = new TitledPanel().build(columnsPanel);
+        }
+        {
+            featureVersionFilter = new FeatureVersionFilterView();
+
+            featureVersionPanel = new TitledPanel()
+                    .withIcon(featureVersionFilter.getIcon())
+                    .withToggleButton(useFeatureVersionFilter)
+                    .withCollapseButton()
+                    .build(featureVersionFilter.getViewComponent());
+        }
+        {
+            attributeFilter = new AttributeFilterView()
+                    .withNameFilter()
+                    .withLineageFilter();
+
+            attributeFilterPanel = new TitledPanel()
+                    .withIcon(attributeFilter.getIcon())
+                    .withToggleButton(useAttributeFilter)
+                    .withCollapseButton()
+                    .build(attributeFilter.getViewComponent());
+        }
+        {
+            sqlFilter = new SQLFilterView(() -> plugin.getConfig().getGuiConfig().getSQLExportFilterComponent());
+
+            sqlFilterPanel = new TitledPanel()
+                    .withIcon(sqlFilter.getIcon())
+                    .withToggleButton(useSQLFilter)
+                    .withCollapseButton()
+                    .build(sqlFilter.getViewComponent());
+        }
+        {
+            bboxFilter = new BoundingBoxFilterView(viewController);
+
+            bboxFilterPanel = new TitledPanel()
+                    .withIcon(bboxFilter.getIcon())
+                    .withToggleButton(useBBoxFilter)
+                    .withCollapseButton()
+                    .build(bboxFilter.getViewComponent());
+        }
+        {
+            featureTypeFilter = new FeatureTypeFilterView();
+
+            featureFilterPanel = new TitledPanel()
+                    .withIcon(featureTypeFilter.getIcon())
+                    .withToggleButton(useFeatureFilter)
+                    .withCollapseButton()
+                    .build(featureTypeFilter.getViewComponent());
         }
 
-        JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
-        {
-            content.add(outputPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-            content.add(csvColumnsPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-            content.add(bboxFilterPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-            content.add(featureFilterPanel, GuiUtil.setConstraints(0, 3, 0, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
-        }
+        content.add(outputPanel, GuiUtil.setConstraints(0, 0, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(csvColumnsPanel, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(featureVersionPanel, GuiUtil.setConstraints(0, 2, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(attributeFilterPanel, GuiUtil.setConstraints(0, 3, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(sqlFilterPanel, GuiUtil.setConstraints(0, 4, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(bboxFilterPanel, GuiUtil.setConstraints(0, 5, 1, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
+        content.add(featureFilterPanel, GuiUtil.setConstraints(0, 6, 0, 0, GridBagConstraints.BOTH, 0, 0, 0, 0));
 
         JPanel view = new JPanel();
         view.setLayout(new GridBagLayout());
@@ -276,96 +313,6 @@ public class SPSHGPanel extends JPanel {
         setLayout(new GridBagLayout());
         add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 15, 0, 0, 0));
         add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
-
-        PopupMenuDecorator.getInstance().decorate(browseText, browseOutputText, separatorText);
-        PopupMenuDecorator.getInstance().decorateAndGetTitledPanelGroup(bboxFilterPanel, featureFilterPanel);
-    }
-
-    public void switchLocale() {
-        resetPreferredSize();
-        csvColumnsPanel.setTitle(Util.I18N.getString("spshg.csvcolumns.border"));
-        templateLabel.setText(Util.I18N.getString("spshg.csvcolumns.usetemplate"));
-
-        browseButton.setText(Util.I18N.getString("spshg.button.browse"));
-        editTemplateButton.setText(Util.I18N.getString("spshg.button.edit"));
-        manuallyTemplateButton.setText(Util.I18N.getString("spshg.button.new"));
-
-        upButton.setText(Util.I18N.getString("spshg.button.up"));
-        downButton.setText(Util.I18N.getString("spshg.button.down"));
-        editButton.setText(Util.I18N.getString("spshg.button.edit"));
-        addButton.setText(Util.I18N.getString("spshg.button.add"));
-        removeButton.setText(Util.I18N.getString("spshg.button.remove"));
-        saveButton.setText(Util.I18N.getString("spshg.button.save"));
-        saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
-
-        bboxFilterPanel.setTitle(bboxFilter.getLocalizedTitle());
-        featureFilterPanel.setTitle(featureTypeFilter.getLocalizedTitle());
-
-        outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
-        csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
-        xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
-        delimiterLabel.setText(Util.I18N.getString("spshg.csvPanel.delimiter"));
-
-        browseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
-        xlsxBrowseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
-        separatorText.setText(Util.I18N.getString("spshg.csvPanel.delimiter.comma"));
-
-        exportButton.setText(Util.I18N.getString("spshg.button.export"));
-
-        if (tableDataModel != null) {
-            tableDataModel.updateColumnsTitle();
-            modifyTableColumnsSize();
-        }
-
-        int selected = delimiterComboBox.getSelectedIndex();
-        delimiterComboBox.removeAllItems();
-        Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
-        delimiterComboBox.setSelectedIndex(selected);
-
-        featureTypeFilter.doTranslation();
-        alignGUI();
-    }
-
-    private void alignGUI() {
-        int rightHandMargin = Math.max(buttonsPanel.getPreferredSize().width, browseButton.getPreferredSize().width);
-        buttonsPanel.setPreferredSize(new Dimension(rightHandMargin, buttonsPanel.getPreferredSize().height));
-        browseButton.setPreferredSize(new Dimension(rightHandMargin, browseButton.getPreferredSize().height));
-        saveButton.setPreferredSize(new Dimension(rightHandMargin, saveButton.getPreferredSize().height));
-        scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
-        editTemplateButton.setPreferredSize(new Dimension(rightHandMargin, editTemplateButton.getPreferredSize().height));
-    }
-
-    private void modifyTableColumnsSize() {
-        TableColumn column;
-        table.setSurrendersFocusOnKeystroke(true);
-        // title
-        column = table.getColumnModel().getColumn(0);
-        column.setMinWidth(30);
-        column.setPreferredWidth(30);
-        // content
-        column = table.getColumnModel().getColumn(1);
-        column.setPreferredWidth(140);
-        column.setMinWidth(140);
-    }
-
-    private void resetPreferredSize() {
-        buttonsPanel.setPreferredSize(null);
-        browseButton.setPreferredSize(null);
-        saveButton.setPreferredSize(null);
-        browseOutputButton.setPreferredSize(null);
-        xlsxBrowseOutputButton.setPreferredSize(null);
-        scrollPane.setPreferredSize(null);
-        editTemplateButton.setPreferredSize(null);
-        manuallyTemplateButton.setPreferredSize(null);
-    }
-
-    private void clearGui() {
-        csvRadioButton.setSelected(true);
-        setOutputEnabledValues();
-    }
-
-    private void addListeners() {
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
         exportButton.addActionListener(e -> {
             Thread thread = new Thread(this::doExport);
@@ -383,6 +330,10 @@ public class SPSHGPanel extends JPanel {
         xlsxBrowseOutputButton.addActionListener(e -> xlsxOutputFile());
         csvRadioButton.addActionListener(e -> setOutputEnabledValues());
         xlsxRadioButton.addActionListener(e -> setOutputEnabledValues());
+
+        useFeatureVersionFilter.addActionListener(e -> setEnabledFeatureVersionFilter());
+        useAttributeFilter.addItemListener(e -> setEnabledAttributeFilter());
+        useSQLFilter.addItemListener(e -> setEnabledSQLFilter());
         useBBoxFilter.addActionListener(e -> setEnabledBBoxFilter());
         useFeatureFilter.addActionListener(e -> setEnabledFeatureFilter());
 
@@ -433,6 +384,135 @@ public class SPSHGPanel extends JPanel {
         table.getSelectionModel().addListSelectionListener(e -> modifyButtonsVisibility());
 
         saveButton.addActionListener(e -> saveManuallyGeneratedTemplate());
+
+        PopupMenuDecorator.getInstance().decorate(browseText, browseOutputText, separatorText);
+        PopupMenuDecorator.getInstance().decorateAndGetTitledPanelGroup(featureVersionPanel, attributeFilterPanel,
+                sqlFilterPanel, bboxFilterPanel, featureFilterPanel);
+    }
+
+    private void setOutputEnabledValues() {
+        browseText.setEnabled(true);
+        manualPanel.setVisible(plugin.getConfig().getTemplate().isManualTemplate());
+        if (plugin.getConfig().getTemplate().isManualTemplate())
+            checkButtonsVisibilityInManualTemplate();
+
+        browseOutputButton.setEnabled(csvRadioButton.isSelected());
+        browseOutputText.setEnabled(csvRadioButton.isSelected());
+        delimiterLabel.setEnabled(csvRadioButton.isSelected());
+        separatorText.setEnabled(csvRadioButton.isSelected());
+        delimiterComboBox.setEnabled(csvRadioButton.isSelected());
+
+        xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
+        xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
+    }
+
+    private void setEnabledFeatureVersionFilter() {
+        featureVersionFilter.setEnabled(useFeatureVersionFilter.isSelected());
+    }
+
+    private void setEnabledAttributeFilter() {
+        attributeFilter.setEnabled(useAttributeFilter.isSelected());
+    }
+
+    private void setEnabledSQLFilter() {
+        sqlFilter.setEnabled(useSQLFilter.isSelected());
+    }
+
+    private void setEnabledBBoxFilter() {
+        bboxFilter.setEnabled(useBBoxFilter.isSelected());
+    }
+
+    private void setEnabledFeatureFilter() {
+        featureTypeFilter.setEnabled(useFeatureFilter.isSelected());
+    }
+
+    public void switchLocale() {
+        resetPreferredSize();
+        csvColumnsPanel.setTitle(Util.I18N.getString("spshg.csvcolumns.border"));
+        templateLabel.setText(Util.I18N.getString("spshg.csvcolumns.usetemplate"));
+
+        browseButton.setText(Util.I18N.getString("spshg.button.browse"));
+        editTemplateButton.setText(Util.I18N.getString("spshg.button.edit"));
+        manuallyTemplateButton.setText(Util.I18N.getString("spshg.button.new"));
+
+        upButton.setText(Util.I18N.getString("spshg.button.up"));
+        downButton.setText(Util.I18N.getString("spshg.button.down"));
+        editButton.setText(Util.I18N.getString("spshg.button.edit"));
+        addButton.setText(Util.I18N.getString("spshg.button.add"));
+        removeButton.setText(Util.I18N.getString("spshg.button.remove"));
+        saveButton.setText(Util.I18N.getString("spshg.button.save"));
+        saveMessage.setText(Util.I18N.getString("spshg.csvcolumns.manual.save"));
+
+        featureVersionPanel.setTitle(featureVersionFilter.getLocalizedTitle());
+        attributeFilterPanel.setTitle(attributeFilter.getLocalizedTitle());
+        sqlFilterPanel.setTitle(sqlFilter.getLocalizedTitle());
+        bboxFilterPanel.setTitle(bboxFilter.getLocalizedTitle());
+        featureFilterPanel.setTitle(featureTypeFilter.getLocalizedTitle());
+
+        outputPanel.setTitle(Util.I18N.getString("spshg.outputPanel.border"));
+        csvRadioButton.setText(Util.I18N.getString("spshg.csvPanel.border"));
+        xlsxRadioButton.setText(Util.I18N.getString("spshg.xlsxPanel.border"));
+        delimiterLabel.setText(Util.I18N.getString("spshg.csvPanel.delimiter"));
+
+        browseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
+        xlsxBrowseOutputButton.setText(Util.I18N.getString("spshg.button.browse"));
+        separatorText.setText(Util.I18N.getString("spshg.csvPanel.delimiter.comma"));
+
+        exportButton.setText(Util.I18N.getString("spshg.button.export"));
+
+        if (tableDataModel != null) {
+            tableDataModel.updateColumnsTitle();
+            modifyTableColumnsSize();
+        }
+
+        int selected = delimiterComboBox.getSelectedIndex();
+        delimiterComboBox.removeAllItems();
+        Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
+        delimiterComboBox.setSelectedIndex(selected);
+
+        featureVersionFilter.doTranslation();
+        attributeFilter.doTranslation();
+        sqlFilter.doTranslation();
+        featureTypeFilter.doTranslation();
+        alignGUI();
+    }
+
+    private void alignGUI() {
+        int rightHandMargin = Math.max(buttonsPanel.getPreferredSize().width, browseButton.getPreferredSize().width);
+        buttonsPanel.setPreferredSize(new Dimension(rightHandMargin, buttonsPanel.getPreferredSize().height));
+        browseButton.setPreferredSize(new Dimension(rightHandMargin, browseButton.getPreferredSize().height));
+        saveButton.setPreferredSize(new Dimension(rightHandMargin, saveButton.getPreferredSize().height));
+        scrollPane.setPreferredSize(new Dimension(browseText.getPreferredSize().width, 7 * 20));
+        editTemplateButton.setPreferredSize(new Dimension(rightHandMargin, editTemplateButton.getPreferredSize().height));
+    }
+
+    private void modifyTableColumnsSize() {
+        TableColumn column;
+        table.setSurrendersFocusOnKeystroke(true);
+        // title
+        column = table.getColumnModel().getColumn(0);
+        column.setMinWidth(30);
+        column.setPreferredWidth(30);
+        // content
+        column = table.getColumnModel().getColumn(1);
+        column.setPreferredWidth(140);
+        column.setMinWidth(140);
+    }
+
+    private void resetPreferredSize() {
+        buttonsPanel.setPreferredSize(null);
+        browseButton.setPreferredSize(null);
+        saveButton.setPreferredSize(null);
+        browseOutputButton.setPreferredSize(null);
+        xlsxBrowseOutputButton.setPreferredSize(null);
+        scrollPane.setPreferredSize(null);
+        editTemplateButton.setPreferredSize(null);
+        manuallyTemplateButton.setPreferredSize(null);
+    }
+
+    private void clearGui() {
+        csvRadioButton.setSelected(true);
+        setOutputEnabledValues();
     }
 
     private void makeNewTemplate() {
@@ -481,12 +561,12 @@ public class SPSHGPanel extends JPanel {
         lock.lock();
 
         try {
-            saveSettings();
+            setSettings();
             viewController.clearConsole();
 
             // check all input values...
             // template
-            ConfigImpl config = plugin.getConfig();
+            ExportConfig config = plugin.getConfig();
             if (!config.getTemplate().isManualTemplate()) {
                 if (config.getTemplate().getPath().trim().equals("")) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
@@ -497,27 +577,6 @@ public class SPSHGPanel extends JPanel {
                 if (config.getTemplate().getColumnsList().size() == 0) {
                     errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
                             Util.I18N.getString("spshg.dialog.error.incompleteData.template.mabually"));
-                    return;
-                }
-            }
-
-            if (config.isUseFeatureTypeFilter() && config.getFeatureTypeFilter().getTypeNames().size() == 0) {
-                errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
-                        Util.I18N.getString("spshg.dialog.error.incompleteData.featureclass"));
-                return;
-            }
-
-            // bbox
-            if (config.isUseBboxFilter()) {
-                BoundingBox bbox = config.getBoundingBox();
-                Double xMin = bbox.getLowerCorner().getX();
-                Double yMin = bbox.getLowerCorner().getY();
-                Double xMax = bbox.getUpperCorner().getX();
-                Double yMax = bbox.getUpperCorner().getY();
-
-                if (xMin == null || yMin == null || xMax == null || yMax == null) {
-                    errorMessage(Util.I18N.getString("spshg.dialog.error.incompleteData"),
-                            Util.I18N.getString("spshg.dialog.error.incompleteData.bbox"));
                     return;
                 }
             }
@@ -536,6 +595,75 @@ public class SPSHGPanel extends JPanel {
                             Util.I18N.getString("spshg.dialog.error.incompleteData.csvout"));
                     return;
                 }
+            }
+
+            SimpleQuery query = config.getQuery();
+
+            // feature version filter
+            if (query.isUseFeatureVersionFilter()) {
+                SimpleFeatureVersionFilter featureVersionFilter = query.getFeatureVersionFilter();
+
+                if (featureVersionFilter.getMode() != SimpleFeatureVersionFilterMode.LATEST) {
+                    if (!featureVersionFilter.isSetStartDate()) {
+                        viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                                Language.I18N.getString("export.dialog.error.featureVersion.startDate"));
+                        return;
+                    }
+
+                    if (featureVersionFilter.getMode() == SimpleFeatureVersionFilterMode.BETWEEN) {
+                        if (!featureVersionFilter.isSetEndDate()) {
+                            viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                                    Language.I18N.getString("export.dialog.error.featureVersion.endDate"));
+                            return;
+                        } else if (featureVersionFilter.getStartDate().compare(featureVersionFilter.getEndDate()) != DatatypeConstants.LESSER) {
+                            viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                                    Language.I18N.getString("export.dialog.error.featureVersion.range"));
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // attribute filter
+            if (query.isUseAttributeFilter()) {
+                SimpleAttributeFilter attributeFilter = query.getAttributeFilter();
+                if (!attributeFilter.getResourceIdFilter().isSetResourceIds()
+                        && !attributeFilter.getNameFilter().isSetLiteral()
+                        && !attributeFilter.getLineageFilter().isSetLiteral()) {
+                    viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                            Language.I18N.getString("common.dialog.error.incorrectData.attributes"));
+                    return;
+                }
+            }
+
+            // SQL filter
+            if (query.isUseSQLFilter()
+                    && !query.getSQLFilter().isSetValue()) {
+                viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                        Language.I18N.getString("export.dialog.error.incorrectData.sql"));
+                return;
+            }
+
+            // bbox
+            if (query.isUseBboxFilter()) {
+                BoundingBox bbox = query.getBboxFilter();
+                Double xMin = bbox.getLowerCorner().getX();
+                Double yMin = bbox.getLowerCorner().getY();
+                Double xMax = bbox.getUpperCorner().getX();
+                Double yMax = bbox.getUpperCorner().getY();
+
+                if (xMin == null || yMin == null || xMax == null || yMax == null) {
+                    viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                            Language.I18N.getString("common.dialog.error.incorrectData.bbox"));
+                    return;
+                }
+            }
+
+            // feature types
+            if (query.isUseTypeNames() && query.getFeatureTypeFilter().getTypeNames().isEmpty()) {
+                viewController.errorMessage(Language.I18N.getString("common.dialog.error.incorrectFilter"),
+                        Language.I18N.getString("common.dialog.error.incorrectData.featureClass"));
+                return;
             }
 
             if (!dbController.connect()) {
@@ -728,42 +856,11 @@ public class SPSHGPanel extends JPanel {
         }
     }
 
-    private void setOutputEnabledValues() {
-        browseText.setEnabled(true);
-        manualPanel.setVisible(plugin.getConfig().getTemplate().isManualTemplate());
-        if (plugin.getConfig().getTemplate().isManualTemplate())
-            checkButtonsVisibilityInManualTemplate();
-
-        browseOutputButton.setEnabled(csvRadioButton.isSelected());
-        browseOutputText.setEnabled(csvRadioButton.isSelected());
-        delimiterLabel.setEnabled(csvRadioButton.isSelected());
-        separatorText.setEnabled(csvRadioButton.isSelected());
-        delimiterComboBox.setEnabled(csvRadioButton.isSelected());
-
-        xlsxBrowseOutputButton.setEnabled(xlsxRadioButton.isSelected());
-        xlsxBrowseOutputText.setEnabled(xlsxRadioButton.isSelected());
-    }
-
-    private void setEnabledBBoxFilter() {
-        bboxFilter.setEnabled(useBBoxFilter.isSelected());
-    }
-
-    private void setEnabledFeatureFilter() {
-        featureTypeFilter.setEnabled(useFeatureFilter.isSelected());
-    }
-
     public void loadSettings() {
-        ConfigImpl config = plugin.getConfig();
-        if (config == null) return;
-
+        ExportConfig config = plugin.getConfig();
 
         browseText.setText(config.getTemplate().getPath());
         config.getTemplate().setLastVisitPath(browseText.getText());
-
-        useBBoxFilter.setSelected(config.isUseBboxFilter());
-        useFeatureFilter.setSelected(config.isUseFeatureTypeFilter());
-        bboxFilter.loadSettings(config.getBoundingBox());
-        featureTypeFilter.loadSettings(config.getFeatureTypeFilter());
 
         browseOutputText.setText(config.getOutput().getCsvFile().getOutputPath());
         delimiterComboBox.setSelectedItem(Delimiter.fromValue(config.getOutput().getCsvFile().getDelimiter()));
@@ -773,25 +870,39 @@ public class SPSHGPanel extends JPanel {
         if (config.getOutput().getType() == OutputFileType.XLSX)
             xlsxRadioButton.setSelected(true);
 
+        SimpleQuery query = config.getQuery();
+        useFeatureVersionFilter.setSelected(query.isUseFeatureVersionFilter());
+        useAttributeFilter.setSelected(query.isUseAttributeFilter());
+        useSQLFilter.setSelected(query.isUseSQLFilter());
+        useBBoxFilter.setSelected(query.isUseBboxFilter());
+        useFeatureFilter.setSelected(query.isUseTypeNames());
+
+        featureVersionFilter.loadSettings(query.getFeatureVersionFilter());
+        attributeFilter.loadSettings(query.getAttributeFilter());
+        sqlFilter.loadSettings(query.getSQLFilter());
+        bboxFilter.loadSettings(query.getBboxFilter());
+        featureTypeFilter.loadSettings(query.getFeatureTypeFilter());
+
+        setEnabledFeatureVersionFilter();
+        setEnabledAttributeFilter();
+        setEnabledSQLFilter();
         setEnabledBBoxFilter();
         setEnabledFeatureFilter();
         setOutputEnabledValues();
 
-        bboxFilterPanel.setCollapsed(config.isCollapseBoundingBoxFilter());
-        featureFilterPanel.setCollapsed(config.isCollapseFeatureTypeFilter());
+        GuiConfig guiConfig = config.getGuiConfig();
+        featureVersionPanel.setCollapsed(guiConfig.isCollapseFeatureVersionFilter());
+        attributeFilterPanel.setCollapsed(guiConfig.isCollapseAttributeFilter());
+        sqlFilterPanel.setCollapsed(guiConfig.isCollapseSQLFilter());
+        bboxFilterPanel.setCollapsed(guiConfig.isCollapseBoundingBoxFilter());
+        featureFilterPanel.setCollapsed(guiConfig.isCollapseFeatureTypeFilter());
     }
 
-    public void saveSettings() {
-        ConfigImpl config = plugin.getConfig();
-        if (config == null) return;
+    public void setSettings() {
+        ExportConfig config = plugin.getConfig();
 
         config.getTemplate().setPath(browseText.getText());
         config.getTemplate().setColumnsList(tableDataModel.getRows());
-
-        config.setUseBboxFilter(useBBoxFilter.isSelected());
-        config.setUseFeatureTypeFilter(useFeatureFilter.isSelected());
-        config.setBoundingBox(bboxFilter.toSettings());
-        config.setFeatureTypeFilter(featureTypeFilter.toSettings());
 
         if (csvRadioButton.isSelected())
             config.getOutput().setType(OutputFileType.CSV);
@@ -802,8 +913,25 @@ public class SPSHGPanel extends JPanel {
         config.getOutput().getCsvFile().setDelimiter(((Delimiter) delimiterComboBox.getSelectedItem()).getDelimiter());
         config.getOutput().getXlsxFile().setOutputPath(xlsxBrowseOutputText.getText());
 
-        config.setCollapseBoundingBoxFilter(bboxFilterPanel.isCollapsed());
-        config.setCollapseFeatureTypeFilter(featureFilterPanel.isCollapsed());
+        SimpleQuery query = config.getQuery();
+        query.setUseFeatureVersionFilter(useFeatureVersionFilter.isSelected());
+        query.setUseAttributeFilter(useAttributeFilter.isSelected());
+        query.setUseSQLFilter(useSQLFilter.isSelected());
+        query.setUseBboxFilter(useBBoxFilter.isSelected());
+        query.setUseTypeNames(useFeatureFilter.isSelected());
+
+        query.setFeatureVersionFilter(featureVersionFilter.toSettings());
+        query.setAttributeFilter(attributeFilter.toSettings());
+        query.setSQLFilter(sqlFilter.toSettings());
+        query.setBboxFilter(bboxFilter.toSettings());
+        query.setFeatureTypeFilter(featureTypeFilter.toSettings());
+
+        GuiConfig guiConfig = config.getGuiConfig();
+        guiConfig.setCollapseFeatureVersionFilter(featureVersionPanel.isCollapsed());
+        guiConfig.setCollapseAttributeFilter(attributeFilterPanel.isCollapsed());
+        guiConfig.setCollapseSQLFilter(sqlFilterPanel.isCollapsed());
+        guiConfig.setCollapseBoundingBoxFilter(bboxFilterPanel.isCollapsed());
+        guiConfig.setCollapseFeatureTypeFilter(featureFilterPanel.isCollapsed());
     }
 
     private void errorMessage(String title, String text) {

@@ -37,9 +37,6 @@ import org.citydb.concurrent.PoolSizeAdaptationStrategy;
 import org.citydb.concurrent.SingleWorkerPool;
 import org.citydb.concurrent.WorkerPool;
 import org.citydb.config.project.database.Workspace;
-import org.citydb.config.project.query.QueryConfig;
-import org.citydb.config.project.query.filter.selection.SelectionFilter;
-import org.citydb.config.project.query.filter.selection.spatial.BBOXOperator;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
 import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.database.schema.mapping.SchemaMapping;
@@ -55,7 +52,7 @@ import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriterFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
@@ -77,7 +74,7 @@ public class SpreadsheetExporter implements EventHandler {
     private final Logger log = Logger.getInstance();
     private final DatabaseConnectionPool dbPool;
     private final AbstractDatabaseAdapter databaseAdapter;
-    private final ConfigImpl config;
+    private final ExportConfig config;
     private final EventDispatcher eventDispatcher;
     private final SchemaMapping schemaMapping;
     private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
@@ -89,13 +86,12 @@ public class SpreadsheetExporter implements EventHandler {
     private WorkerPool<CityObjectWork> workerPool;
     private DBManager dbm = null;
 
-    public SpreadsheetExporter(ConfigImpl pluginConfig) {
+    public SpreadsheetExporter(ExportConfig pluginConfig) {
         config = pluginConfig;
         dbPool = DatabaseConnectionPool.getInstance();
         databaseAdapter = dbPool.getActiveDatabaseAdapter();
         schemaMapping = ObjectRegistry.getInstance().getSchemaMapping();
         eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
-
         featureCounter = new HashMap<>();
     }
 
@@ -135,19 +131,9 @@ public class SpreadsheetExporter implements EventHandler {
         // build query from config settings
         Query query;
         try {
-            QueryConfig queryConfig = new QueryConfig();
-            queryConfig.setFeatureTypeFilter(config.getFeatureTypeFilter());
-
-            if (config.isUseBboxFilter() && config.isSetBoundingBox()) {
-                BBOXOperator bboxOperator = new BBOXOperator();
-                bboxOperator.setEnvelope(config.getBoundingBox());
-                SelectionFilter selectionFilter = new SelectionFilter();
-                selectionFilter.setPredicate(bboxOperator);
-                queryConfig.setSelectionFilter(selectionFilter);
-            }
-
             ConfigQueryBuilder builder = new ConfigQueryBuilder(schemaMapping, databaseAdapter);
-            query = builder.buildQuery(queryConfig, ObjectRegistry.getInstance().getConfig().getNamespaceFilter());
+            query = builder.buildQuery(config.getQuery().toSimpleQuery(),
+                    ObjectRegistry.getInstance().getConfig().getNamespaceFilter());
         } catch (QueryBuildException e) {
             throw new TableExportException("Failed to build the export query expression.", e);
         }

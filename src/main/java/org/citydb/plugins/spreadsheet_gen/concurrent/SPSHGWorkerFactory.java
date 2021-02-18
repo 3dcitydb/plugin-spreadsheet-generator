@@ -36,7 +36,7 @@ import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.log.Logger;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 
 import java.sql.Connection;
@@ -46,13 +46,13 @@ public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
 	private final WorkerPool<RowofCSVWork> writerPool;
 	private final Translator translator;
 	private final String template;
-	private final ConfigImpl config;
+	private final ExportConfig config;
 
 	public SPSHGWorkerFactory(
 			WorkerPool<RowofCSVWork> writerPool,
 			Translator translator,
 			String template,
-			ConfigImpl config) {
+			ExportConfig config) {
 		this.writerPool = writerPool;
 		this.translator = translator;
 		this.template = template;

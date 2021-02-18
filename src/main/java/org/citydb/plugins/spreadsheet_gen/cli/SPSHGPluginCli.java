@@ -30,14 +30,12 @@ package org.citydb.plugins.spreadsheet_gen.cli;
 import org.citydb.ImpExpLauncher;
 import org.citydb.cli.ImpExpCli;
 import org.citydb.config.Config;
-import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.project.database.DatabaseConnection;
-import org.citydb.config.project.query.filter.type.FeatureTypeFilter;
 import org.citydb.database.DatabaseController;
 import org.citydb.log.Logger;
 import org.citydb.plugin.CliCommand;
 import org.citydb.plugin.cli.DatabaseOption;
-import org.citydb.plugins.spreadsheet_gen.config.ConfigImpl;
+import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.config.Template;
 import org.citydb.plugins.spreadsheet_gen.controller.SpreadsheetExporter;
@@ -89,9 +87,9 @@ public class SPSHGPluginCli extends CliCommand {
 	public Integer call() throws Exception {
 		// prepare configs
 		Config config = ObjectRegistry.getInstance().getConfig();
-		ConfigImpl pluginConfig = config.getPluginConfig(ConfigImpl.class);
+		ExportConfig pluginConfig = config.getPluginConfig(ExportConfig.class);
 		if (pluginConfig == null) {
-			pluginConfig = new ConfigImpl();
+			pluginConfig = new ExportConfig();
 			config.registerPluginConfig(pluginConfig);
 		}
 
@@ -111,23 +109,6 @@ public class SPSHGPluginCli extends CliCommand {
 		templateConfig.setManualTemplate(false);
 		templateConfig.setPath(templateFile.toAbsolutePath().toString());
 
-		// set filter options
-		if (queryOption != null) {
-			// set feature types
-			FeatureTypeFilter featureTypeFilter = queryOption.getFeatureTypeFilter();
-			pluginConfig.setUseFeatureTypeFilter(featureTypeFilter != null);
-			if (featureTypeFilter != null) {
-				pluginConfig.setFeatureTypeFilter(featureTypeFilter);
-			}
-
-			// set bounding box
-			BoundingBox boundingBox = queryOption.getBoundingBox();
-			pluginConfig.setUseBboxFilter(boundingBox != null);
-			if (boundingBox != null) {
-				pluginConfig.setBoundingBox(boundingBox);
-			}
-		}
-
 		// set xlsx/csv output
 		String outputFileName = outputFile.toAbsolutePath().toString();
 		if ("xlsx".equalsIgnoreCase(Util.getFileExtension(outputFileName))) {
@@ -140,6 +121,11 @@ public class SPSHGPluginCli extends CliCommand {
 			if (delimiter != null) {
 				pluginConfig.getOutput().getCsvFile().setDelimiter(delimiter);
 			}
+		}
+
+		// set user-defined query options
+		if (queryOption != null) {
+			pluginConfig.setQuery(queryOption.toQuery());
 		}
 
 		// run spreadsheet export
