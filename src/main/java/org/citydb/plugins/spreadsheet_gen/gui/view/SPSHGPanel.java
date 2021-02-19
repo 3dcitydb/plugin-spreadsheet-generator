@@ -27,6 +27,7 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
+import org.citydb.config.exception.ErrorCode;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
@@ -38,6 +39,7 @@ import org.citydb.event.Event;
 import org.citydb.event.EventDispatcher;
 import org.citydb.event.global.InterruptEvent;
 import org.citydb.gui.components.common.TitledPanel;
+import org.citydb.gui.components.dialog.ConfirmationCheckDialog;
 import org.citydb.gui.factory.PopupMenuDecorator;
 import org.citydb.gui.modules.common.filter.AttributeFilterView;
 import org.citydb.gui.modules.common.filter.BoundingBoxFilterView;
@@ -670,6 +672,14 @@ public class SPSHGPanel extends JPanel {
                 return;
             }
 
+            // show warning dialog that CityGML ADEs are not supported
+            if (plugin.getConfig().getGuiConfig().isShowUnsupportedADEWarning()
+                    && dbController.getActiveDatabaseAdapter().getConnectionMetaData().hasRegisteredADEs()
+                    && showADEWarningDialog() != JOptionPane.OK_OPTION) {
+                log.warn("Table data export aborted.");
+                return;
+            }
+
             viewController.setStatusText(Util.I18N.getString("spshg.status.generation.start"));
             log.info("Initializing table data export...");
 
@@ -705,6 +715,9 @@ public class SPSHGPanel extends JPanel {
                 success = new SpreadsheetExporter(plugin.getConfig()).doProcess();
             } catch (TableExportException e) {
                 log.error(e.getMessage(), e.getCause());
+                if (e.getErrorCode() == ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED) {
+                    log.error("Please use the database tab to activate the spatial indexes.");
+                }
             }
 
             SwingUtilities.invokeLater(status::dispose);
@@ -936,6 +949,20 @@ public class SPSHGPanel extends JPanel {
 
     private void errorMessage(String title, String text) {
         JOptionPane.showMessageDialog(viewController.getTopFrame(), text, title, JOptionPane.ERROR_MESSAGE);
+    }
+
+    private int showADEWarningDialog() {
+        ConfirmationCheckDialog dialog = ConfirmationCheckDialog.defaults()
+                .withParentComponent(viewController.getTopFrame())
+                .withTitle(Language.I18N.getString("common.dialog.warning.title"))
+                .withOptionType(JOptionPane.YES_NO_OPTION)
+                .withMessageType(JOptionPane.WARNING_MESSAGE)
+                .addMessage(Util.I18N.getString("spshg.dialog.warning.ade.unsupported"));
+
+        int selectedOption = dialog.show();
+        plugin.getConfig().getGuiConfig().setShowUnsupportedADEWarning(dialog.keepShowingDialog());
+
+        return selectedOption;
     }
 
     public void loadExistingTemplate() {

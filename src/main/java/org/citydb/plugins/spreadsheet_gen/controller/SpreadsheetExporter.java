@@ -33,11 +33,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.citydb.ade.ADEExtensionManager;
+import org.citydb.citygml.exporter.CityGMLExportException;
 import org.citydb.concurrent.PoolSizeAdaptationStrategy;
 import org.citydb.concurrent.SingleWorkerPool;
 import org.citydb.concurrent.WorkerPool;
+import org.citydb.config.exception.ErrorCode;
 import org.citydb.config.project.database.Workspace;
 import org.citydb.database.adapter.AbstractDatabaseAdapter;
+import org.citydb.database.adapter.IndexStatusInfo;
 import org.citydb.database.connection.DatabaseConnectionPool;
 import org.citydb.database.schema.mapping.SchemaMapping;
 import org.citydb.event.Event;
@@ -126,6 +130,26 @@ public class SpreadsheetExporter implements EventHandler {
             if (!databaseAdapter.getWorkspaceManager().equalsDefaultWorkspaceName(workspace.getName())) {
                 log.info("Exporting from workspace " + databaseAdapter.getConnectionDetails().getWorkspace() + ".");
             }
+        }
+
+        // inform user that ADEs are not supported
+        if (!ADEExtensionManager.getInstance().getEnabledExtensions().isEmpty()) {
+            log.warn("NOTE: This operation does not work on ADE features.");
+        }
+
+        // check and log index status
+        try {
+            if (config.getQuery().isUseBboxFilter()
+                    && config.getQuery().isSetBboxFilter()
+                    && !databaseAdapter.getUtil().isIndexEnabled("CITYOBJECT", "ENVELOPE")) {
+                throw new TableExportException(ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED, "Spatial indexes are not activated.");
+            }
+
+            for (IndexStatusInfo.IndexType type : IndexStatusInfo.IndexType.values()) {
+                databaseAdapter.getUtil().getIndexStatus(type).printStatusToConsole();
+            }
+        } catch (SQLException e) {
+            throw new TableExportException("Database error while querying index status.", e);
         }
 
         // build query from config settings
