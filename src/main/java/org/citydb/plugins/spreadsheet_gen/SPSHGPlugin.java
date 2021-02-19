@@ -115,9 +115,7 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Expor
 				setSettings();
 				break;
 			case RESET_GUI_VIEW:
-				setSettings();
 				config.setGuiConfig(new GuiConfig());
-				loadSettings();
 				break;
 		}
 	}
