@@ -33,8 +33,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.citydb.ade.ADEExtensionManager;
-import org.citydb.citygml.exporter.CityGMLExportException;
+import org.citydb.ade.ADEExtension;
+import org.citydb.ade.kmlExporter.ADEBalloonExtensionManager;
 import org.citydb.concurrent.PoolSizeAdaptationStrategy;
 import org.citydb.concurrent.SingleWorkerPool;
 import org.citydb.concurrent.WorkerPool;
@@ -71,8 +71,10 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class SpreadsheetExporter implements EventHandler {
     private final Logger log = Logger.getInstance();
@@ -133,8 +135,10 @@ public class SpreadsheetExporter implements EventHandler {
         }
 
         // inform user that ADEs are not supported
-        if (!ADEExtensionManager.getInstance().getEnabledExtensions().isEmpty()) {
-            log.warn("NOTE: This operation does not work on ADE features.");
+        List<ADEExtension> unsupported = ADEBalloonExtensionManager.getInstance().getUnsupportedADEExtensions();
+        if (!unsupported.isEmpty()) {
+            log.warn("The following CityGML ADEs are not supported by this Spreadsheet Export Plugin:\n" +
+                    org.citydb.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "\n"));
         }
 
         // check and log index status

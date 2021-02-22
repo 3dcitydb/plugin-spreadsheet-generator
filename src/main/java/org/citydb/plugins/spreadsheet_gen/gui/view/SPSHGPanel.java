@@ -27,6 +27,9 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
+import org.citydb.ade.ADEExtension;
+import org.citydb.ade.kmlExporter.ADEBalloonExtension;
+import org.citydb.ade.kmlExporter.ADEBalloonExtensionManager;
 import org.citydb.config.exception.ErrorCode;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.i18n.Language;
@@ -81,8 +84,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 public class SPSHGPanel extends JPanel {
     private final Logger log = Logger.getInstance();
@@ -287,7 +293,7 @@ public class SPSHGPanel extends JPanel {
                     .build(bboxFilter.getViewComponent());
         }
         {
-            featureTypeFilter = new FeatureTypeFilterView();
+            featureTypeFilter = new FeatureTypeFilterView(e -> e instanceof ADEBalloonExtension);
 
             featureFilterPanel = new TitledPanel()
                     .withIcon(featureTypeFilter.getIcon())
@@ -672,10 +678,8 @@ public class SPSHGPanel extends JPanel {
                 return;
             }
 
-            // show warning dialog that CityGML ADEs are not supported
-            if (plugin.getConfig().getGuiConfig().isShowUnsupportedADEWarning()
-                    && dbController.getActiveDatabaseAdapter().getConnectionMetaData().hasRegisteredADEs()
-                    && showADEWarningDialog() != JOptionPane.OK_OPTION) {
+            // warn the non-supported CityGML ADEs
+            if (showADEWarningDialog() != JOptionPane.OK_OPTION) {
                 log.warn("Table data export aborted.");
                 return;
             }
@@ -952,15 +956,23 @@ public class SPSHGPanel extends JPanel {
     }
 
     private int showADEWarningDialog() {
-        ConfirmationCheckDialog dialog = ConfirmationCheckDialog.defaults()
-                .withParentComponent(viewController.getTopFrame())
-                .withTitle(Language.I18N.getString("common.dialog.warning.title"))
-                .withOptionType(JOptionPane.YES_NO_OPTION)
-                .withMessageType(JOptionPane.WARNING_MESSAGE)
-                .addMessage(Util.I18N.getString("spshg.dialog.warning.ade.unsupported"));
+        int selectedOption = JOptionPane.OK_OPTION;
+        List<ADEExtension> unsupported = ADEBalloonExtensionManager.getInstance().getUnsupportedADEExtensions();
 
-        int selectedOption = dialog.show();
-        plugin.getConfig().getGuiConfig().setShowUnsupportedADEWarning(dialog.keepShowingDialog());
+        if (plugin.getConfig().getGuiConfig().isShowUnsupportedADEWarning() && !unsupported.isEmpty()) {
+            String formattedMessage = MessageFormat.format(Util.I18N.getString("spshg.dialog.warning.ade.unsupported"),
+                    org.citydb.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "<br>"));
+
+            ConfirmationCheckDialog dialog = ConfirmationCheckDialog.defaults()
+                    .withParentComponent(viewController.getTopFrame())
+                    .withTitle(Language.I18N.getString("common.dialog.warning.title"))
+                    .withOptionType(JOptionPane.YES_NO_OPTION)
+                    .withMessageType(JOptionPane.WARNING_MESSAGE)
+                    .addMessage(formattedMessage);
+
+            selectedOption = dialog.show();
+            plugin.getConfig().getGuiConfig().setShowUnsupportedADEWarning(dialog.keepShowingDialog());
+        }
 
         return selectedOption;
     }
