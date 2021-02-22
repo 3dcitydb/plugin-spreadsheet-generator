@@ -102,7 +102,7 @@ public class StatusDialog extends JDialog implements EventHandler {
 			add(button, GuiUtil.setConstraints(0, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, 5, 10, 10, 10));
 		}
 
-		setMinimumSize(new Dimension(250, 100));
+		setMinimumSize(new Dimension(300, 100));
 		pack();
 
 		addWindowListener(new WindowAdapter() {
