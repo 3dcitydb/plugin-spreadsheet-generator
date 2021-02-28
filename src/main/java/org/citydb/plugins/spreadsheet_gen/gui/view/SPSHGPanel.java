@@ -68,6 +68,7 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 import org.citydb.registry.ObjectRegistry;
+import org.citygml4j.model.module.citygml.CityGMLVersion;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -293,7 +294,8 @@ public class SPSHGPanel extends JPanel {
                     .build(bboxFilter.getViewComponent());
         }
         {
-            featureTypeFilter = new FeatureTypeFilterView(e -> e instanceof ADEBalloonExtension);
+            featureTypeFilter = new FeatureTypeFilterView(CityGMLVersion.v2_0_0,
+                    e -> e instanceof ADEBalloonExtension);
 
             featureFilterPanel = new TitledPanel()
                     .withIcon(featureTypeFilter.getIcon())
