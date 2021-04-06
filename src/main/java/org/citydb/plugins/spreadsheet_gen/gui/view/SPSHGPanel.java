@@ -324,10 +324,12 @@ public class SPSHGPanel extends JPanel {
         add(scrollPane, GuiUtil.setConstraints(0, 1, 1, 1, GridBagConstraints.BOTH, 15, 0, 0, 0));
         add(exportButton, GuiUtil.setConstraints(0, 2, 0, 0, GridBagConstraints.NONE, 10, 10, 10, 10));
 
-        exportButton.addActionListener(e -> {
-            Thread thread = new Thread(this::doExport);
-            thread.start();
-        });
+        exportButton.addActionListener(e -> new SwingWorker<Void, Void>() {
+            protected Void doInBackground() {
+                doExport();
+                return null;
+            }
+        }.execute());
 
         browseButton.addActionListener(e -> {
             if (choseTemplateFile()) {
@@ -364,7 +366,7 @@ public class SPSHGPanel extends JPanel {
         addButton.addActionListener(e -> showAddNewColumnDialog(false));
         removeButton.addActionListener(e -> removeSelectedColumnFromManualTemplate());
 
-        upButton.addActionListener(arg0 -> {
+        upButton.addActionListener(e -> {
             if (table.getSelectedRowCount() > 1) return;
             int selectedRow = table.getSelectedRow();
             tableDataModel.move(selectedRow, true);
@@ -373,7 +375,7 @@ public class SPSHGPanel extends JPanel {
                 table.setRowSelectionInterval(selectedRow, selectedRow);
         });
 
-        downButton.addActionListener(arg0 -> {
+        downButton.addActionListener(e -> {
             if (table.getSelectedRowCount() > 1) return;
             int selectedRow = table.getSelectedRow();
             tableDataModel.move(selectedRow, false);
@@ -382,7 +384,7 @@ public class SPSHGPanel extends JPanel {
                 table.setRowSelectionInterval(selectedRow, selectedRow);
         });
 
-        editButton.addActionListener(arg0 -> showAddNewColumnDialog(true));
+        editButton.addActionListener(e -> showAddNewColumnDialog(true));
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -794,6 +796,7 @@ public class SPSHGPanel extends JPanel {
             previousVisitBySaveTemplate = exportString;
             TemplateWriter templateWriter = new TemplateWriter(exportString, tableDataModel);
             Thread t = new Thread(templateWriter);
+            t.setDaemon(true);
             t.start();
         } catch (Exception e) {
             //
