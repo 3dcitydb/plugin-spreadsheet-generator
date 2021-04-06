@@ -107,7 +107,7 @@ public class NewCSVColumnDialog extends JDialog {
 	}
 
 	public NewCSVColumnDialog(ViewController viewController, SPSHGPanel panel, CSVColumns ncsvc) {
-		super(viewController.getTopFrame(), Util.I18N.getString("spshg.dialog.addnewcolumn.header"), true);
+		super(viewController.getTopFrame(), Util.I18N.getString("spshg.dialog.editcolumn.header"), true);
 		hilit = new DefaultHighlighter();
 		painter = new DefaultHighlighter.DefaultHighlightPainter(highlightColor);
 
