@@ -54,13 +54,13 @@ import java.util.ResourceBundle;
 		versionProvider = ImpExpCli.class
 )
 public class SPSHGPluginCli extends CliCommand {
-	@CommandLine.Option(names = {"-l", "--template"}, required = true, paramLabel = "<file>",
-			description = "Name of the template file.")
-	private Path templateFile;
-
 	@CommandLine.Option(names = {"-o", "--output"}, required = true, paramLabel = "<file>",
 			description = "Name of the output file with the extension .csv or .xlsx")
 	private Path outputFile;
+
+	@CommandLine.Option(names = {"-l", "--template"}, required = true, paramLabel = "<file>",
+			description = "Name of the template file.")
+	private Path templateFile;
 
 	@CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>",
 			description = "Column delimiter to use for CSV file (default: ',').")
