@@ -190,12 +190,11 @@ public class SpreadsheetExporter implements EventHandler {
         }
 
         File outputFile;
-        String csvFilePath = path + File.separator + filename + ".csv";
         if (config.getOutput().getType() == OutputFileType.XLSX) {
             outputFile = new File(System.getProperty("java.io.tmpdir"), "3dcitydb-" + System.currentTimeMillis() + ".csv");
             log.debug("Writing temporary CSV file for XLSX conversion to '" + outputFile.getAbsolutePath() + "'.");
         } else {
-            outputFile = new File(csvFilePath);
+            outputFile = new File(path + File.separator + filename + ".csv");
         }
 
         File dummyOutputfile = config.getOutput().getType() == OutputFileType.XLSX ?
@@ -279,7 +278,7 @@ public class SpreadsheetExporter implements EventHandler {
                 try {
                     log.debug("Converting temporary CSV file to XLSX.");
                     eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.xlsx"), this));
-                    convertToXSLX(csvFilePath, path, filename, translator);
+                    convertToXSLX(outputFile, path, filename, translator);
                 } catch (Exception e) {
                     throw new TableExportException("Failed to write XLSX output file.", e);
                 }
@@ -361,7 +360,7 @@ public class SpreadsheetExporter implements EventHandler {
         }
     }
 
-    public void convertToXSLX(String csvPath, String path, String filename, Translator translator) throws Exception {
+    public void convertToXSLX(File csvOutputFile, String path, String filename, Translator translator) throws Exception {
         // convert csv to excel
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Countries");
@@ -371,7 +370,7 @@ public class SpreadsheetExporter implements EventHandler {
 
         String xlsxFullpath = path + File.separator + filename + ".xlsx";
 
-        reader = new CsvReader(csvPath, ',', StandardCharsets.UTF_8);
+        reader = new CsvReader(csvOutputFile.getAbsolutePath(), ',', StandardCharsets.UTF_8);
 
         // avoid error message of CsvReader in case of column lengths greater than 100,000 characters
         reader.setSafetySwitch(false);
