@@ -19,13 +19,13 @@ repositories {
         url 'https://repo.osgeo.org/repository/release'
     }
     maven {
-        url 'https://dl.bintray.com/3dcitydb/maven'
+        url 'https://citydb.jfrog.io/artifactory/maven'
     }
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client:4.3.0-rc4'
+    implementation 'org.citydb:impexp-client:4.3.0-rc5'
     implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
