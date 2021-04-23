@@ -45,7 +45,7 @@ You may obtain a copy of the License at
 --------
 
 The @pluginShortName@ plugin allows you to export attribute
-data of the city objects stored in the 3D City Database in tabular form
+data of the city objects stored in the @citydbName@ in tabular form
 as comma-separated values (CSV) or Microsoft Excel (XLSX) file.
 
 
