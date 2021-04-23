@@ -84,10 +84,10 @@ the "@pkgName@" subfolder and all its contents.
 Son H. Nguyen<son.nguyen@tum.de>
 Zhihang Yao <zyao@vc.systems>
 Claus Nagel <cnagel@vc.systems>
-Thomas H. Kolbe <thomas.kolbe@tu-berlin.de>
-(and of the previous version)
-Babak Naderi <b.naderi@mailbox.tu-berlin.de>
-Javier Herreruela <javier.herreruela@tu-berlin.de>
+Thomas H. Kolbe <thomas.kolbe@tum.de>
+(and of the previous versions)
+Babak Naderi
+Javier Herreruela
 
 
 7. Contact
