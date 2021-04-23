@@ -44,9 +44,9 @@ You may obtain a copy of the License at
 3. About
 --------
 
-By using the @pluginShortName@, it is possible to export
-data from a @citydbName@ instance into tables. Supported output
-formats are Microsoft Excel and CSV.
+The @pluginShortName@ plugin allows you to export attribute
+data of the city objects stored in the 3D City Database in tabular form
+as comma-separated values (CSV) or Microsoft Excel (XLSX) file.
 
 
 4. Requirements
@@ -64,7 +64,7 @@ previous or later version of the @impexpName@.
 The plugin is shipped as a precompiled and ready-to-use ZIP package
 called "@zipName@".
 
-The following simple steps will guide you through the install process:
+The following simple steps will guide you through the installation process:
 * Open the installation directory of your local installation of the
   @impexpName@ version @impexpVersion@.
 * Open the "plugins" subfolder. If it is not available, create a new
@@ -82,7 +82,8 @@ the "@pkgName@" subfolder and all its contents.
 -------------
 
 Son H. Nguyen<son.nguyen@tum.de>
-Zhihang Yao <zyao@virtualcitysystems.de>
+Zhihang Yao <zyao@vc.systems>
+Claus Nagel <cnagel@vc.systems>
 Thomas H. Kolbe <thomas.kolbe@tu-berlin.de>
 (and of the previous version)
 Babak Naderi <b.naderi@mailbox.tu-berlin.de>

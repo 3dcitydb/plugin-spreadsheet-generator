@@ -8,12 +8,12 @@ ext {
     vendorName = 'Chair of Geoinformatics'
     vendorOrganisation = 'Technical University of Munich'
     vendorCountry = 'Germany'
-    vendorWebsiteUrl = 'https://www.gis.bgu.tum.de'
+    vendorWebsiteUrl = 'https://www.lrg.tum.de/gis'
     vendorCopyright = '2013-' + date.format('yyyy')
 
     // 3D City Database
     citydbName = '3D City Database'
-    citydbWebsiteUrl = 'http://www.3dcitydb.org'
+    citydbWebsiteUrl = 'https://www.3dcitydb.org'
     citydbVcsUrl = 'https://github.com/3dcitydb'
 
     // Importer/Exporter
