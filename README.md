@@ -38,7 +38,7 @@ Please check the release notes of the version you want to use for more informati
 
 Documentation
 -------------
-A complete and comprehensive documentation on the Spreadsheet Generator Plugin is available
+A complete and comprehensive user manual on the Spreadsheet Generator Plugin is available
 [online](https://3dcitydb-docs.readthedocs.io/en/release-v4.3.0/plugins/spreadsheet/).
 
 Contributing
