@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-### 3.2.0
+### 3.2.0 - 2021-04-28
 
 ##### Additions
 * Added support for exporting attributes of features defined in a CityGML ADE if a corresponding ADE extension
