@@ -28,13 +28,14 @@
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
 import org.citydb.config.i18n.Language;
+import org.citydb.core.plugin.extension.view.ViewController;
+import org.citydb.gui.components.popup.PopupMenuDecorator;
 import org.citydb.gui.util.GuiUtil;
-import org.citydb.modules.kml.util.BalloonTemplateHandler;
-import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
+import org.citydb.vis.util.BalloonTemplateHandler;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
@@ -244,7 +245,7 @@ public class NewCSVColumnDialog extends JDialog {
 
 		makeFunctionPopup();
 
-		viewController.getComponentFactory().createPopupMenuDecorator().decorate(titleText, content, commentText);
+		PopupMenuDecorator.getInstance().decorate(titleText, content, commentText);
 		
 		addListeners();
         pack();

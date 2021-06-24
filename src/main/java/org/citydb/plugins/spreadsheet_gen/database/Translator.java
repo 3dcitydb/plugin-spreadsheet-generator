@@ -27,11 +27,11 @@
  */
 package org.citydb.plugins.spreadsheet_gen.database;
 
-import org.citydb.log.Logger;
-import org.citydb.modules.kml.util.BalloonTemplateHandler;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
+import org.citydb.util.log.Logger;
+import org.citydb.vis.util.BalloonTemplateHandler;
 
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleContext;

@@ -28,40 +28,50 @@
 
 package org.citydb.plugins.spreadsheet_gen.controller;
 
-import org.citydb.config.exception.ApplicationException;
-import org.citydb.config.exception.ErrorCode;
-
-public class TableExportException extends ApplicationException {
+public class TableExportException extends Exception {
+	private final ErrorCode errorCode;
+	public enum ErrorCode {
+		SPATIAL_INDEXES_NOT_ACTIVATED,
+		UNKNOWN
+	}
 
 	public TableExportException(ErrorCode errorCode) {
-		super(errorCode);
+		super();
+		this.errorCode = errorCode;
 	}
 
 	public TableExportException(ErrorCode errorCode, String message) {
-		super(errorCode, message);
+		super(message);
+		this.errorCode = errorCode;
 	}
 
 	public TableExportException(ErrorCode errorCode, String message, Throwable cause) {
-		super(errorCode, message, cause);
+		super(message, cause);
+		this.errorCode = errorCode;
 	}
 
 	public TableExportException(ErrorCode errorCode, Throwable cause) {
-		super(errorCode, cause);
+		super(cause);
+		this.errorCode = errorCode;
 	}
 
 	public TableExportException() {
-		super();
+		this(ErrorCode.UNKNOWN);
 	}
 
 	public TableExportException(String message) {
-		super(message);
+		this(ErrorCode.UNKNOWN, message);
 	}
 
 	public TableExportException(String message, Throwable cause) {
-		super(message, cause);
+		this(ErrorCode.UNKNOWN, message, cause);
 	}
 
 	public TableExportException(Throwable cause) {
-		super(cause);
+		this(ErrorCode.UNKNOWN, cause);
+	}
+
+	public ErrorCode getErrorCode() {
+		return errorCode;
 	}
 }

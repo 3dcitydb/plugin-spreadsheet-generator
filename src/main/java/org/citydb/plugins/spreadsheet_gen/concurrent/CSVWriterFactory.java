@@ -27,12 +27,11 @@
  */
 package org.citydb.plugins.spreadsheet_gen.concurrent;
 
-import org.citydb.concurrent.Worker;
-import org.citydb.concurrent.WorkerFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
+import org.citydb.util.concurrent.Worker;
+import org.citydb.util.concurrent.WorkerFactory;
 
 import java.io.File;
-
 
 public class CSVWriterFactory implements WorkerFactory<RowofCSVWork> {
 	private final File output;

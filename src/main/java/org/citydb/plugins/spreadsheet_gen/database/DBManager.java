@@ -27,25 +27,25 @@
  */
 package org.citydb.plugins.spreadsheet_gen.database;
 
-import org.citydb.concurrent.WorkerPool;
-import org.citydb.database.adapter.AbstractDatabaseAdapter;
-import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.database.schema.mapping.FeatureType;
-import org.citydb.database.schema.mapping.MappingConstants;
-import org.citydb.database.schema.mapping.SchemaMapping;
-import org.citydb.event.EventDispatcher;
-import org.citydb.event.global.ProgressBarEventType;
-import org.citydb.event.global.StatusDialogProgressBar;
-import org.citydb.log.Logger;
+import org.citydb.core.database.adapter.AbstractDatabaseAdapter;
+import org.citydb.core.database.connection.DatabaseConnectionPool;
+import org.citydb.core.database.schema.mapping.FeatureType;
+import org.citydb.core.database.schema.mapping.MappingConstants;
+import org.citydb.core.database.schema.mapping.SchemaMapping;
+import org.citydb.core.query.Query;
+import org.citydb.core.query.builder.QueryBuildException;
+import org.citydb.core.query.builder.sql.BuildProperties;
+import org.citydb.core.query.builder.sql.SQLQueryBuilder;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
-import org.citydb.query.Query;
-import org.citydb.query.builder.QueryBuildException;
-import org.citydb.query.builder.sql.BuildProperties;
-import org.citydb.query.builder.sql.SQLQueryBuilder;
 import org.citydb.sqlbuilder.schema.Table;
 import org.citydb.sqlbuilder.select.Select;
 import org.citydb.sqlbuilder.select.projection.Function;
 import org.citydb.sqlbuilder.select.projection.WildCardColumn;
+import org.citydb.util.concurrent.WorkerPool;
+import org.citydb.util.event.EventDispatcher;
+import org.citydb.util.event.global.ProgressBarEventType;
+import org.citydb.util.event.global.StatusDialogProgressBar;
+import org.citydb.util.log.Logger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

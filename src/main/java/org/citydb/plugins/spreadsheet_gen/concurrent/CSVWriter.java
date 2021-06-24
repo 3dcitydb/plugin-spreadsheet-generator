@@ -27,8 +27,8 @@
  */
 package org.citydb.plugins.spreadsheet_gen.concurrent;
 
-import org.citydb.concurrent.DefaultWorker;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
+import org.citydb.util.concurrent.DefaultWorker;
 
 import java.io.File;
 import java.io.FileOutputStream;

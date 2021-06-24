@@ -27,13 +27,13 @@
  */
 package org.citydb.plugins.spreadsheet_gen;
 
-import org.citydb.ImpExpLauncher;
-import org.citydb.plugin.Plugin;
-import org.citydb.plugin.extension.config.ConfigExtension;
-import org.citydb.plugin.extension.config.PluginConfigEvent;
-import org.citydb.plugin.extension.view.View;
-import org.citydb.plugin.extension.view.ViewController;
-import org.citydb.plugin.extension.view.ViewExtension;
+import org.citydb.core.plugin.Plugin;
+import org.citydb.core.plugin.extension.config.ConfigExtension;
+import org.citydb.core.plugin.extension.config.PluginConfigEvent;
+import org.citydb.core.plugin.extension.view.View;
+import org.citydb.core.plugin.extension.view.ViewController;
+import org.citydb.core.plugin.extension.view.ViewExtension;
+import org.citydb.gui.ImpExpLauncher;
 import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.config.GuiConfig;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGView;
@@ -42,7 +42,7 @@ import org.citydb.plugins.spreadsheet_gen.util.Util;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<ExportConfig> {
+public class SPSHGPlugin extends Plugin implements ViewExtension, ConfigExtension<ExportConfig> {
 	private ExportConfig config;
 	private Locale currentLocale;
 	private SPSHGView view;
@@ -57,7 +57,7 @@ public class SPSHGPlugin implements Plugin, ViewExtension, ConfigExtension<Expor
 	}
 
 	@Override
-	public void initViewExtension(ViewController viewController, Locale locale) {
+	public void initGuiExtension(ViewController viewController, Locale locale) {
 		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
 		view = new SPSHGView(viewController, this);
 		loadSettings();

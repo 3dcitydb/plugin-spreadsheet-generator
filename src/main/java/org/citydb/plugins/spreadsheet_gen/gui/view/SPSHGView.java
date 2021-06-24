@@ -27,17 +27,17 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
-import org.citydb.plugin.extension.view.View;
-import org.citydb.plugin.extension.view.ViewController;
-import org.citydb.plugin.extension.view.ViewEvent;
-import org.citydb.plugin.extension.view.ViewListener;
+import org.citydb.core.plugin.extension.view.View;
+import org.citydb.core.plugin.extension.view.ViewController;
+import org.citydb.core.plugin.extension.view.ViewEvent;
+import org.citydb.core.plugin.extension.view.ViewListener;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SPSHGView  extends View implements ViewListener {
+public class SPSHGView extends View implements ViewListener {
 	private final SPSHGPanel component;
 	
 	public SPSHGView(ViewController viewController, SPSHGPlugin spshg){
