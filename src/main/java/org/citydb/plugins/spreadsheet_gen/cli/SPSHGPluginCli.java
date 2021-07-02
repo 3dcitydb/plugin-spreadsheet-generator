@@ -28,11 +28,11 @@
 package org.citydb.plugins.spreadsheet_gen.cli;
 
 import org.citydb.cli.ImpExpCli;
+import org.citydb.cli.option.DatabaseOption;
 import org.citydb.config.Config;
 import org.citydb.config.project.database.DatabaseConnection;
 import org.citydb.core.database.DatabaseController;
 import org.citydb.core.plugin.CliCommand;
-import org.citydb.core.plugin.cli.DatabaseOption;
 import org.citydb.core.registry.ObjectRegistry;
 import org.citydb.core.util.Util;
 import org.citydb.gui.ImpExpLauncher;
