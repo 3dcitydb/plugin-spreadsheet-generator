@@ -32,6 +32,23 @@ dependencies {
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
 }
 
+processResources {
+    filesMatching('**/plugin.xml') {
+        filteringCharset = 'UTF-8'
+        filter(ReplaceTokens, tokens: [
+                name: project.pluginShortName,
+                version: project.version,
+                url: project.pluginUrl,
+                vendor: project.citydbProject,
+                vendorUrl: project.citydbWebsiteUrl,
+                citydbName: project.citydbName,
+                webMapClientName: project.webMapClientName,
+                webMapClientUrl: project.webMapClientUrl,
+                docUrl: project.docUrl
+        ])
+    }
+}
+
 jar {
     manifest {
         attributes('Implementation-Title': project.name,

@@ -69,7 +69,7 @@ public class SPSHGPlugin extends Plugin implements ViewExtension, ConfigExtensio
 	}
 	
 	@Override
-	public void shutdown() {
+	public void shutdownGui() {
 		setSettings();
 	}
 
