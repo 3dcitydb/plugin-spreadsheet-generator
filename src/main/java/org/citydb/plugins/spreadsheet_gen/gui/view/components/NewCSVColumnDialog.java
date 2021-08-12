@@ -28,37 +28,25 @@
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
 import org.citydb.config.i18n.Language;
+import org.citydb.gui.components.popup.PopupMenuDecorator;
+import org.citydb.gui.plugin.view.ViewController;
 import org.citydb.gui.util.GuiUtil;
-import org.citydb.modules.kml.util.BalloonTemplateHandler;
-import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.gui.datatype.CSVColumns;
 import org.citydb.plugins.spreadsheet_gen.gui.view.SPSHGPanel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
+import org.citydb.vis.util.BalloonTemplateHandler;
 
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -244,7 +232,7 @@ public class NewCSVColumnDialog extends JDialog {
 
 		makeFunctionPopup();
 
-		viewController.getComponentFactory().createPopupMenuDecorator().decorate(titleText, content, commentText);
+		PopupMenuDecorator.getInstance().decorate(titleText, content, commentText);
 		
 		addListeners();
         pack();

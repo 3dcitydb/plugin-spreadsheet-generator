@@ -27,17 +27,15 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
-import org.citydb.plugin.extension.view.View;
-import org.citydb.plugin.extension.view.ViewController;
-import org.citydb.plugin.extension.view.ViewEvent;
-import org.citydb.plugin.extension.view.ViewListener;
+import org.citydb.gui.plugin.view.View;
+import org.citydb.gui.plugin.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class SPSHGView  extends View implements ViewListener {
+public class SPSHGView extends View {
 	private final SPSHGPanel component;
 	
 	public SPSHGView(ViewController viewController, SPSHGPlugin spshg){
@@ -75,15 +73,4 @@ public class SPSHGView  extends View implements ViewListener {
 	public void loadSettings(){
 		component.loadSettings();
 	}
-
-	@Override
-	public void viewActivated(ViewEvent e) {
-		// nothing to do
-	}
-
-	@Override
-	public void viewDeactivated(ViewEvent e) {
-		// nothing to do
-	}
-
 }

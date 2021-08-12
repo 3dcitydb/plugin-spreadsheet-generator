@@ -28,16 +28,16 @@
 package org.citydb.plugins.spreadsheet_gen.concurrent;
 
 
-import org.citydb.concurrent.Worker;
-import org.citydb.concurrent.WorkerFactory;
-import org.citydb.concurrent.WorkerPool;
-import org.citydb.database.adapter.AbstractDatabaseAdapter;
-import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.log.Logger;
+import org.citydb.core.database.adapter.AbstractDatabaseAdapter;
+import org.citydb.core.database.connection.DatabaseConnectionPool;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.RowofCSVWork;
 import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
+import org.citydb.util.concurrent.Worker;
+import org.citydb.util.concurrent.WorkerFactory;
+import org.citydb.util.concurrent.WorkerPool;
+import org.citydb.util.log.Logger;
 
 import java.sql.Connection;
 

@@ -28,17 +28,12 @@
 package org.citydb.plugins.spreadsheet_gen.gui.view.components;
 
 import org.citydb.config.i18n.Language;
-import org.citydb.event.Event;
-import org.citydb.event.EventDispatcher;
-import org.citydb.event.EventHandler;
-import org.citydb.event.global.CounterEvent;
-import org.citydb.event.global.EventType;
-import org.citydb.event.global.ProgressBarEventType;
-import org.citydb.event.global.StatusDialogMessage;
-import org.citydb.event.global.StatusDialogProgressBar;
-import org.citydb.event.global.StatusDialogTitle;
+import org.citydb.core.registry.ObjectRegistry;
 import org.citydb.gui.util.GuiUtil;
-import org.citydb.registry.ObjectRegistry;
+import org.citydb.util.event.Event;
+import org.citydb.util.event.EventDispatcher;
+import org.citydb.util.event.EventHandler;
+import org.citydb.util.event.global.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -135,7 +130,7 @@ public class StatusDialog extends JDialog implements EventHandler {
 			}
 
 			messageLabel.setText(status);
-		} else if (e.getEventType() == org.citydb.event.global.EventType.INTERRUPT) {
+		} else if (e.getEventType() == org.citydb.util.event.global.EventType.INTERRUPT) {
 			acceptStatusUpdate = false;
 			messageLabel.setText(Language.I18N.getString("common.dialog.msg.abort"));
 		} else if (e.getEventType() == EventType.STATUS_DIALOG_MESSAGE && acceptStatusUpdate) {

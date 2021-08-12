@@ -33,25 +33,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.citydb.ade.ADEExtension;
-import org.citydb.ade.kmlExporter.ADEBalloonExtensionManager;
-import org.citydb.concurrent.PoolSizeAdaptationStrategy;
-import org.citydb.concurrent.SingleWorkerPool;
-import org.citydb.concurrent.WorkerPool;
-import org.citydb.config.exception.ErrorCode;
 import org.citydb.config.project.database.Workspace;
-import org.citydb.database.adapter.AbstractDatabaseAdapter;
-import org.citydb.database.adapter.IndexStatusInfo;
-import org.citydb.database.connection.DatabaseConnectionPool;
-import org.citydb.database.schema.mapping.SchemaMapping;
-import org.citydb.event.Event;
-import org.citydb.event.EventDispatcher;
-import org.citydb.event.EventHandler;
-import org.citydb.event.global.EventType;
-import org.citydb.event.global.InterruptEvent;
-import org.citydb.event.global.ObjectCounterEvent;
-import org.citydb.event.global.StatusDialogTitle;
-import org.citydb.log.Logger;
+import org.citydb.core.ade.ADEExtension;
+import org.citydb.core.ade.visExporter.ADEBalloonExtensionManager;
+import org.citydb.core.database.adapter.AbstractDatabaseAdapter;
+import org.citydb.core.database.adapter.IndexStatusInfo;
+import org.citydb.core.database.connection.DatabaseConnectionPool;
+import org.citydb.core.database.schema.mapping.SchemaMapping;
+import org.citydb.core.query.Query;
+import org.citydb.core.query.builder.QueryBuildException;
+import org.citydb.core.query.builder.config.ConfigQueryBuilder;
+import org.citydb.core.registry.ObjectRegistry;
 import org.citydb.plugins.spreadsheet_gen.concurrent.CSVWriterFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.SPSHGWorkerFactory;
 import org.citydb.plugins.spreadsheet_gen.concurrent.work.CityObjectWork;
@@ -61,10 +53,17 @@ import org.citydb.plugins.spreadsheet_gen.config.OutputFileType;
 import org.citydb.plugins.spreadsheet_gen.database.DBManager;
 import org.citydb.plugins.spreadsheet_gen.database.Translator;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-import org.citydb.query.Query;
-import org.citydb.query.builder.QueryBuildException;
-import org.citydb.query.builder.config.ConfigQueryBuilder;
-import org.citydb.registry.ObjectRegistry;
+import org.citydb.util.concurrent.PoolSizeAdaptationStrategy;
+import org.citydb.util.concurrent.SingleWorkerPool;
+import org.citydb.util.concurrent.WorkerPool;
+import org.citydb.util.event.Event;
+import org.citydb.util.event.EventDispatcher;
+import org.citydb.util.event.EventHandler;
+import org.citydb.util.event.global.EventType;
+import org.citydb.util.event.global.InterruptEvent;
+import org.citydb.util.event.global.ObjectCounterEvent;
+import org.citydb.util.event.global.StatusDialogTitle;
+import org.citydb.util.log.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -138,7 +137,7 @@ public class SpreadsheetExporter implements EventHandler {
         List<ADEExtension> unsupported = ADEBalloonExtensionManager.getInstance().getUnsupportedADEExtensions();
         if (!unsupported.isEmpty()) {
             log.warn("The following CityGML ADEs are not supported by this Spreadsheet Export Plugin:\n" +
-                    org.citydb.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "\n"));
+                    org.citydb.core.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "\n"));
         }
 
         // check and log index status
@@ -146,7 +145,7 @@ public class SpreadsheetExporter implements EventHandler {
             if (config.getQuery().isUseBboxFilter()
                     && config.getQuery().isSetBboxFilter()
                     && !databaseAdapter.getUtil().isIndexEnabled("CITYOBJECT", "ENVELOPE")) {
-                throw new TableExportException(ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED, "Spatial indexes are not activated.");
+                throw new TableExportException(TableExportException.ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED, "Spatial indexes are not activated.");
             }
 
             for (IndexStatusInfo.IndexType type : IndexStatusInfo.IndexType.values()) {
@@ -316,7 +315,7 @@ public class SpreadsheetExporter implements EventHandler {
         }
 
         if (shouldRun) {
-            log.info("Total export time: " + org.citydb.util.Util.formatElapsedTime(System.currentTimeMillis() - start) + ".");
+            log.info("Total export time: " + org.citydb.core.util.Util.formatElapsedTime(System.currentTimeMillis() - start) + ".");
         } else if (exception != null) {
             throw exception;
         }

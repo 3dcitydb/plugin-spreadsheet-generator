@@ -27,31 +27,23 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
-import org.citydb.ade.ADEExtension;
-import org.citydb.ade.kmlExporter.ADEBalloonExtension;
-import org.citydb.ade.kmlExporter.ADEBalloonExtensionManager;
-import org.citydb.config.exception.ErrorCode;
 import org.citydb.config.geometry.BoundingBox;
 import org.citydb.config.i18n.Language;
 import org.citydb.config.project.global.LogLevel;
 import org.citydb.config.project.query.simple.SimpleAttributeFilter;
 import org.citydb.config.project.query.simple.SimpleFeatureVersionFilter;
 import org.citydb.config.project.query.simple.SimpleFeatureVersionFilterMode;
-import org.citydb.database.DatabaseController;
-import org.citydb.event.Event;
-import org.citydb.event.EventDispatcher;
-import org.citydb.event.global.InterruptEvent;
-import org.citydb.gui.components.common.TitledPanel;
+import org.citydb.core.ade.ADEExtension;
+import org.citydb.core.ade.visExporter.ADEBalloonExtension;
+import org.citydb.core.ade.visExporter.ADEBalloonExtensionManager;
+import org.citydb.core.database.DatabaseController;
+import org.citydb.core.registry.ObjectRegistry;
+import org.citydb.gui.components.TitledPanel;
 import org.citydb.gui.components.dialog.ConfirmationCheckDialog;
-import org.citydb.gui.factory.PopupMenuDecorator;
-import org.citydb.gui.modules.common.filter.AttributeFilterView;
-import org.citydb.gui.modules.common.filter.BoundingBoxFilterView;
-import org.citydb.gui.modules.common.filter.FeatureTypeFilterView;
-import org.citydb.gui.modules.common.filter.FeatureVersionFilterView;
-import org.citydb.gui.modules.common.filter.SQLFilterView;
+import org.citydb.gui.components.popup.PopupMenuDecorator;
+import org.citydb.gui.operation.common.filter.*;
+import org.citydb.gui.plugin.view.ViewController;
 import org.citydb.gui.util.GuiUtil;
-import org.citydb.log.Logger;
-import org.citydb.plugin.extension.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.config.ExportConfig;
 import org.citydb.plugins.spreadsheet_gen.config.GuiConfig;
@@ -67,7 +59,10 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-import org.citydb.registry.ObjectRegistry;
+import org.citydb.util.event.Event;
+import org.citydb.util.event.EventDispatcher;
+import org.citydb.util.event.global.InterruptEvent;
+import org.citydb.util.log.Logger;
 import org.citygml4j.model.module.citygml.CityGMLVersion;
 
 import javax.swing.*;
@@ -79,11 +74,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -723,7 +714,7 @@ public class SPSHGPanel extends JPanel {
                 success = new SpreadsheetExporter(plugin.getConfig()).doProcess();
             } catch (TableExportException e) {
                 log.error(e.getMessage(), e.getCause());
-                if (e.getErrorCode() == ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED) {
+                if (e.getErrorCode() == TableExportException.ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED) {
                     log.error("Please use the database tab to activate the spatial indexes.");
                 }
             }
@@ -966,7 +957,7 @@ public class SPSHGPanel extends JPanel {
 
         if (plugin.getConfig().getGuiConfig().isShowUnsupportedADEWarning() && !unsupported.isEmpty()) {
             String formattedMessage = MessageFormat.format(Util.I18N.getString("spshg.dialog.warning.ade.unsupported"),
-                    org.citydb.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "<br>"));
+                    org.citydb.core.util.Util.collection2string(unsupported.stream().map(ade -> ade.getMetadata().getName()).collect(Collectors.toList()), "<br>"));
 
             ConfirmationCheckDialog dialog = ConfirmationCheckDialog.defaults()
                     .withParentComponent(viewController.getTopFrame())

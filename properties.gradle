@@ -1,6 +1,6 @@
 ext {
     date = new Date()
-    pluginShortName = 'Spreadsheet Generator Plugin'
+    pluginShortName = 'Spreadsheet Generator'
     pluginName = '3D City Database Importer/Exporter ' + pluginShortName
     pluginUrl = 'https://github.com/3dcitydb/plugin-spreadsheet-generator'
 
@@ -13,10 +13,18 @@ ext {
 
     // 3D City Database
     citydbName = '3D City Database'
+    citydbProject = '3DCityDB Project'
     citydbWebsiteUrl = 'https://www.3dcitydb.org'
     citydbVcsUrl = 'https://github.com/3dcitydb'
 
     // Importer/Exporter
     impexpName = citydbName + ' Importer/Exporter'
     impexpVersion = '4.3.0'
+
+    // 3DCityDB Web Map Client
+    webMapClientName = '3DCityDB Web Map Client'
+    webMapClientUrl = 'https://github.com/3dcitydb/3dcitydb-web-map'
+
+    // documentation
+    docUrl = 'https://3dcitydb-docs.readthedocs.io/en/release-v4.3.0/plugins/spreadsheet'
 }

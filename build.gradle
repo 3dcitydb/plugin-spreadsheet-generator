@@ -25,11 +25,28 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client:4.3.0'
+    implementation 'org.citydb:impexp-client-gui:4.4.0-SNAPSHOT'
     implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
+}
+
+processResources {
+    filesMatching('**/plugin.xml') {
+        filteringCharset = 'UTF-8'
+        filter(ReplaceTokens, tokens: [
+                name: project.pluginShortName,
+                version: project.version,
+                url: project.pluginUrl,
+                vendor: project.citydbProject,
+                vendorUrl: project.citydbWebsiteUrl,
+                citydbName: project.citydbName,
+                webMapClientName: project.webMapClientName,
+                webMapClientUrl: project.webMapClientUrl,
+                docUrl: project.docUrl
+        ])
+    }
 }
 
 jar {

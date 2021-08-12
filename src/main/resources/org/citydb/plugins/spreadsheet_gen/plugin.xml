@@ -1,0 +1,29 @@
+<plugin>
+    <name>@name@</name>
+    <version>@version@</version>
+    <url>@url@</url>
+    <vendor url="@vendorUrl@">@vendor@</vendor>
+    <ade-support>false</ade-support>
+    <description lang="en"><![CDATA[
+    The @name@ allows you to export attribute data of the city objects stored in the
+    @citydbName@ in tabular form as comma-separated values (CSV) or Microsoft Excel (XLSX) file.
+    <ul>
+      <li>Can be used both via the graphical user interface and on the command line</li>
+      <li>The <a href="@webMapClientUrl@">@webMapClientName@</a>
+          can be easily linked to spreadsheets created with this plugin</li>
+    </ul>
+    <a href="@docUrl@">Documentation</a>
+    ]]>
+    </description>
+    <description lang="de"><![CDATA[
+    Mit dem @name@ können Attribute von Stadtobjekten aus der @citydbName@ in Tabellenform als
+    kommaseparierte Textdatei (CSV) oder als Microsoft Excel (XLSX) Datei exportiert werden.
+    <ul>
+      <li>Kann sowohl über die grafische Benutzeroberfläche als auch auf der Kommandozeile verwendet werden</li>
+      <li>Die erzeugten Attributtabellen können sehr einfach mit dem <a href="@webMapClientUrl@">@webMapClientName@</a>
+          verknüpft werden</li>
+    </ul>
+    <a href="@docUrl@">Dokumentation</a>
+    ]]>
+    </description>
+</plugin>
