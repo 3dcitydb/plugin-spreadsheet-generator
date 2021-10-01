@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+### 4.0.0 - tbd
+
+##### Breaking changes
+* This version is implemented against the new Plugin API introduced with **version 5.0.0** of the
+  [Importer/Exporter](https://github.com/3dcitydb/importer-exporter). It *cannot be used with previous versions*
+  of the Importer/Exporter anymore.
+
 ### 3.2.0 - 2021-04-28
 
 ##### Additions
