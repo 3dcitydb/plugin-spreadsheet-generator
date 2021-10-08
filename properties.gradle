@@ -26,5 +26,5 @@ ext {
     webMapClientUrl = 'https://github.com/3dcitydb/3dcitydb-web-map'
 
     // documentation
-    docUrl = 'https://3dcitydb-docs.readthedocs.io/en/latest/plugins/spreadsheet'
+    docUrl = 'https://3dcitydb-docs.readthedocs.io/en/version-2021.1/plugins/spreadsheet/'
 }
