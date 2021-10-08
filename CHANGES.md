@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-### 4.0.0 - tbd
+### 4.0.0 - 2021-10-08
 
 ##### Breaking changes
 * This version is implemented against the new Plugin API introduced with **version 5.0.0** of the
