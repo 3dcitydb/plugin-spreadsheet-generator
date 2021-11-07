@@ -27,7 +27,6 @@
  */
 package org.citydb.plugins.spreadsheet_gen.cli;
 
-import org.citydb.cli.ImpExpCli;
 import org.citydb.cli.option.DatabaseOption;
 import org.citydb.config.Config;
 import org.citydb.config.project.database.DatabaseConnection;
