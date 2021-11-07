@@ -50,8 +50,7 @@ import java.util.ResourceBundle;
 
 @CommandLine.Command(
 		name = "export-table",
-		description = "Exports attribute data in tabular form as CSV or XLSX file.",
-		versionProvider = ImpExpCli.class
+		description = "Exports attribute data in tabular form as CSV or XLSX file."
 )
 public class SPSHGPluginCli extends CliCommand {
 	@CommandLine.Option(names = {"-o", "--output"}, required = true, paramLabel = "<file>",
