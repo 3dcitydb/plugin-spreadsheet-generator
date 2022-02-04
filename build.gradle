@@ -48,8 +48,7 @@ processResources {
                 vendorUrl: project.citydbWebsiteUrl,
                 citydbName: project.citydbName,
                 webMapClientName: project.webMapClientName,
-                webMapClientUrl: project.webMapClientUrl,
-                docUrl: project.docUrl
+                webMapClientUrl: project.webMapClientUrl
         ])
     }
 }
