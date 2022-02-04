@@ -66,7 +66,7 @@ called "@zipName@".
 
 The following simple steps will guide you through the installation process:
 * Open the installation directory of your local installation of the
-  @impexpName@ version @impexpVersion@.
+  @impexpName@.
 * Open the "plugins" subfolder. If it is not available, create a new
   subfolder and name it "plugins".
 * Extract the downloaded ZIP file in the plugins folder. As a result a new
