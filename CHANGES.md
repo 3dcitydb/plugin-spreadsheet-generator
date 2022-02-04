@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+### 4.0.1 - tba
+
+##### Changes
+* Removed the hardcoded hyperlink of the online documentation from the plugin description.
+
 ### 4.0.0 - 2021-10-08
 
 ##### Breaking changes
