@@ -19,12 +19,9 @@ ext {
 
     // Importer/Exporter
     impexpName = citydbName + ' Importer/Exporter'
-    impexpVersion = '5.0.0'
+    impexpVersion = '5'
 
     // 3DCityDB Web Map Client
     webMapClientName = '3DCityDB Web Map Client'
     webMapClientUrl = 'https://github.com/3dcitydb/3dcitydb-web-map'
-
-    // documentation
-    docUrl = 'https://3dcitydb-docs.readthedocs.io/en/version-2021.1/plugins/spreadsheet/'
 }
