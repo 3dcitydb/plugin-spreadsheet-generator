@@ -23,7 +23,7 @@
       <li>Die erzeugten Attributtabellen können sehr einfach mit dem <a href="@webMapClientUrl@">@webMapClientName@</a>
           verknüpft werden</li>
     </ul>
-    Weitere Details zur Nutzung von @name@ finden sich in der Online-Dokumentation der @citydbName@.
+    Weitere Details zur Nutzung des @name@ finden sich in der Online-Dokumentation der @citydbName@.
     ]]>
     </description>
 </plugin>
