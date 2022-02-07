@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.citydb.plugins'
-version '4.0.0'
+version '4.0.1'
 
 apply from: 'properties.gradle'
 
@@ -48,8 +48,7 @@ processResources {
                 vendorUrl: project.citydbWebsiteUrl,
                 citydbName: project.citydbName,
                 webMapClientName: project.webMapClientName,
-                webMapClientUrl: project.webMapClientUrl,
-                docUrl: project.docUrl
+                webMapClientUrl: project.webMapClientUrl
         ])
     }
 }

@@ -12,7 +12,7 @@
       <li>The <a href="@webMapClientUrl@">@webMapClientName@</a>
           can be easily linked to spreadsheets created with this plugin</li>
     </ul>
-    <a href="@docUrl@">Documentation</a>
+    More details on how to use the @name@ can be found in the online documentation of the @citydbName@.
     ]]>
     </description>
     <description lang="de"><![CDATA[
@@ -23,7 +23,7 @@
       <li>Die erzeugten Attributtabellen können sehr einfach mit dem <a href="@webMapClientUrl@">@webMapClientName@</a>
           verknüpft werden</li>
     </ul>
-    <a href="@docUrl@">Dokumentation</a>
+    Weitere Details zur Nutzung des @name@ finden sich in der Online-Dokumentation der @citydbName@.
     ]]>
     </description>
 </plugin>
