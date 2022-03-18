@@ -44,7 +44,6 @@ import java.util.ResourceBundle;
 
 public class SPSHGPlugin extends Plugin implements ViewExtension, ConfigExtension<ExportConfig> {
 	private ExportConfig config;
-	private Locale currentLocale;
 	private SPSHGView view;
 
 	public static void main(String[] args) {
@@ -75,14 +74,8 @@ public class SPSHGPlugin extends Plugin implements ViewExtension, ConfigExtensio
 
 	@Override
 	public void switchLocale(Locale locale) {
-		if (locale.equals(currentLocale)) {
-			return;
-		}
-
 		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
-		currentLocale = locale;
-		
-		view.switchLocale();
+		view.switchLocale(locale);
 	}
 
 	@Override

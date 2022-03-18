@@ -27,19 +27,17 @@
  */
 package org.citydb.plugins.spreadsheet_gen.gui.view;
 
-import org.citydb.gui.plugin.view.View;
+import org.citydb.gui.plugin.util.DefaultView;
 import org.citydb.gui.plugin.view.ViewController;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
 
 import javax.swing.*;
-import java.awt.*;
 
-public class SPSHGView extends View {
-	private final SPSHGPanel component;
-	
+public class SPSHGView extends DefaultView {
+
 	public SPSHGView(ViewController viewController, SPSHGPlugin spshg){
-		component = new SPSHGPanel(viewController, spshg);
+		super(new SPSHGPanel(viewController, spshg));
 	}
 	
 	@Override
@@ -55,22 +53,5 @@ public class SPSHGView extends View {
 	@Override
 	public String getToolTip() {
 		return null;
-	}
-
-	@Override
-	public Component getViewComponent() {
-		return component;
-	}
-	
-	public void switchLocale() {
-		component.switchLocale();
-	}
-	
-	public void setSettings(){
-		component.setSettings();
-	}
-	
-	public void loadSettings(){
-		component.loadSettings();
 	}
 }

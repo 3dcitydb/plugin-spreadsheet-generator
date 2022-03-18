@@ -42,6 +42,7 @@ import org.citydb.gui.components.TitledPanel;
 import org.citydb.gui.components.dialog.ConfirmationCheckDialog;
 import org.citydb.gui.components.popup.PopupMenuDecorator;
 import org.citydb.gui.operation.common.filter.*;
+import org.citydb.gui.plugin.util.DefaultViewComponent;
 import org.citydb.gui.plugin.view.ViewController;
 import org.citydb.gui.util.GuiUtil;
 import org.citydb.plugins.spreadsheet_gen.SPSHGPlugin;
@@ -79,10 +80,11 @@ import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-public class SPSHGPanel extends JPanel {
+public class SPSHGPanel extends DefaultViewComponent {
     private final Logger log = Logger.getInstance();
     private final ReentrantLock mainLock = new ReentrantLock();
     private final ViewController viewController;
@@ -429,7 +431,8 @@ public class SPSHGPanel extends JPanel {
         featureTypeFilter.setEnabled(useFeatureFilter.isSelected());
     }
 
-    public void switchLocale() {
+    @Override
+    public void switchLocale(Locale locale) {
         resetPreferredSize();
         csvColumnsPanel.setTitle(Util.I18N.getString("spshg.csvcolumns.border"));
         templateLabel.setText(Util.I18N.getString("spshg.csvcolumns.usetemplate"));
@@ -473,10 +476,10 @@ public class SPSHGPanel extends JPanel {
         Arrays.stream(Delimiter.values()).forEach(delimiterComboBox::addItem);
         delimiterComboBox.setSelectedIndex(selected);
 
-        featureVersionFilter.doTranslation();
-        attributeFilter.doTranslation();
-        sqlFilter.doTranslation();
-        featureTypeFilter.doTranslation();
+        featureVersionFilter.switchLocale(locale);
+        attributeFilter.switchLocale(locale);
+        sqlFilter.switchLocale(locale);
+        featureTypeFilter.switchLocale(locale);
         alignGUI();
     }
 
@@ -869,6 +872,7 @@ public class SPSHGPanel extends JPanel {
         }
     }
 
+    @Override
     public void loadSettings() {
         ExportConfig config = plugin.getConfig();
 
@@ -911,6 +915,7 @@ public class SPSHGPanel extends JPanel {
         featureFilterPanel.setCollapsed(guiConfig.isCollapseFeatureTypeFilter());
     }
 
+    @Override
     public void setSettings() {
         ExportConfig config = plugin.getConfig();
 
