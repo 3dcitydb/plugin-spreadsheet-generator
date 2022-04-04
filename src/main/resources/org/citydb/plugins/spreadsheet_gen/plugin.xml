@@ -3,7 +3,7 @@
     <version>@version@</version>
     <url>@url@</url>
     <vendor url="@vendorUrl@">@vendor@</vendor>
-    <ade-support>false</ade-support>
+    <ade-support>true</ade-support>
     <description lang="en"><![CDATA[
     The @name@ allows you to export attribute data of the city objects stored in the
     @citydbName@ in tabular form as comma-separated values (CSV) or Microsoft Excel (XLSX) file.

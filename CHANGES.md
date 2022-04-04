@@ -6,6 +6,9 @@ Change Log
 #### Changes
 * Use the new default view implementations of GUI plugin.
 
+#### Fixes
+* Fixed plugin description where the <ade-support> should be true.
+
 ### 4.0.1 - 2022-02-07
 
 ##### Changes
