@@ -4,7 +4,7 @@ Change Log
 ### 4.1.0-SNAPSHOT
 
 #### Changes
-* Use new default view implementations of GUI plugin.
+* Use the new default view implementations of GUI plugin.
 
 ### 4.0.1 - 2022-02-07
 
