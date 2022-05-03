@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client-gui:5.2.0-SNAPSHOT'
+    implementation 'org.citydb:impexp-client-gui:5.2.0'
     implementation 'org.apache.poi:poi:4.1.2'
     implementation 'org.apache.poi:poi-ooxml:4.1.2'
     implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
