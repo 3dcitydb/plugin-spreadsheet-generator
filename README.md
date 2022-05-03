@@ -24,12 +24,15 @@ Previous releases are available from the [releases section](https://github.com/3
 
 Installation
 ------------
-The Spreadsheet Generator plugin is shipped with the universal installer of the Importer/Exporter tool. When running
-the setup wizard, you can choose to install the plugin. This is the recommended and easiest way to install the plugin.
+The Spreadsheet Generator plugin is shipped with the [3D City Database Suite installer](https://github.com/3dcitydb/3dcitydb-suite/releases).
+When running the installer, a setup wizard will let you choose to install the plugin together with the required
+version of the Importer/Exporter tool. This is the recommended and easiest way to install the plugin.
 
 Alternatively, you may download the software from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases)
 (or build it from source) and unzip it into the `plugins` folder within the installation folder of the
-Importer/Exporter. After a restart of the Importer/Exporter, the Spreadsheet Generator will be ready to be used.
+Importer/Exporter. Please note that in this case you have to make sure yourself that the plugin version you
+download can be used together with your installation of the Importer/Exporter. After a restart of the
+Importer/Exporter, the Spreadsheet Generator will be ready to use.
 
 System requirements
 -------------------
