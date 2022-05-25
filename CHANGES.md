@@ -8,7 +8,7 @@ Change Log
   [Importer/Exporter](https://github.com/3dcitydb/importer-exporter).
 
 #### Fixes
-* Fixed plugin description where the <ade-support> should be true.
+* Fixed plugin description where the `<ade-support>` should be true.
 
 ### 4.0.1 - 2022-02-07
 
