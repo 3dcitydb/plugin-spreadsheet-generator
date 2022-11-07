@@ -337,7 +337,7 @@ public class SpreadsheetExporter implements EventHandler {
 
     @Override
     public void handleEvent(Event e) throws Exception {
-        if (e.getEventType() == EventType.OBJECT_COUNTER) {
+        if (e.getEventType() == EventType.OBJECT_COUNTER && e.getChannel() == eventChannel) {
             Map<Integer, Long> counter = ((ObjectCounterEvent) e).getCounter();
             for (Map.Entry<Integer, Long> entry : counter.entrySet()) {
                 Long tmp = featureCounter.get(entry.getKey());

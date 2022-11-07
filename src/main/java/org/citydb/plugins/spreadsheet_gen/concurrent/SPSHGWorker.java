@@ -88,7 +88,7 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 	@Override
 	public void run() {
 		super.run();
-		eventDispatcher.triggerEvent(new ObjectCounterEvent(featureCounter, this));
+		eventDispatcher.triggerEvent(new ObjectCounterEvent(featureCounter, eventChannel));
 	}
 
 	@Override
