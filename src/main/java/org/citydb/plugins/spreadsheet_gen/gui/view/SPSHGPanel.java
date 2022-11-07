@@ -60,7 +60,6 @@ import org.citydb.plugins.spreadsheet_gen.gui.view.components.NewCSVColumnDialog
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.StatusDialog;
 import org.citydb.plugins.spreadsheet_gen.gui.view.components.TableDataModel;
 import org.citydb.plugins.spreadsheet_gen.util.Util;
-import org.citydb.util.event.Event;
 import org.citydb.util.event.EventDispatcher;
 import org.citydb.util.event.global.InterruptEvent;
 import org.citydb.util.log.Logger;
@@ -71,8 +70,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.TableColumn;
 import javax.xml.datatype.DatatypeConstants;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
@@ -685,6 +682,8 @@ public class SPSHGPanel extends DefaultViewComponent {
             viewController.setStatusText(Util.I18N.getString("spshg.status.generation.start"));
             log.info("Initializing table data export...");
 
+            SpreadsheetExporter exporter = new SpreadsheetExporter(plugin.getConfig());
+
             // initialize event dispatcher
             final EventDispatcher eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
             final StatusDialog status = new StatusDialog(viewController.getTopFrame(),
@@ -698,23 +697,15 @@ public class SPSHGPanel extends DefaultViewComponent {
                 status.setVisible(true);
             });
 
-            status.getButton().addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            eventDispatcher.triggerEvent(new InterruptEvent(
-                                    "User abort of database export.",
-                                    LogLevel.WARN,
-                                    Event.GLOBAL_CHANNEL,
-                                    this));
-                        }
-                    });
-                }
-            });
+            status.getButton().addActionListener(e ->
+                    SwingUtilities.invokeLater(() -> eventDispatcher.triggerEvent(new InterruptEvent(
+                            "User abort of database export.",
+                            LogLevel.WARN,
+                            exporter.getEventChannel()))));
 
             boolean success = false;
             try {
-                success = new SpreadsheetExporter(plugin.getConfig()).doProcess();
+                success = exporter.doProcess();
             } catch (TableExportException e) {
                 log.error(e.getMessage(), e.getCause());
                 if (e.getErrorCode() == TableExportException.ErrorCode.SPATIAL_INDEXES_NOT_ACTIVATED) {

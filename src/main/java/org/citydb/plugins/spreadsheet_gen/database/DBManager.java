@@ -108,7 +108,7 @@ public class DBManager {
 		     ResultSet rs = stmt.executeQuery()) {
 			long numCityObjects = rs.next() ? rs.getLong(1) : 0;
 			log.info("Found " + numCityObjects + " top-level feature(s) matching the request.");
-			eventDispatcher.triggerEvent(new StatusDialogProgressBar(ProgressBarEventType.INIT, (int) numCityObjects, this));
+			eventDispatcher.triggerEvent(new StatusDialogProgressBar(ProgressBarEventType.INIT, (int) numCityObjects));
 		}
 
 		// do database query

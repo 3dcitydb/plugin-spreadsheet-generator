@@ -118,10 +118,10 @@ public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
 
 			writerPool.addWork(new RowofCSVWork(sb.toString(), work.getClassid()));
 			featureCounter.merge(work.getClassid(), 1L, Long::sum);
-			eventDispatcher.triggerEvent(new CounterEvent(CounterType.TOPLEVEL_FEATURE, 1, this));
+			eventDispatcher.triggerEvent(new CounterEvent(CounterType.TOPLEVEL_FEATURE, 1));
 		} catch (Exception e) {
 			eventDispatcher.triggerSyncEvent(new InterruptEvent("A fatal error occurred during export of " +
-					"feature with gml:id " + work.getGmlid() + ".", LogLevel.ERROR, e, eventChannel, this));
+					"feature with gml:id " + work.getGmlid() + ".", LogLevel.ERROR, e, eventChannel));
 		}
 	}
 

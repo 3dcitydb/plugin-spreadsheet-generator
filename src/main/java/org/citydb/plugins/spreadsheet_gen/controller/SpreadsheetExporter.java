@@ -85,11 +85,11 @@ public class SpreadsheetExporter implements EventHandler {
     private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
     private final Map<Integer, Long> featureCounter;
 
+    private final Object eventChannel = new Object();
     private volatile boolean shouldRun = true;
     private TableExportException exception;
-
     private WorkerPool<CityObjectWork> workerPool;
-    private DBManager dbm = null;
+    private DBManager dbm;
 
     public SpreadsheetExporter(ExportConfig pluginConfig) {
         config = pluginConfig;
@@ -98,6 +98,10 @@ public class SpreadsheetExporter implements EventHandler {
         schemaMapping = ObjectRegistry.getInstance().getSchemaMapping();
         eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
         featureCounter = new HashMap<>();
+    }
+
+    public Object getEventChannel() {
+        return eventChannel;
     }
 
     public boolean doProcess() throws TableExportException {
@@ -241,7 +245,9 @@ public class SpreadsheetExporter implements EventHandler {
                     300,
                     false);
 
-            workerPool.setContextClassLoader(SpreadsheetExporter.class.getClassLoader());
+            // set channel for events triggered by workers
+            writerPool.setEventSource(eventChannel);
+            workerPool.setEventSource(eventChannel);
 
             // start pool workers
             writerPool.prestartCoreWorkers();
@@ -257,7 +263,7 @@ public class SpreadsheetExporter implements EventHandler {
                 log.info("Exporting to file: " + dummyOutputfile);
 
                 dbm = new DBManager(query, schemaMapping, dbPool, workerPool, eventDispatcher);
-                eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.generating"), this));
+                eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.generating")));
 
                 if (shouldRun) {
                     dbm.startQuery();
@@ -276,7 +282,7 @@ public class SpreadsheetExporter implements EventHandler {
             if (config.getOutput().getType() == OutputFileType.XLSX) {
                 try {
                     log.debug("Converting temporary CSV file to XLSX.");
-                    eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.xlsx"), this));
+                    eventDispatcher.triggerEvent(new StatusDialogTitle(Util.I18N.getString("spshg.dialog.status.state.xlsx")));
                     convertToXSLX(outputFile, path, filename, translator);
                 } catch (Exception e) {
                     throw new TableExportException("Failed to write XLSX output file.", e);
@@ -340,12 +346,13 @@ public class SpreadsheetExporter implements EventHandler {
         } else if (e.getEventType() == EventType.INTERRUPT) {
             if (isInterrupted.compareAndSet(false, true)) {
                 shouldRun = false;
-
                 InterruptEvent event = (InterruptEvent) e;
 
-                log.log(event.getLogLevelType(), event.getLogMessage());
-                if (event.getCause() != null) {
-                    setException("Aborting export due to errors.", event.getCause());
+                if (event.getChannel() == eventChannel) {
+                    log.log(event.getLogLevelType(), event.getLogMessage());
+                    if (event.getCause() != null) {
+                        setException("Aborting export due to errors.", event.getCause());
+                    }
                 }
 
                 if (dbm != null) {
