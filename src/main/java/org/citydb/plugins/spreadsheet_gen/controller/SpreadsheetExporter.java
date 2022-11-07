@@ -84,8 +84,8 @@ public class SpreadsheetExporter implements EventHandler {
     private final SchemaMapping schemaMapping;
     private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
     private final Map<Integer, Long> featureCounter;
-
     private final Object eventChannel = new Object();
+    
     private volatile boolean shouldRun = true;
     private TableExportException exception;
     private WorkerPool<CityObjectWork> workerPool;
