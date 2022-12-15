@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-### 4.2.0 - tba
+### 4.2.0 - 2022-12-15
 
 * Updated to [Importer/Exporter](https://github.com/3dcitydb/importer-exporter) version 5.3.0.
 * Updated Apache POI to 5.2.3.
