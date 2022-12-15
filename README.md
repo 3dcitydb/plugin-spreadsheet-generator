@@ -17,9 +17,9 @@ To request a previous release of the 3D City Database Importer/Exporter under Ap
 
 Latest release
 --------------
-The latest stable release of the Spreadsheet Generator Plugin is 4.1.0.
+The latest stable release of the Spreadsheet Generator Plugin is 4.2.0.
 
-Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v4.1.0/plugin-spreadsheet-generator-4.1.0.zip).
+Download the software [here](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases/download/v4.2.0/plugin-spreadsheet-generator-4.2.0.zip).
 Previous releases are available from the [releases section](https://github.com/3dcitydb/plugin-spreadsheet-generator/releases).
 
 Installation
@@ -42,7 +42,7 @@ Please check the release notes of the version you want to use for more informati
 Documentation
 -------------
 A complete and comprehensive user manual on the Spreadsheet Generator Plugin is available
-[online](https://3dcitydb-docs.readthedocs.io/en/version-2021.1/plugins/spreadsheet/).
+[online](https://3dcitydb-docs.readthedocs.io/en/version-2022.2/plugins/spreadsheet/).
 
 Contributing
 ------------
