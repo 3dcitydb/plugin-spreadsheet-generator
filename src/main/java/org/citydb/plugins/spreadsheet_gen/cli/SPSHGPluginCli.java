@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -48,100 +48,100 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 @CommandLine.Command(
-		name = "export-table",
-		description = "Exports attribute data in tabular form as CSV or XLSX file."
+        name = "export-table",
+        description = "Exports attribute data in tabular form as CSV or XLSX file."
 )
 public class SPSHGPluginCli extends CliCommand {
-	@CommandLine.Option(names = {"-o", "--output"}, required = true, paramLabel = "<file>",
-			description = "Name of the output file with the extension .csv or .xlsx")
-	private Path outputFile;
+    @CommandLine.Option(names = {"-o", "--output"}, required = true, paramLabel = "<file>",
+            description = "Name of the output file with the extension .csv or .xlsx")
+    private Path outputFile;
 
-	@CommandLine.Option(names = {"-l", "--template"}, required = true, paramLabel = "<file>",
-			description = "Name of the template file.")
-	private Path templateFile;
+    @CommandLine.Option(names = {"-l", "--template"}, required = true, paramLabel = "<file>",
+            description = "Name of the template file.")
+    private Path templateFile;
 
-	@CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>",
-			description = "Column delimiter to use for CSV file (default: ',').")
-	private String delimiter;
+    @CommandLine.Option(names = {"-D", "--delimiter"}, paramLabel = "<char>",
+            description = "Column delimiter to use for CSV file (default: ',').")
+    private String delimiter;
 
-	@CommandLine.ArgGroup(exclusive = false, heading = "Query and filter options:%n")
-	private QueryOption queryOption;
+    @CommandLine.ArgGroup(exclusive = false, heading = "Query and filter options:%n")
+    private QueryOption queryOption;
 
-	@CommandLine.ArgGroup(exclusive = false, heading = "Database connection options:%n")
-	private final DatabaseOption databaseOption = new DatabaseOption();
+    @CommandLine.ArgGroup(exclusive = false, heading = "Database connection options:%n")
+    private final DatabaseOption databaseOption = new DatabaseOption();
 
-	private final Logger log = Logger.getInstance();
+    private final Logger log = Logger.getInstance();
 
-	public static void main(String[] args) {
-		// test run
-		ImpExpLauncher launcher = new ImpExpLauncher()
-				.withArgs(args)
-				.withCliCommand(new SPSHGPluginCli());
+    public static void main(String[] args) {
+        // test run
+        ImpExpLauncher launcher = new ImpExpLauncher()
+                .withArgs(args)
+                .withCliCommand(new SPSHGPluginCli());
 
-		launcher.start();
-	}
+        launcher.start();
+    }
 
-	@Override
-	public Integer call() throws Exception {
-		// prepare configs
-		Config config = ObjectRegistry.getInstance().getConfig();
-		ExportConfig pluginConfig = config.getPluginConfig(ExportConfig.class);
-		if (pluginConfig == null) {
-			pluginConfig = new ExportConfig();
-			config.registerPluginConfig(pluginConfig);
-		}
+    @Override
+    public Integer call() throws Exception {
+        // prepare configs
+        Config config = ObjectRegistry.getInstance().getConfig();
+        ExportConfig pluginConfig = config.getPluginConfig(ExportConfig.class);
+        if (pluginConfig == null) {
+            pluginConfig = new ExportConfig();
+            config.registerPluginConfig(pluginConfig);
+        }
 
-		// connect to database
-		DatabaseController database = ObjectRegistry.getInstance().getDatabaseController();
-		DatabaseConnection connection = databaseOption.hasUserInput() ?
-				databaseOption.toDatabaseConnection() :
-				config.getDatabaseConfig().getActiveConnection();
+        // connect to database
+        DatabaseController database = ObjectRegistry.getInstance().getDatabaseController();
+        DatabaseConnection connection = databaseOption.hasUserInput() ?
+                databaseOption.toDatabaseConnection() :
+                config.getDatabaseConfig().getActiveConnection();
 
-		if (!database.connect(connection)) {
-			log.warn("Database export aborted.");
-			return 1;
-		}
+        if (!database.connect(connection)) {
+            log.warn("Database export aborted.");
+            return 1;
+        }
 
-		// set template
-		Template templateConfig = pluginConfig.getTemplate();
-		templateConfig.setManualTemplate(false);
-		templateConfig.setPath(templateFile.toAbsolutePath().toString());
+        // set template
+        Template templateConfig = pluginConfig.getTemplate();
+        templateConfig.setManualTemplate(false);
+        templateConfig.setPath(templateFile.toAbsolutePath().toString());
 
-		// set xlsx/csv output
-		String outputFileName = outputFile.toAbsolutePath().toString();
-		if ("xlsx".equalsIgnoreCase(Util.getFileExtension(outputFileName))) {
-			pluginConfig.getOutput().setType(OutputFileType.XLSX);
-			pluginConfig.getOutput().getXlsxFile().setOutputPath(outputFileName);
-		} else {
-			pluginConfig.getOutput().setType(OutputFileType.CSV);
-			pluginConfig.getOutput().getCsvFile().setOutputPath(outputFileName);
+        // set xlsx/csv output
+        String outputFileName = outputFile.toAbsolutePath().toString();
+        if ("xlsx".equalsIgnoreCase(Util.getFileExtension(outputFileName))) {
+            pluginConfig.getOutput().setType(OutputFileType.XLSX);
+            pluginConfig.getOutput().getXlsxFile().setOutputPath(outputFileName);
+        } else {
+            pluginConfig.getOutput().setType(OutputFileType.CSV);
+            pluginConfig.getOutput().getCsvFile().setOutputPath(outputFileName);
 
-			if (delimiter != null) {
-				pluginConfig.getOutput().getCsvFile().setDelimiter(delimiter);
-			}
-		}
+            if (delimiter != null) {
+                pluginConfig.getOutput().getCsvFile().setDelimiter(delimiter);
+            }
+        }
 
-		// set user-defined query options
-		if (queryOption != null) {
-			pluginConfig.setQuery(queryOption.toQuery());
-		}
+        // set user-defined query options
+        if (queryOption != null) {
+            pluginConfig.setQuery(queryOption.toQuery());
+        }
 
-		// run spreadsheet export
-		org.citydb.plugins.spreadsheet_gen.util.Util.I18N = ResourceBundle.getBundle(
-				"org.citydb.plugins.spreadsheet_gen.i18n.language",
-				Locale.ENGLISH);
+        // run spreadsheet export
+        org.citydb.plugins.spreadsheet_gen.util.Util.I18N = ResourceBundle.getBundle(
+                "org.citydb.plugins.spreadsheet_gen.i18n.language",
+                Locale.ENGLISH);
 
-		try {
-			new SpreadsheetExporter(pluginConfig).doProcess();
-			log.info("Table data export successfully finished.");
-		} catch (TableExportException e) {
-			log.error(e.getMessage(), e.getCause());
-			log.warn("Table data export aborted.");
-			return 1;
-		} finally {
-			database.disconnect(true);
-		}
+        try {
+            new SpreadsheetExporter(pluginConfig).doProcess();
+            log.info("Table data export successfully finished.");
+        } catch (TableExportException e) {
+            log.error(e.getMessage(), e.getCause());
+            log.warn("Table data export aborted.");
+            return 1;
+        } finally {
+            database.disconnect(true);
+        }
 
-		return 0;
-	}
+        return 0;
+    }
 }

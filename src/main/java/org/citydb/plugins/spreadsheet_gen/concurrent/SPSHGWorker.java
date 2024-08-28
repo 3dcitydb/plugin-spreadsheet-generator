@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -50,89 +50,89 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SPSHGWorker extends DefaultWorker<CityObjectWork> {
-	private final Connection connection;
-	private final WorkerPool<RowofCSVWork> writerPool;
-	private final Translator translator;
-	private final EventDispatcher eventDispatcher;
-	private final BalloonTemplateHandler bth;
-	private final Map<Integer, Long> featureCounter;
-	private final String schema;
-	private final String separatorCharacter;
-	private final int lod;
+    private final Connection connection;
+    private final WorkerPool<RowofCSVWork> writerPool;
+    private final Translator translator;
+    private final EventDispatcher eventDispatcher;
+    private final BalloonTemplateHandler bth;
+    private final Map<Integer, Long> featureCounter;
+    private final String schema;
+    private final String separatorCharacter;
+    private final int lod;
 
-	private boolean shouldRun = true;
+    private boolean shouldRun = true;
 
-	public SPSHGWorker(
-			Connection connection,
-			AbstractDatabaseAdapter databaseAdapter,
-			WorkerPool<RowofCSVWork> writerPool,
-			Translator translator,
-			String template,
-			ExportConfig config) {
-		this.connection = connection;
-		this.writerPool = writerPool;
-		this.translator = translator;
+    public SPSHGWorker(
+            Connection connection,
+            AbstractDatabaseAdapter databaseAdapter,
+            WorkerPool<RowofCSVWork> writerPool,
+            Translator translator,
+            String template,
+            ExportConfig config) {
+        this.connection = connection;
+        this.writerPool = writerPool;
+        this.translator = translator;
 
-		separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
-				config.getOutput().getCsvFile().getDelimiter() :
-				",";
+        separatorCharacter = config.getOutput().getType() == OutputFileType.CSV ?
+                config.getOutput().getCsvFile().getDelimiter() :
+                ",";
 
-		bth = new BalloonTemplateHandler(template, databaseAdapter);
-		featureCounter = new HashMap<>();
-		schema = databaseAdapter.getSchemaManager().getDefaultSchema();
-		lod = 2;
+        bth = new BalloonTemplateHandler(template, databaseAdapter);
+        featureCounter = new HashMap<>();
+        schema = databaseAdapter.getSchemaManager().getDefaultSchema();
+        lod = 2;
 
-		eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
-	}
+        eventDispatcher = ObjectRegistry.getInstance().getEventDispatcher();
+    }
 
-	@Override
-	public void run() {
-		super.run();
-		eventDispatcher.triggerEvent(new ObjectCounterEvent(featureCounter, eventChannel));
-	}
+    @Override
+    public void run() {
+        super.run();
+        eventDispatcher.triggerEvent(new ObjectCounterEvent(featureCounter, eventChannel));
+    }
 
-	@Override
-	public void doWork(CityObjectWork work) {
-		try {
-			if (!shouldRun)
-				return;
+    @Override
+    public void doWork(CityObjectWork work) {
+        try {
+            if (!shouldRun)
+                return;
 
-			String data = bth.getBalloonContent(work.getGmlid(), lod, connection, schema);
-			String[] cells = data.split("\\Q" + translator.getBalloonToken() + "\\E");
+            String data = bth.getBalloonContent(work.getGmlid(), lod, connection, schema);
+            String[] cells = data.split("\\Q" + translator.getBalloonToken() + "\\E");
 
-			StringBuilder sb = new StringBuilder();
-			boolean firstround = true;
+            StringBuilder sb = new StringBuilder();
+            boolean firstround = true;
 
-			for (String st : cells) {
-				if (!firstround) {
-					sb.append(separatorCharacter);
-					sb.append("\"");
-				} else {
-					sb.append('"');
-					firstround = false;
-				}
-				sb.append(st);
-				sb.append("\"");
-			}
-			sb.append("\n");
+            for (String st : cells) {
+                if (!firstround) {
+                    sb.append(separatorCharacter);
+                    sb.append("\"");
+                } else {
+                    sb.append('"');
+                    firstround = false;
+                }
+                sb.append(st);
+                sb.append("\"");
+            }
+            sb.append("\n");
 
-			writerPool.addWork(new RowofCSVWork(sb.toString(), work.getClassid()));
-			featureCounter.merge(work.getClassid(), 1L, Long::sum);
-			eventDispatcher.triggerEvent(new CounterEvent(CounterType.TOPLEVEL_FEATURE, 1));
-		} catch (Exception e) {
-			eventDispatcher.triggerSyncEvent(new InterruptEvent("A fatal error occurred during export of " +
-					"feature with gml:id " + work.getGmlid() + ".", LogLevel.ERROR, e, eventChannel));
-		}
-	}
+            writerPool.addWork(new RowofCSVWork(sb.toString(), work.getClassid()));
+            featureCounter.merge(work.getClassid(), 1L, Long::sum);
+            eventDispatcher.triggerEvent(new CounterEvent(CounterType.TOPLEVEL_FEATURE, 1));
+        } catch (Exception e) {
+            eventDispatcher.triggerSyncEvent(new InterruptEvent("A fatal error occurred during export of " +
+                    "feature with gml:id " + work.getGmlid() + ".", LogLevel.ERROR, e, eventChannel));
+        }
+    }
 
-	@Override
-	public void shutdown() {
-		shouldRun = false;
+    @Override
+    public void shutdown() {
+        shouldRun = false;
 
-		try {
-			connection.close();
-		} catch (SQLException sqlEx) {
-			//
-		}
-	}
+        try {
+            connection.close();
+        } catch (SQLException sqlEx) {
+            //
+        }
+    }
 }

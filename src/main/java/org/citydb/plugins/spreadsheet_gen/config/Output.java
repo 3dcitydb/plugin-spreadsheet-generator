@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -30,35 +30,35 @@ package org.citydb.plugins.spreadsheet_gen.config;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="OutputType", propOrder={
-		"csvFile",
-		"xlsxFile"
+@XmlType(name = "OutputType", propOrder = {
+        "csvFile",
+        "xlsxFile"
 })
 
 public class Output {
-	@XmlAttribute(required = true)
-	private OutputFileType type = OutputFileType.CSV;
-	private CSVFile csvFile;
-	private XLSXFile xlsxFile;
+    @XmlAttribute(required = true)
+    private OutputFileType type = OutputFileType.CSV;
+    private CSVFile csvFile;
+    private XLSXFile xlsxFile;
 
-	public Output() {
-		csvFile = new CSVFile();
-		xlsxFile = new XLSXFile();
-	}
+    public Output() {
+        csvFile = new CSVFile();
+        xlsxFile = new XLSXFile();
+    }
 
-	public OutputFileType getType() {
-		return type;
-	}
+    public OutputFileType getType() {
+        return type;
+    }
 
-	public void setType(OutputFileType type) {
-		this.type = type;
-	}
+    public void setType(OutputFileType type) {
+        this.type = type;
+    }
 
-	public CSVFile getCsvFile() {
-		return csvFile;
-	}
+    public CSVFile getCsvFile() {
+        return csvFile;
+    }
 
-	public XLSXFile getXlsxFile() {
-		return xlsxFile;
-	}
+    public XLSXFile getXlsxFile() {
+        return xlsxFile;
+    }
 }

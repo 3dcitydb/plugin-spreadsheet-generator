@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -36,22 +36,22 @@ import javax.swing.*;
 
 public class SPSHGView extends DefaultView {
 
-	public SPSHGView(ViewController viewController, SPSHGPlugin spshg){
-		super(new SPSHGPanel(viewController, spshg));
-	}
-	
-	@Override
-	public Icon getIcon() {
-		return null;
-	}
+    public SPSHGView(ViewController viewController, SPSHGPlugin spshg) {
+        super(new SPSHGPanel(viewController, spshg));
+    }
 
-	@Override
-	public String getLocalizedTitle() {
-		return Util.I18N.getString("spshg.general.title");
-	}
+    @Override
+    public Icon getIcon() {
+        return null;
+    }
 
-	@Override
-	public String getToolTip() {
-		return null;
-	}
+    @Override
+    public String getLocalizedTitle() {
+        return Util.I18N.getString("spshg.general.title");
+    }
+
+    @Override
+    public String getToolTip() {
+        return null;
+    }
 }

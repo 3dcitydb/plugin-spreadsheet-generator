@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -43,81 +43,81 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class SPSHGPlugin extends Plugin implements ViewExtension, ConfigExtension<ExportConfig> {
-	private ExportConfig config;
-	private SPSHGView view;
+    private ExportConfig config;
+    private SPSHGView view;
 
-	public static void main(String[] args) {
-		// test run
-		ImpExpLauncher launcher = new ImpExpLauncher()
-				.withArgs(args)
-				.withPlugin(new SPSHGPlugin());
+    public static void main(String[] args) {
+        // test run
+        ImpExpLauncher launcher = new ImpExpLauncher()
+                .withArgs(args)
+                .withPlugin(new SPSHGPlugin());
 
-		launcher.start();
-	}
+        launcher.start();
+    }
 
-	@Override
-	public void initGuiExtension(ViewController viewController, Locale locale) {
-		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
-		view = new SPSHGView(viewController, this);
-		loadSettings();
-	}
+    @Override
+    public void initGuiExtension(ViewController viewController, Locale locale) {
+        Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
+        view = new SPSHGView(viewController, this);
+        loadSettings();
+    }
 
-	@Override
-	public View getView() {
-		return view;
-	}
-	
-	@Override
-	public void shutdownGui() {
-		setSettings();
-	}
+    @Override
+    public View getView() {
+        return view;
+    }
 
-	@Override
-	public void switchLocale(Locale locale) {
-		Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
-		view.switchLocale(locale);
-	}
+    @Override
+    public void shutdownGui() {
+        setSettings();
+    }
 
-	@Override
-	public void configLoaded(ExportConfig config) {
-		boolean reload = this.config != null;		
-		setConfig(config);
-		
-		if (reload) {
-			loadSettings();
-		}
-	}
+    @Override
+    public void switchLocale(Locale locale) {
+        Util.I18N = ResourceBundle.getBundle("org.citydb.plugins.spreadsheet_gen.i18n.language", locale);
+        view.switchLocale(locale);
+    }
 
-	@Override
-	public ExportConfig getConfig() {
-		return config;
-	}
-	
-	public void setConfig(ExportConfig config) {
-		this.config = config;
-	}
-	
-	@Override
-	public void handleEvent(PluginConfigEvent event) {
-		switch (event) {
-			case RESET_DEFAULT_CONFIG:
-				this.config = new ExportConfig();
-				loadSettings();
-				break;
-			case PRE_SAVE_CONFIG:
-				setSettings();
-				break;
-			case RESET_GUI_VIEW:
-				config.setGuiConfig(new GuiConfig());
-				break;
-		}
-	}
-	
-	public void loadSettings() {
-		view.loadSettings();	
-	}
-	
-	public void setSettings() {
-		view.setSettings();
-	}
+    @Override
+    public void configLoaded(ExportConfig config) {
+        boolean reload = this.config != null;
+        setConfig(config);
+
+        if (reload) {
+            loadSettings();
+        }
+    }
+
+    @Override
+    public ExportConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(ExportConfig config) {
+        this.config = config;
+    }
+
+    @Override
+    public void handleEvent(PluginConfigEvent event) {
+        switch (event) {
+            case RESET_DEFAULT_CONFIG:
+                this.config = new ExportConfig();
+                loadSettings();
+                break;
+            case PRE_SAVE_CONFIG:
+                setSettings();
+                break;
+            case RESET_GUI_VIEW:
+                config.setGuiConfig(new GuiConfig());
+                break;
+        }
+    }
+
+    public void loadSettings() {
+        view.loadSettings();
+    }
+
+    public void setSettings() {
+        view.setSettings();
+    }
 }

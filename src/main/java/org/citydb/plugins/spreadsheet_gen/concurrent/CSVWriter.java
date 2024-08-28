@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -35,33 +35,33 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class CSVWriter extends DefaultWorker<RowofCSVWork> {
-	private FileOutputStream fos;
+    private FileOutputStream fos;
 
-	public CSVWriter(File output) {
-		try {
-			fos = new FileOutputStream(output);
-		} catch (Exception e) {
-			//
-		}
-	}
+    public CSVWriter(File output) {
+        try {
+            fos = new FileOutputStream(output);
+        } catch (Exception e) {
+            //
+        }
+    }
 
-	@Override
-	public void doWork(RowofCSVWork row) {
-		try {
-			if (fos != null) {
-				fos.write(row.getText().getBytes(StandardCharsets.UTF_8));
-			}
-		} catch (Exception e) {
-			// event
-		}
-	}
+    @Override
+    public void doWork(RowofCSVWork row) {
+        try {
+            if (fos != null) {
+                fos.write(row.getText().getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (Exception e) {
+            // event
+        }
+    }
 
-	@Override
-	public void shutdown() {
-		try {
-			fos.close();
-		} catch (Exception e) {
-			//
-		}
-	}
+    @Override
+    public void shutdown() {
+        try {
+            fos.close();
+        } catch (Exception e) {
+            //
+        }
+    }
 }

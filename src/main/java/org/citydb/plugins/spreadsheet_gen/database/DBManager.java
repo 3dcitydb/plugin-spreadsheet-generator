@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -54,81 +54,81 @@ import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DBManager {
-	private final Logger log = Logger.getInstance();
-	private final Query query;
-	private final SchemaMapping schemaMapping;
-	private final WorkerPool<CityObjectWork> workerPool;
-	private final EventDispatcher eventDispatcher;
+    private final Logger log = Logger.getInstance();
+    private final Query query;
+    private final SchemaMapping schemaMapping;
+    private final WorkerPool<CityObjectWork> workerPool;
+    private final EventDispatcher eventDispatcher;
 
-	private final Connection connection;
-	private final AbstractDatabaseAdapter databaseAdapter;
-	private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
-	private final SQLQueryBuilder builder;
+    private final Connection connection;
+    private final AbstractDatabaseAdapter databaseAdapter;
+    private final AtomicBoolean isInterrupted = new AtomicBoolean(false);
+    private final SQLQueryBuilder builder;
 
-	private volatile boolean shouldRun = true;
+    private volatile boolean shouldRun = true;
 
-	public DBManager(
-			Query query,
-			SchemaMapping schemaMapping,
-			DatabaseConnectionPool dbConnectionPool,
-			WorkerPool<CityObjectWork> workerPool,
-			EventDispatcher eventDispatcher) throws SQLException {
-		this.query = query;
-		this.schemaMapping = schemaMapping;
-		this.workerPool = workerPool;
-		this.eventDispatcher = eventDispatcher;
+    public DBManager(
+            Query query,
+            SchemaMapping schemaMapping,
+            DatabaseConnectionPool dbConnectionPool,
+            WorkerPool<CityObjectWork> workerPool,
+            EventDispatcher eventDispatcher) throws SQLException {
+        this.query = query;
+        this.schemaMapping = schemaMapping;
+        this.workerPool = workerPool;
+        this.eventDispatcher = eventDispatcher;
 
-		databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
-		connection = dbConnectionPool.getConnection();
-		connection.setAutoCommit(false);
+        databaseAdapter = dbConnectionPool.getActiveDatabaseAdapter();
+        connection = dbConnectionPool.getConnection();
+        connection.setAutoCommit(false);
 
-		builder = new SQLQueryBuilder(
-				schemaMapping,
-				databaseAdapter,
-				BuildProperties.defaults().addProjectionColumn(MappingConstants.GMLID));
-	}
+        builder = new SQLQueryBuilder(
+                schemaMapping,
+                databaseAdapter,
+                BuildProperties.defaults().addProjectionColumn(MappingConstants.GMLID));
+    }
 
-	public void startQuery() throws QueryBuildException, SQLException {
-		try {
-			queryObjects();
-		} finally {
-			if (connection != null) {
-				connection.close();
-			}
-		}
-	}
+    public void startQuery() throws QueryBuildException, SQLException {
+        try {
+            queryObjects();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
 
-	private void queryObjects() throws QueryBuildException, SQLException {
-		// create query statement
-		Select select = builder.buildQuery(query);
+    private void queryObjects() throws QueryBuildException, SQLException {
+        // create query statement
+        Select select = builder.buildQuery(query);
 
-		// calculate matched feature number
-		Select hitsQuery = new Select().addProjection(new Function("count", new WildCardColumn(new Table(select), false)));
-		try (PreparedStatement stmt = databaseAdapter.getSQLAdapter().prepareStatement(hitsQuery, connection);
-		     ResultSet rs = stmt.executeQuery()) {
-			long numCityObjects = rs.next() ? rs.getLong(1) : 0;
-			log.info("Found " + numCityObjects + " top-level feature(s) matching the request.");
-			eventDispatcher.triggerEvent(new StatusDialogProgressBar(ProgressBarEventType.INIT, (int) numCityObjects));
-		}
+        // calculate matched feature number
+        Select hitsQuery = new Select().addProjection(new Function("count", new WildCardColumn(new Table(select), false)));
+        try (PreparedStatement stmt = databaseAdapter.getSQLAdapter().prepareStatement(hitsQuery, connection);
+             ResultSet rs = stmt.executeQuery()) {
+            long numCityObjects = rs.next() ? rs.getLong(1) : 0;
+            log.info("Found " + numCityObjects + " top-level feature(s) matching the request.");
+            eventDispatcher.triggerEvent(new StatusDialogProgressBar(ProgressBarEventType.INIT, (int) numCityObjects));
+        }
 
-		// do database query
-		try (PreparedStatement psSelect = databaseAdapter.getSQLAdapter().prepareStatement(select, connection);
-		     ResultSet rs = psSelect.executeQuery()) {
-			while (rs.next() && shouldRun) {
-				String gmlId = rs.getString(MappingConstants.GMLID);
-				int classId = rs.getInt(MappingConstants.OBJECTCLASS_ID);
+        // do database query
+        try (PreparedStatement psSelect = databaseAdapter.getSQLAdapter().prepareStatement(select, connection);
+             ResultSet rs = psSelect.executeQuery()) {
+            while (rs.next() && shouldRun) {
+                String gmlId = rs.getString(MappingConstants.GMLID);
+                int classId = rs.getInt(MappingConstants.OBJECTCLASS_ID);
 
-				FeatureType featureType = schemaMapping.getFeatureType(classId);
-				if (featureType != null && featureType.isTopLevel()) {
-					workerPool.addWork(new CityObjectWork(gmlId, classId));
-				}
-			}
-		}
-	}
+                FeatureType featureType = schemaMapping.getFeatureType(classId);
+                if (featureType != null && featureType.isTopLevel()) {
+                    workerPool.addWork(new CityObjectWork(gmlId, classId));
+                }
+            }
+        }
+    }
 
-	public void shutdown() {
-		if (isInterrupted.compareAndSet(false, true)) {
-			shouldRun = false;
-		}
-	}
+    public void shutdown() {
+        if (isInterrupted.compareAndSet(false, true)) {
+            shouldRun = false;
+        }
+    }
 }

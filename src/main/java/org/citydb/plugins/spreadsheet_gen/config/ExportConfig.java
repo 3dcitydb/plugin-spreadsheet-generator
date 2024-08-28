@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -32,61 +32,61 @@ import org.citydb.config.project.plugin.PluginConfig;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "TableExportConfigType", propOrder = {
-		"template",
-		"output",
-		"query",
-		"guiConfig"
+        "template",
+        "output",
+        "query",
+        "guiConfig"
 })
 public class ExportConfig extends PluginConfig {
-	private Template template;
-	private Output output;
-	private SimpleQuery query;
-	private GuiConfig guiConfig;
+    private Template template;
+    private Output output;
+    private SimpleQuery query;
+    private GuiConfig guiConfig;
 
-	public ExportConfig() {
-		template = new Template();
-		output = new Output();
-		query = new SimpleQuery();
-		guiConfig = new GuiConfig();
-	}
+    public ExportConfig() {
+        template = new Template();
+        output = new Output();
+        query = new SimpleQuery();
+        guiConfig = new GuiConfig();
+    }
 
-	public Template getTemplate() {
-		return template;
-	}
+    public Template getTemplate() {
+        return template;
+    }
 
-	public void setTemplate(Template template) {
-		if (template != null) {
-			this.template = template;
-		}
-	}
+    public void setTemplate(Template template) {
+        if (template != null) {
+            this.template = template;
+        }
+    }
 
-	public Output getOutput() {
-		return output;
-	}
+    public Output getOutput() {
+        return output;
+    }
 
-	public void setOutput(Output output) {
-		if (output != null) {
-			this.output = output;
-		}
-	}
+    public void setOutput(Output output) {
+        if (output != null) {
+            this.output = output;
+        }
+    }
 
-	public SimpleQuery getQuery() {
-		return query;
-	}
+    public SimpleQuery getQuery() {
+        return query;
+    }
 
-	public void setQuery(SimpleQuery query) {
-		if (query != null) {
-			this.query = query;
-		}
-	}
+    public void setQuery(SimpleQuery query) {
+        if (query != null) {
+            this.query = query;
+        }
+    }
 
-	public GuiConfig getGuiConfig() {
-		return guiConfig;
-	}
+    public GuiConfig getGuiConfig() {
+        return guiConfig;
+    }
 
-	public void setGuiConfig(GuiConfig guiConfig) {
-		if (guiConfig != null) {
-			this.guiConfig = guiConfig;
-		}
-	}
+    public void setGuiConfig(GuiConfig guiConfig) {
+        if (guiConfig != null) {
+            this.guiConfig = guiConfig;
+        }
+    }
 }

@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -30,37 +30,37 @@ package org.citydb.plugins.spreadsheet_gen.config;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(name="OutputCSVFileType", propOrder={
-		"outputPath",
-		"delimiter"
+@XmlType(name = "OutputCSVFileType", propOrder = {
+        "outputPath",
+        "delimiter"
 })
 public class CSVFile {
-	private String outputPath;
-	private String delimiter;
-	@XmlTransient
-	private String lastVisitPath;
+    private String outputPath;
+    private String delimiter;
+    @XmlTransient
+    private String lastVisitPath;
 
-	public String getOutputPath() {
-		return outputPath != null ? outputPath : "";
-	}
+    public String getOutputPath() {
+        return outputPath != null ? outputPath : "";
+    }
 
-	public void setOutputPath(String outputPath) {
-		this.outputPath = outputPath;
-	}
+    public void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
+    }
 
-	public String getLastVisitPath() {
-		return lastVisitPath != null ? lastVisitPath : "";
-	}
+    public String getLastVisitPath() {
+        return lastVisitPath != null ? lastVisitPath : "";
+    }
 
-	public void setLastVisitPath(String lastVisit) {
-		this.lastVisitPath = lastVisit;
-	}
+    public void setLastVisitPath(String lastVisit) {
+        this.lastVisitPath = lastVisit;
+    }
 
-	public String getDelimiter() {
-		return delimiter != null ? delimiter : ",";
-	}
+    public String getDelimiter() {
+        return delimiter != null ? delimiter : ",";
+    }
 
-	public void setDelimiter(String delimiter) {
-		this.delimiter = delimiter;
-	}
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
+    }
 }

@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -38,7 +38,7 @@ import org.citydb.plugins.spreadsheet_gen.config.SimpleQuery;
 import picocli.CommandLine;
 
 public class QueryOption implements CliOption {
-    @CommandLine.ArgGroup (exclusive = false)
+    @CommandLine.ArgGroup(exclusive = false)
     private TypeNamesOption typeNamesOption;
 
     @CommandLine.ArgGroup(exclusive = false)

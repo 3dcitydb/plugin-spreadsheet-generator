@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -35,48 +35,48 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 public class TemplateWriter implements Runnable {
-	private String path;
-	private TableDataModel tableDataModel;
-	private String separatorPhrase;
-	private final Logger log = Logger.getInstance();
+    private String path;
+    private TableDataModel tableDataModel;
+    private String separatorPhrase;
+    private final Logger log = Logger.getInstance();
 
-	public TemplateWriter(String path, TableDataModel tableDataModel) {
-		this.path = path;
-		this.tableDataModel = tableDataModel;
-		this.separatorPhrase = System.getProperty("line.separator");
-	}
+    public TemplateWriter(String path, TableDataModel tableDataModel) {
+        this.path = path;
+        this.tableDataModel = tableDataModel;
+        this.separatorPhrase = System.getProperty("line.separator");
+    }
 
-	@Override
-	public void run() {
-		File output = new File(path);
-		if (!output.exists() && output.getParent() != null)
-			output.getParentFile().mkdirs();
-		int count = tableDataModel.getRowCount();
-		CSVColumns column;
-		StringBuffer sb = new StringBuffer();
+    @Override
+    public void run() {
+        File output = new File(path);
+        if (!output.exists() && output.getParent() != null)
+            output.getParentFile().mkdirs();
+        int count = tableDataModel.getRowCount();
+        CSVColumns column;
+        StringBuffer sb = new StringBuffer();
 
-		for (int i = 0; i < count; i++) {
-			column = tableDataModel.getCSVColumn(i);
-			if (column.comment != null && column.comment.trim().length() > 0) {
-				if (i > 0) sb.append(separatorPhrase);
-				sb.append("// ");
-				sb.append(column.comment.replaceAll(separatorPhrase, separatorPhrase + "//"));
-				sb.append(separatorPhrase);
-			} else if (i > 0) sb.append(separatorPhrase);
+        for (int i = 0; i < count; i++) {
+            column = tableDataModel.getCSVColumn(i);
+            if (column.comment != null && column.comment.trim().length() > 0) {
+                if (i > 0) sb.append(separatorPhrase);
+                sb.append("// ");
+                sb.append(column.comment.replaceAll(separatorPhrase, separatorPhrase + "//"));
+                sb.append(separatorPhrase);
+            } else if (i > 0) sb.append(separatorPhrase);
 
-			sb.append(column.title);
-			sb.append(":");
-			sb.append(column.textcontent);
-		}
-		try {
-			FileOutputStream fos = new FileOutputStream(output);
-			fos.write(sb.toString().getBytes("UTF-8"));
-			fos.flush();
-			fos.close();
-			log.info("Template file successfully saved as " + path + ".");
-		} catch (Exception e) {
-			log.error("Failed to save template file.", e);
-		}
-	}
+            sb.append(column.title);
+            sb.append(":");
+            sb.append(column.textcontent);
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(output);
+            fos.write(sb.toString().getBytes("UTF-8"));
+            fos.flush();
+            fos.close();
+            log.info("Template file successfully saved as " + path + ".");
+        } catch (Exception e) {
+            log.error("Failed to save template file.", e);
+        }
+    }
 
 }

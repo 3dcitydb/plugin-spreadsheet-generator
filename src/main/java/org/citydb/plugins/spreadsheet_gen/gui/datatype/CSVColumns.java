@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -35,75 +35,86 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 
+public class CSVColumns implements Comparable<CSVColumns> {
+    public int rownum;
+    public String title = "";
+    public String textcontent = "";
+    public String comment = "";
+    public StyledDocument document;
 
-public class CSVColumns implements Comparable<CSVColumns>{
-	public int rownum;
-	public String title="";
-	public String textcontent="";
-	public String comment="";
-	public StyledDocument document;
-	
-	public CSVColumns(){
-		this.rownum=-1;
-		this.textcontent="";	
-		this.title="";
-		this.comment="";
-		
-		StyleContext context = new StyleContext();
-		document = new DefaultStyledDocument(context);
-	}
-	
-	public CSVColumns( String title, String textcontent, String comment,StyledDocument document ){
-		this.title=title;
-		this.textcontent=textcontent;
-		this.comment=comment;
-		this.document=document;
-	}
-	
-	public CSVColumns( String title, String textcontent, String comment){
-		this.title=title;
-		this.textcontent=textcontent;
-		this.comment=comment;
-		StyleContext context = new StyleContext();
-		document = new DefaultStyledDocument(context);
-		try {
-			document.insertString(0, textcontent, NewCSVColumnDialog.getDefaultStyle());
-		} catch (BadLocationException e) {}
-	}
-	
-	public String getValue(int col){
-		switch(col){
-			case 0: return title;
-			case 1: return textcontent;
-			case 2: return comment;
-			default: return "";
-		}
-	}
-	
-	public void setValues(String title, String textcontent, String comment,StyledDocument document){
-		this.title=title;
-		this.textcontent=textcontent;
-		this.comment=comment;
-		this.document=document;
-	}
-	public void setValue(int col, Object obj){
-		
-		switch(col){
-			case 0: title=(String)obj;return;
-			case 1: textcontent=(String)obj;return;
-			case 2: comment=(String)obj;return;
-		}
-		
-	}
+    public CSVColumns() {
+        this.rownum = -1;
+        this.textcontent = "";
+        this.title = "";
+        this.comment = "";
 
-	@Override
-	public int compareTo(CSVColumns o) {
-		if (!(o instanceof CSVColumns  )) return 0;
-		if (((CSVColumns)o).rownum >this.rownum) return -1;
-		if (((CSVColumns)o).rownum <this.rownum) return 1;
-		return 0;
-		
-	}
+        StyleContext context = new StyleContext();
+        document = new DefaultStyledDocument(context);
+    }
 
-	
+    public CSVColumns(String title, String textcontent, String comment, StyledDocument document) {
+        this.title = title;
+        this.textcontent = textcontent;
+        this.comment = comment;
+        this.document = document;
+    }
+
+    public CSVColumns(String title, String textcontent, String comment) {
+        this.title = title;
+        this.textcontent = textcontent;
+        this.comment = comment;
+        StyleContext context = new StyleContext();
+        document = new DefaultStyledDocument(context);
+        try {
+            document.insertString(0, textcontent, NewCSVColumnDialog.getDefaultStyle());
+        } catch (BadLocationException e) {
+        }
+    }
+
+    public String getValue(int col) {
+        switch (col) {
+            case 0:
+                return title;
+            case 1:
+                return textcontent;
+            case 2:
+                return comment;
+            default:
+                return "";
+        }
+    }
+
+    public void setValues(String title, String textcontent, String comment, StyledDocument document) {
+        this.title = title;
+        this.textcontent = textcontent;
+        this.comment = comment;
+        this.document = document;
+    }
+
+    public void setValue(int col, Object obj) {
+
+        switch (col) {
+            case 0:
+                title = (String) obj;
+                return;
+            case 1:
+                textcontent = (String) obj;
+                return;
+            case 2:
+                comment = (String) obj;
+                return;
+        }
+
+    }
+
+    @Override
+    public int compareTo(CSVColumns o) {
+        if (!(o instanceof CSVColumns)) return 0;
+        if (((CSVColumns) o).rownum > this.rownum) return -1;
+        if (((CSVColumns) o).rownum < this.rownum) return 1;
+        return 0;
+
+    }
+
+
 }

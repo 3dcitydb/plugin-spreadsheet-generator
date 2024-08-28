@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -34,50 +34,51 @@ import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 
 
-
-@XmlType(name="TemplateType", propOrder={
-		"path"
+@XmlType(name = "TemplateType", propOrder = {
+        "path"
 })
 public class Template {
 
-	private String path="";
-	@XmlTransient
-	private ArrayList<CSVColumns> columnsList=null;
-	@XmlTransient
-	private boolean isManualTemplate=false;
-	@XmlTransient
-	private String lastVisitPath="";
+    private String path = "";
+    @XmlTransient
+    private ArrayList<CSVColumns> columnsList = null;
+    @XmlTransient
+    private boolean isManualTemplate = false;
+    @XmlTransient
+    private String lastVisitPath = "";
 
-	public Template(){
-	}
-	public ArrayList<CSVColumns> getColumnsList() {
-		return columnsList;
-	}
+    public Template() {
+    }
 
-	public void setColumnsList(ArrayList<CSVColumns> columnsList) {
-		this.columnsList = columnsList;
-	}
-	
-	public boolean isManualTemplate() {
-		return isManualTemplate;
-	}
-	public void setManualTemplate(boolean isManualTemplate) {
-		this.isManualTemplate = isManualTemplate;
-	}
-	
-	public String getPath() {
-		return path;
-	}
+    public ArrayList<CSVColumns> getColumnsList() {
+        return columnsList;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public void setColumnsList(ArrayList<CSVColumns> columnsList) {
+        this.columnsList = columnsList;
+    }
 
-	public String getLastVisitPath() {
-		return lastVisitPath;
-	}
+    public boolean isManualTemplate() {
+        return isManualTemplate;
+    }
 
-	public void setLastVisitPath(String lastVisitPath) {
-		this.lastVisitPath = lastVisitPath;
-	}
+    public void setManualTemplate(boolean isManualTemplate) {
+        this.isManualTemplate = isManualTemplate;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getLastVisitPath() {
+        return lastVisitPath;
+    }
+
+    public void setLastVisitPath(String lastVisitPath) {
+        this.lastVisitPath = lastVisitPath;
+    }
 }

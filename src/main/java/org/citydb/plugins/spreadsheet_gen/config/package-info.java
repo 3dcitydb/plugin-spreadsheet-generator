@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -27,7 +27,7 @@
  */
 
 @javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
-@javax.xml.bind.annotation.XmlSchema(namespace="http://www.3dcitydb.org/importer-exporter/config/spshg", 
-		xmlns = { @javax.xml.bind.annotation.XmlNs(prefix = "spshg", namespaceURI = "http://www.3dcitydb.org/importer-exporter/config/spshg") },
-		elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.3dcitydb.org/importer-exporter/config/spshg",
+        xmlns = {@javax.xml.bind.annotation.XmlNs(prefix = "spshg", namespaceURI = "http://www.3dcitydb.org/importer-exporter/config/spshg")},
+        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.citydb.plugins.spreadsheet_gen.config;

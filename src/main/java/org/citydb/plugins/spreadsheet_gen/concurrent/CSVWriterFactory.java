@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -34,15 +34,15 @@ import org.citydb.util.concurrent.WorkerFactory;
 import java.io.File;
 
 public class CSVWriterFactory implements WorkerFactory<RowofCSVWork> {
-	private final File output;
-	
-	public CSVWriterFactory(File output){
-		this.output = output;
-		
-	}
+    private final File output;
 
-	@Override
-	public Worker<RowofCSVWork> createWorker() {
-		return new CSVWriter(output);
-	}
+    public CSVWriterFactory(File output) {
+        this.output = output;
+
+    }
+
+    @Override
+    public Worker<RowofCSVWork> createWorker() {
+        return new CSVWriter(output);
+    }
 }

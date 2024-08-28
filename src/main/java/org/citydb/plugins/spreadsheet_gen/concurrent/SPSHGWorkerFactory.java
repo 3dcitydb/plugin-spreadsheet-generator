@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -42,44 +42,44 @@ import org.citydb.util.log.Logger;
 import java.sql.Connection;
 
 public class SPSHGWorkerFactory implements WorkerFactory<CityObjectWork> {
-	private final Logger log = Logger.getInstance();
-	private final WorkerPool<RowofCSVWork> writerPool;
-	private final Translator translator;
-	private final String template;
-	private final ExportConfig config;
+    private final Logger log = Logger.getInstance();
+    private final WorkerPool<RowofCSVWork> writerPool;
+    private final Translator translator;
+    private final String template;
+    private final ExportConfig config;
 
-	public SPSHGWorkerFactory(
-			WorkerPool<RowofCSVWork> writerPool,
-			Translator translator,
-			String template,
-			ExportConfig config) {
-		this.writerPool = writerPool;
-		this.translator = translator;
-		this.template = template;
-		this.config = config;
-	}
+    public SPSHGWorkerFactory(
+            WorkerPool<RowofCSVWork> writerPool,
+            Translator translator,
+            String template,
+            ExportConfig config) {
+        this.writerPool = writerPool;
+        this.translator = translator;
+        this.template = template;
+        this.config = config;
+    }
 
-	@Override
-	public Worker<CityObjectWork> createWorker() {
-		SPSHGWorker worker =null;
+    @Override
+    public Worker<CityObjectWork> createWorker() {
+        SPSHGWorker worker = null;
 
-		try {
-			AbstractDatabaseAdapter databaseAdapter = DatabaseConnectionPool.getInstance().getActiveDatabaseAdapter();
-			Connection connection = DatabaseConnectionPool.getInstance().getConnection();
-			connection.setAutoCommit(false);
+        try {
+            AbstractDatabaseAdapter databaseAdapter = DatabaseConnectionPool.getInstance().getActiveDatabaseAdapter();
+            Connection connection = DatabaseConnectionPool.getInstance().getConnection();
+            connection.setAutoCommit(false);
 
-			worker = new SPSHGWorker(
-					connection,
-					databaseAdapter,
-					writerPool,
-					translator,
-					template,
-					config);
-		} catch (Exception e) {
-			log.error("Failed to create export worker.", e);
-		}
+            worker = new SPSHGWorker(
+                    connection,
+                    databaseAdapter,
+                    writerPool,
+                    translator,
+                    template,
+                    config);
+        } catch (Exception e) {
+            log.error("Failed to create export worker.", e);
+        }
 
-		return worker;
-	}
+        return worker;
+    }
 
 }

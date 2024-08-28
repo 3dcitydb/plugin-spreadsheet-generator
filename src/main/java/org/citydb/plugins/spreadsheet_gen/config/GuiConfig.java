@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -33,82 +33,82 @@ import org.citydb.config.gui.components.SQLExportFilterComponent;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType(name = "GuiConfigType", propOrder = {
-		"collapseFeatureVersionFilter",
-		"collapseAttributeFilter",
-		"collapseSQLFilter",
-		"collapseBoundingBoxFilter",
-		"collapseFeatureTypeFilter",
-		"showUnsupportedADEWarning",
-		"sqlFilterComponent"
+        "collapseFeatureVersionFilter",
+        "collapseAttributeFilter",
+        "collapseSQLFilter",
+        "collapseBoundingBoxFilter",
+        "collapseFeatureTypeFilter",
+        "showUnsupportedADEWarning",
+        "sqlFilterComponent"
 })
 public class GuiConfig {
-	private boolean collapseFeatureVersionFilter = false;
-	private boolean collapseAttributeFilter = true;
-	private boolean collapseSQLFilter = true;
-	private boolean collapseBoundingBoxFilter = true;
-	private boolean collapseFeatureTypeFilter = true;
-	private boolean showUnsupportedADEWarning = true;
-	private SQLExportFilterComponent sqlFilterComponent;
+    private boolean collapseFeatureVersionFilter = false;
+    private boolean collapseAttributeFilter = true;
+    private boolean collapseSQLFilter = true;
+    private boolean collapseBoundingBoxFilter = true;
+    private boolean collapseFeatureTypeFilter = true;
+    private boolean showUnsupportedADEWarning = true;
+    private SQLExportFilterComponent sqlFilterComponent;
 
-	public GuiConfig() {
-		sqlFilterComponent = new SQLExportFilterComponent();
-	}
+    public GuiConfig() {
+        sqlFilterComponent = new SQLExportFilterComponent();
+    }
 
-	public boolean isCollapseFeatureVersionFilter() {
-		return collapseFeatureVersionFilter;
-	}
+    public boolean isCollapseFeatureVersionFilter() {
+        return collapseFeatureVersionFilter;
+    }
 
-	public void setCollapseFeatureVersionFilter(boolean collapseFeatureVersionFilter) {
-		this.collapseFeatureVersionFilter = collapseFeatureVersionFilter;
-	}
+    public void setCollapseFeatureVersionFilter(boolean collapseFeatureVersionFilter) {
+        this.collapseFeatureVersionFilter = collapseFeatureVersionFilter;
+    }
 
-	public boolean isCollapseAttributeFilter() {
-		return collapseAttributeFilter;
-	}
+    public boolean isCollapseAttributeFilter() {
+        return collapseAttributeFilter;
+    }
 
-	public void setCollapseAttributeFilter(boolean collapseAttributeFilter) {
-		this.collapseAttributeFilter = collapseAttributeFilter;
-	}
+    public void setCollapseAttributeFilter(boolean collapseAttributeFilter) {
+        this.collapseAttributeFilter = collapseAttributeFilter;
+    }
 
-	public boolean isCollapseSQLFilter() {
-		return collapseSQLFilter;
-	}
+    public boolean isCollapseSQLFilter() {
+        return collapseSQLFilter;
+    }
 
-	public void setCollapseSQLFilter(boolean collapseSQLFilter) {
-		this.collapseSQLFilter = collapseSQLFilter;
-	}
+    public void setCollapseSQLFilter(boolean collapseSQLFilter) {
+        this.collapseSQLFilter = collapseSQLFilter;
+    }
 
-	public boolean isCollapseBoundingBoxFilter() {
-		return collapseBoundingBoxFilter;
-	}
+    public boolean isCollapseBoundingBoxFilter() {
+        return collapseBoundingBoxFilter;
+    }
 
-	public void setCollapseBoundingBoxFilter(boolean collapseBoundingBoxFilter) {
-		this.collapseBoundingBoxFilter = collapseBoundingBoxFilter;
-	}
+    public void setCollapseBoundingBoxFilter(boolean collapseBoundingBoxFilter) {
+        this.collapseBoundingBoxFilter = collapseBoundingBoxFilter;
+    }
 
-	public boolean isCollapseFeatureTypeFilter() {
-		return collapseFeatureTypeFilter;
-	}
+    public boolean isCollapseFeatureTypeFilter() {
+        return collapseFeatureTypeFilter;
+    }
 
-	public void setCollapseFeatureTypeFilter(boolean collapseFeatureTypeFilter) {
-		this.collapseFeatureTypeFilter = collapseFeatureTypeFilter;
-	}
+    public void setCollapseFeatureTypeFilter(boolean collapseFeatureTypeFilter) {
+        this.collapseFeatureTypeFilter = collapseFeatureTypeFilter;
+    }
 
-	public boolean isShowUnsupportedADEWarning() {
-		return showUnsupportedADEWarning;
-	}
+    public boolean isShowUnsupportedADEWarning() {
+        return showUnsupportedADEWarning;
+    }
 
-	public void setShowUnsupportedADEWarning(boolean showUnsupportedADEWarning) {
-		this.showUnsupportedADEWarning = showUnsupportedADEWarning;
-	}
+    public void setShowUnsupportedADEWarning(boolean showUnsupportedADEWarning) {
+        this.showUnsupportedADEWarning = showUnsupportedADEWarning;
+    }
 
-	public SQLExportFilterComponent getSQLExportFilterComponent() {
-		return sqlFilterComponent;
-	}
+    public SQLExportFilterComponent getSQLExportFilterComponent() {
+        return sqlFilterComponent;
+    }
 
-	public void setSQLExportFilterComponent(SQLExportFilterComponent sqlFilterComponent) {
-		if (sqlFilterComponent != null) {
-			this.sqlFilterComponent = sqlFilterComponent;
-		}
-	}
+    public void setSQLExportFilterComponent(SQLExportFilterComponent sqlFilterComponent) {
+        if (sqlFilterComponent != null) {
+            this.sqlFilterComponent = sqlFilterComponent;
+        }
+    }
 }

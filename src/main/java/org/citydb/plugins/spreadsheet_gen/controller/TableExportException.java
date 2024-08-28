@@ -2,7 +2,7 @@
  * 3D City Database - The Open Source CityGML Database
  * https://www.3dcitydb.org/
  *
- * Copyright 2013 - 2021
+ * Copyright 2013 - 2024
  * Chair of Geoinformatics
  * Technical University of Munich, Germany
  * https://www.lrg.tum.de/gis/
@@ -29,49 +29,50 @@
 package org.citydb.plugins.spreadsheet_gen.controller;
 
 public class TableExportException extends Exception {
-	private final ErrorCode errorCode;
-	public enum ErrorCode {
-		SPATIAL_INDEXES_NOT_ACTIVATED,
-		UNKNOWN
-	}
+    private final ErrorCode errorCode;
 
-	public TableExportException(ErrorCode errorCode) {
-		super();
-		this.errorCode = errorCode;
-	}
+    public enum ErrorCode {
+        SPATIAL_INDEXES_NOT_ACTIVATED,
+        UNKNOWN
+    }
 
-	public TableExportException(ErrorCode errorCode, String message) {
-		super(message);
-		this.errorCode = errorCode;
-	}
+    public TableExportException(ErrorCode errorCode) {
+        super();
+        this.errorCode = errorCode;
+    }
 
-	public TableExportException(ErrorCode errorCode, String message, Throwable cause) {
-		super(message, cause);
-		this.errorCode = errorCode;
-	}
+    public TableExportException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
 
-	public TableExportException(ErrorCode errorCode, Throwable cause) {
-		super(cause);
-		this.errorCode = errorCode;
-	}
+    public TableExportException(ErrorCode errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
 
-	public TableExportException() {
-		this(ErrorCode.UNKNOWN);
-	}
+    public TableExportException(ErrorCode errorCode, Throwable cause) {
+        super(cause);
+        this.errorCode = errorCode;
+    }
 
-	public TableExportException(String message) {
-		this(ErrorCode.UNKNOWN, message);
-	}
+    public TableExportException() {
+        this(ErrorCode.UNKNOWN);
+    }
 
-	public TableExportException(String message, Throwable cause) {
-		this(ErrorCode.UNKNOWN, message, cause);
-	}
+    public TableExportException(String message) {
+        this(ErrorCode.UNKNOWN, message);
+    }
 
-	public TableExportException(Throwable cause) {
-		this(ErrorCode.UNKNOWN, cause);
-	}
+    public TableExportException(String message, Throwable cause) {
+        this(ErrorCode.UNKNOWN, message, cause);
+    }
 
-	public ErrorCode getErrorCode() {
-		return errorCode;
-	}
+    public TableExportException(Throwable cause) {
+        this(ErrorCode.UNKNOWN, cause);
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
 }
