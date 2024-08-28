@@ -14,9 +14,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
-    compileJava {
-        options.release = 8
-    }
 }
 
 repositories {
@@ -24,17 +21,17 @@ repositories {
         url 'https://repo.osgeo.org/repository/release'
     }
     maven {
-        url 'https://gitlab.lrz.de/api/v4/projects/150792/packages/maven'
+        url 'https://3dcitydb.org/maven'
     }
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client-gui:5.4.0'
-    implementation 'org.apache.poi:poi:5.2.3'
-    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.citydb:impexp-client-gui:5.5.0-SNAPSHOT'
+    implementation 'org.apache.poi:poi:5.3.0'
+    implementation 'org.apache.poi:poi-ooxml:5.3.0'
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.23.1'
 }
 
 processResources {
