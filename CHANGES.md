@@ -26,19 +26,19 @@ Change Log
 
 ### 4.0.1 - 2022-02-07
 
-##### Changes
+#### Changes
 * Removed the hardcoded hyperlink of the online documentation from the plugin description.
 
 ### 4.0.0 - 2021-10-08
 
-##### Breaking changes
+#### Breaking changes
 * This version is implemented against the new Plugin API introduced with **version 5.0.0** of the
   [Importer/Exporter](https://github.com/3dcitydb/importer-exporter). It *cannot be used with previous versions*
   of the Importer/Exporter anymore.
 
 ### 3.2.0 - 2021-04-28
 
-##### Additions
+#### Additions
 * Added support for exporting attributes of features defined in a CityGML ADE if a corresponding ADE extension
   has been registered with the 3D City Database and the Importer/Exporter. [#4](https://github.com/3dcitydb/plugin-spreadsheet-generator/pull/4)
 * The plugin can now be used from the command-line. For this purpose, it adds the `export-table` command to
@@ -48,8 +48,8 @@ Change Log
 * Updated the graphical user interface to the new look&feel of the Importer/Exporter. [#6](https://github.com/3dcitydb/plugin-spreadsheet-generator/pull/6)
 * Completely updated user manual at https://3dcitydb-docs.readthedocs.io/en/release-v4.3.0/
 
-##### Changes
+#### Changes
 * Using a bounding box filter is not mandatory for the export anymore.
 
-##### Miscellaneous
+#### Miscellaneous
 * This version works with version 4.3.x of the [3D City Database Importer/Exporter](https://github.com/3dcitydb/importer-exporter)
