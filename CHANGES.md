@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+### 4.3.0 - tba
+
+#### Changes
+* **Breaking:** Java 11 is now the minimum required version for using the Spreadsheet Generator Plugin.
+* Updated to [Importer/Exporter](https://github.com/3dcitydb/importer-exporter) version 5.5.0.
+
+#### Miscellaneous
+* Updated all dependencies to their latest versions.
+
 ### 4.2.0 - 2022-12-15
 
 * Updated to [Importer/Exporter](https://github.com/3dcitydb/importer-exporter) version 5.3.0.
