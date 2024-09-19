@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-### 4.3.0 - tba
+### 4.3.0 - 2024-09-19
 
 #### Changes
 * **Breaking:** Java 11 is now the minimum required version for using the Spreadsheet Generator Plugin.
