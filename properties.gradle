@@ -19,7 +19,7 @@ ext {
 
     // Importer/Exporter
     impexpName = citydbName + ' Importer/Exporter'
-    impexpVersion = '5.3'
+    impexpVersion = '5.5'
 
     // 3DCityDB Web Map Client
     webMapClientName = '3DCityDB Web Map Client'
