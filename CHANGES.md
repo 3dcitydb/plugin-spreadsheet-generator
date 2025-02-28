@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+### 4.3.1 - tba
+
+#### Miscellaneous
+* Updated all dependencies to their latest versions.
+
 ### 4.3.0 - 2024-09-19
 
 #### Changes

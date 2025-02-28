@@ -81,8 +81,7 @@ the "@pkgName@" subfolder and all its contents.
 6. Developers
 -------------
 
-Son H. Nguyen<son.nguyen@tum.de>
-Zhihang Yao <zyao@vc.systems>
+Zhihang Yao <zhihang.yao@hft-stuttgart.de>
 Claus Nagel <cnagel@vc.systems>
 Thomas H. Kolbe <thomas.kolbe@tum.de>
 
@@ -90,7 +89,7 @@ Thomas H. Kolbe <thomas.kolbe@tum.de>
 7. Contact
 ----------
 
-son.nguyen@tum.de
+zhihang.yao@hft-stuttgart.de
 thomas.kolbe@tum.de
 
 
