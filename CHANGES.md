@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+### 4.3.2 - 2025-08-17
+
+#### Miscellaneous
+* Updated dependencies to their latest versions.
+
 ### 4.3.1 - 2025-02-28
 
 #### Miscellaneous
