@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+### 4.3.3 - 2026-01-07
+
+#### Miscellaneous
+* Updated to [Importer/Exporter](https://github.com/3dcitydb/importer-exporter) version 5.5.3.
+* Updated dependencies to their latest versions.
+
 ### 4.3.2 - 2025-08-17
 
 #### Miscellaneous
