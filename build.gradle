@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.citydb.plugins'
-version '4.3.2'
+version '4.3.3'
 
 apply from: 'properties.gradle'
 
