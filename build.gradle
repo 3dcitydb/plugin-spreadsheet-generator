@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'org.citydb.plugins'
-version '4.3.2'
+version '4.3.3'
 
 apply from: 'properties.gradle'
 
@@ -27,11 +27,11 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.citydb:impexp-client-gui:5.5.2'
-    implementation 'org.apache.poi:poi:5.4.1'
-    implementation 'org.apache.poi:poi-ooxml:5.4.1'
+    implementation 'org.citydb:impexp-client-gui:5.5.3'
+    implementation 'org.apache.poi:poi:5.5.1'
+    implementation 'org.apache.poi:poi-ooxml:5.5.1'
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.25.1'
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.25.3'
 }
 
 processResources {
